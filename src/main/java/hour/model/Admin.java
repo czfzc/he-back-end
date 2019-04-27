@@ -13,6 +13,15 @@ public class Admin {
     String password;
     String sessionKey;
     Integer smsCode;
+    boolean abled;
+
+    public boolean isAbled() {
+        return abled;
+    }
+
+    public void setAbled(boolean abled) {
+        this.abled = abled;
+    }
 
     public Integer getMainkey() {
         return mainkey;

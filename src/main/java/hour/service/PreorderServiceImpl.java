@@ -1,21 +1,16 @@
 package hour.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.Preorder;
-import hour.model.User;
 import hour.repository.AddressRepository;
 import hour.repository.PreorderRepository;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,13 +65,12 @@ public class PreorderServiceImpl implements PreorderService{
                 String address_id=jo.getString("address_id");
 
                 Preorder preorder=new Preorder();
-                Date time=new Date(System.currentTimeMillis());
                 Integer send_method_id=jo.getInteger("send_method_id");
 
 
                 preorder.setId(preorder_id);
                 preorder.setAddressId(address_id);
-                preorder.setTime(time);
+                preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
                 preorder.setUserId(user_id);
                 preorder.setServiceId(1);

@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import hour.Util.NetUtil;
 import hour.Util.StringUtil;
 import hour.model.Order;
+import hour.repository.OrderRepository;
 import hour.service.OrderService;
+import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static hour.Util.StringUtil.createStatus;
+
 @RestController
 @RequestMapping("/order")
 @ComponentScan(basePackages = "hour")
@@ -21,6 +25,12 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     /**
      * 统一下单
@@ -48,9 +58,28 @@ public class OrderController {
                 "</xml>\n");
     }
 
-    @RequestMapping("get_order")
+    @RequestMapping("/get_order")
     List<Order> getOrder(@RequestParam("mysession")String mysession){
         return orderService.getOrder(mysession);
+    }
+
+    @RequestMapping("/delete_order")
+    String deleteOrder(@RequestParam("order_id")String order_id,@RequestParam("mysession")String mysession){
+        //条件效验
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return createStatus(false);
+        Order order=orderRepository.findByOrderId(order_id);
+        if(order==null) return createStatus(false);
+        if(!order.isAbled()) return createStatus(false);
+        if(order.getPayed()==3||order.getPayed()==1) return  createStatus(false);
+        if(!order.getUserId().equals(user_id)) return createStatus(false);
+
+        order.setAbled(false);
+
+        orderRepository.save(order);
+
+        return createStatus(true);
+
     }
 
 }

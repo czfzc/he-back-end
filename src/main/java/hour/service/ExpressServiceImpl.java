@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.Transient;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,8 +46,9 @@ public class ExpressServiceImpl implements ExpressService {
             express.setReceiveCode(receive_code);
             express.setAddressId(address_id);
             express.setUserId(user_id);
-            express.setTime(new Date(System.currentTimeMillis()));
+            express.setTime(new Date());
             express.setStatus(0);
+            express.setAbled(true);
 
             expressRepository.save(express);
         }

@@ -30,7 +30,7 @@ public class AdminServiceImpl implements AdminService {
     public String login(String admin_id, String raw_password) {
         String password = md5(admin_id + raw_password);
         Admin admin = adminRepository.findFirstByAdminIdAndPassword(admin_id, password);
-        if (admin != null) {
+        if (admin != null&&admin.isAbled()) {
             String session_key = md5(System.currentTimeMillis() + password);
             admin.setSessionKey(session_key);
             adminRepository.save(admin);
@@ -57,6 +57,7 @@ public class AdminServiceImpl implements AdminService {
             admin.setPassword(password);
             admin.setName(name);
             admin.setSessionKey(session_key);
+            admin.setAbled(true);
             return new JSONObject() {
                 {
                     this.put("status", true);
@@ -76,14 +77,14 @@ public class AdminServiceImpl implements AdminService {
         Admin admin = new Admin();
         admin.setAdminId(admin_id);
         admin.setSmsCode(code);
+        admin.setAbled(false);
         return createStatus(true);
     }
 
     @Override
     public String getAdminId(String session_key) {
         Admin admin=adminRepository.findFirstBySessionKey(session_key);
-        System.out.println(session_key);
-        if(admin!=null)
+        if(admin!=null&&admin.isAbled())
             return admin.getAdminId();
         return null;
     }
@@ -94,6 +95,8 @@ public class AdminServiceImpl implements AdminService {
     private String appkey;
     @Value("${tx.template.adminregist}")
     private int templateId;
+    @Value("${tx.template.name}")
+    private String smsSign;
 
     /**
      * 发送短信验证码方法
@@ -112,7 +115,7 @@ public class AdminServiceImpl implements AdminService {
              // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
         //templateId7839对应的内容是"您的验证码是: {1}"
         // 签名
-        String smsSign = "凌遇零售"; // NOTE: 这里的签名"腾讯云"只是一个示例，真实的签名需要在短信控制台中申请，另外签名参数使用的是`签名内容`，而不是`签名ID`
+       // NOTE: 这里的签名"腾讯云"只是一个示例，真实的签名需要在短信控制台中申请，另外签名参数使用的是`签名内容`，而不是`签名ID`
         String res = null;
         String code = getRandom(6);
         try {
