@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +24,9 @@ public class ExpressServiceImpl implements ExpressService {
     EntityManager entityManager;
 
     @Override
-    public boolean addExpress(JSONArray expresses,String preorder_id,String address_id) {
+    public boolean addExpress(JSONArray expresses,String preorder_id,String address_id,String user_id) {
+        if(expresses.size()==0)
+            return false;
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
             double total_fee=this.calculatePrice(jo);
@@ -43,6 +46,9 @@ public class ExpressServiceImpl implements ExpressService {
             express.setSmsContent(sms_content);
             express.setReceiveCode(receive_code);
             express.setAddressId(address_id);
+            express.setUserId(user_id);
+            express.setTime(new Date(System.currentTimeMillis()));
+            express.setStatus(0);
 
             expressRepository.save(express);
         }
@@ -51,7 +57,7 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public List<Express> getExpress(String preorder_id){
-        return expressRepository.findAllByPreorderId(preorder_id);
+        return expressRepository.findAllByPreorderIdAndAbledTrue(preorder_id);
     }
 
     /**

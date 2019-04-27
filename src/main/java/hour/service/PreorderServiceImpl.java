@@ -59,6 +59,8 @@ public class PreorderServiceImpl implements PreorderService{
 
     @Override
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
+        if(arr.size()==0)
+            return false;
         boolean toret=true;
         for(int i=0;i<arr.size();i++){
             JSONObject jo=arr.getJSONObject(i);
@@ -80,12 +82,12 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setServiceId(1);
                 preorder.setStatus(0);
                 preorder.setPayed(0);
-                preorder.setAbled(1);
+                preorder.setAbled(true);
                 preorder.setSendMethodId(send_method_id);
                 preorder.setTotalFee(0D);
                 preorderRepository.save(preorder);
 
-                if(expressService.addExpress(express,preorder_id,address_id)){
+                if(expressService.addExpress(express,preorder_id,address_id,user_id)){
                     Double total=expressService.getTotalPrice(preorder_id);
                     preorder.setTotalFee(total);
                     preorderRepository.save(preorder);

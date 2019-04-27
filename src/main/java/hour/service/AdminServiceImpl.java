@@ -8,12 +8,6 @@ import hour.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.xml.ws.http.HTTPException;
-
-import java.io.IOException;
-
 import static hour.Util.CodeUtil.md5;
 import static hour.Util.StringUtil.createStatus;
 import static hour.Util.StringUtil.getRandom;
@@ -85,6 +79,15 @@ public class AdminServiceImpl implements AdminService {
         return createStatus(true);
     }
 
+    @Override
+    public String getAdminId(String session_key) {
+        Admin admin=adminRepository.findFirstBySessionKey(session_key);
+        System.out.println(session_key);
+        if(admin!=null)
+            return admin.getAdminId();
+        return null;
+    }
+
     @Value("${tx.appid}")
     private int appid;
     @Value("${tx.appkey}")
@@ -123,4 +126,6 @@ public class AdminServiceImpl implements AdminService {
         }
         return Integer.valueOf(code);
     }
+
+
 }

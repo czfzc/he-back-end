@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PreorderRepository extends JpaRepository<Preorder,Integer> {
     List<Preorder> findAllByOrderId(String order_id);
+    Preorder findById(String preorder_id);
+    List<Preorder> findAllByOrderIdAndStatus(String order_id,Integer status);
 }

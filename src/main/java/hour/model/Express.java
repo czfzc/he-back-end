@@ -1,8 +1,10 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.sql.Date;
 
 @Entity
 @Table(name = "user_proxy_express")
@@ -21,6 +23,45 @@ public class Express {
     Double totalFee;
     String smsContent;
     String receiveCode;
+    @JsonIgnore
+    String userId;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
+    Date time;
+    int Status;
+    boolean abled;
+
+    public boolean isAbled() {
+        return abled;
+    }
+
+    public void setAbled(boolean abled) {
+        this.abled = abled;
+    }
+
+    public int getStatus() {
+        return Status;
+    }
+
+    public void setStatus(int status) {
+        Status = status;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Integer getMainkey() {
         return mainkey;

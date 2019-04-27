@@ -32,7 +32,7 @@ public class AddressServiceImpl implements AddressService{
         address.setRoomNum(room_num);
         address.setBuildId(build_id);
         address.setAddition(addition);
-        address.setAbled(0);;
+        address.setAbled(true);;
         address.setIsDefault(0);
         addressRepository.save(address);
         this.setDefaultDAO(user_id,id);

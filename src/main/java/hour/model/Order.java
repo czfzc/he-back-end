@@ -1,5 +1,6 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -19,10 +20,12 @@ public class Order {
     @JsonIgnore
     private String ip;
     private Double totalFee;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date time;
     private Integer payed;
     @JsonIgnore
-    private Integer abled;
+    private boolean abled;
     @Transient
     private List<Preorder> preorder;
 
@@ -90,11 +93,11 @@ public class Order {
         this.payed = payed;
     }
 
-    public Integer getAbled() {
+    public boolean isAbled() {
         return abled;
     }
 
-    public void setAbled(Integer abled) {
+    public void setAbled(boolean abled) {
         this.abled = abled;
     }
 }

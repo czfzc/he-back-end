@@ -6,7 +6,7 @@ import hour.model.Express;
 import java.util.List;
 
 public interface ExpressService {
-    public boolean addExpress(JSONArray express,String preorder_id,String address_id);
+    public boolean addExpress(JSONArray express,String preorder_id,String address_id,String user_id);
 
     List<Express> getExpress(String preorder_id);
 

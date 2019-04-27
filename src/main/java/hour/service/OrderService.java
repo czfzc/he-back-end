@@ -22,5 +22,16 @@ public interface OrderService {
     boolean onFinishPayed(String xml);
 
 
+    /**
+     * 获取所有订单
+     * @param mysession
+     * @return
+     */
+
     List<Order> getOrder(String mysession);
+
+    /**
+     * 退款
+     */
+    boolean refundOrder(String orderid);
 }

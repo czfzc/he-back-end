@@ -5,11 +5,11 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Map;
 import java.util.Random;
 
@@ -67,6 +67,23 @@ public class StringUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String readFileFromResources(String filename){
+        String toret="";
+        Resource res = new ClassPathResource("data.json");
+        InputStream is= null;
+        try {
+            is = res.getInputStream();
+            BufferedReader bf=new BufferedReader(new InputStreamReader(is));
+            String line=null;
+            while((line=bf.readLine())!=null){
+                toret+=line;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return toret;
     }
 
     public static String getRandom(int length){

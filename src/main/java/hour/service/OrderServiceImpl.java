@@ -12,13 +12,15 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static hour.Util.CodeUtil.md5;
-import static hour.Util.StringUtil.createStatus;
-import static hour.Util.StringUtil.xmlCreater;
+import static hour.Util.NetUtil.postData;
+import static hour.Util.StringUtil.*;
 
 @Service("OrderService")
 public class OrderServiceImpl implements OrderService {
@@ -44,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order=new Order();
 
-        order.setAbled(1);
+        order.setAbled(true);
         order.setIp(ip);
         order.setOrderId(order_id);
         order.setPayed(0);
@@ -213,5 +215,50 @@ public class OrderServiceImpl implements OrderService {
         }
         return list;
     }
+
+    /**
+     * 退款
+     * @return
+     */
+    @Override
+    public boolean refundOrder(String orderid){
+
+        Order order=orderRepository.findByOrderId(orderid);
+
+        if(order==null)
+            return false;
+
+        if(order.getPayed()!=1)
+            return false;
+
+        Double total=order.getTotalFee();
+
+        Map<String,String> content=new LinkedHashMap<String,String>();
+        content.put("!appid", appid);																						//小程序appid
+        content.put("!mch_id", mch_id);																						//商户id
+        content.put("!nonce_str", getRandom(10));																				//随机数 不超过32位
+        //	content.put("!notify_url", "https://shop.wly01.cn/myshop/onFinishedPayed");											//退款完成的会调接口
+        content.put("!out_trade_no", orderid);																				//订单id
+        content.put("!out_refund_no", orderid);																				//退款id
+        content.put("!total_fee", String.valueOf(total));														//订单总价
+        content.put("!refund_fee", String.valueOf(total));														//退款金额
+        //	content.put("refund_desc", "sold_out");																				//退款原因
+        content.put("!sign", this.calculateSign(content,mykey));
+        String xml=xmlCreater(content);
+        System.out.println(xml);
+        try {
+            Resource res = new ClassPathResource("cer.p12");
+            String cerPath=res.getFile().getPath();
+            String refund=postData("https://api.mch.weixin.qq.com/secapi/pay/refund", xml, mch_id, cerPath);
+            System.out.println(new String(refund.getBytes(),"UTF-8"));
+            if(refund.contains("FAIL"))
+                return false;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return true;
+    }
+
 
 }

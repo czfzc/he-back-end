@@ -20,8 +20,16 @@ public class Address {
     String buildId;
     String addition;
     @JsonIgnore
-    Integer abled;
+    boolean abled;
     Integer isDefault;
+
+    public boolean isAbled() {
+        return abled;
+    }
+
+    public void setAbled(boolean abled) {
+        this.abled = abled;
+    }
 
     public Integer getMainkey() {
         return mainkey;
@@ -85,14 +93,6 @@ public class Address {
 
     public void setAddition(String addition) {
         this.addition = addition;
-    }
-
-    public Integer getAbled() {
-        return abled;
-    }
-
-    public void setAbled(Integer abled) {
-        this.abled = abled;
     }
 
     public Integer getIsDefault() {
