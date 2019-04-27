@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
     private User user;
 
     @Override
-    public boolean wxLogin(String code) {
+    public String wxLogin(String code) {
 
         String str= NetUtil.sendGet("https://api.weixin.qq.com/sns/jscode2session" ,
                 "appid="+appid+"&secret="+secret+"&js_code=JSCODE&grant_type=authorization_code");
@@ -45,8 +45,13 @@ public class UserServiceImpl implements UserService{
             this.session_key=session_key;
             this.openid=openid;
             userRepository.save(user);
-            return true;
-        }else return false;
+            return new JSONObject(){
+                {
+                    this.put("mysession",user.getMysession());
+                    this.put("status",true);
+                }
+            }.toJSONString();
+        }else return createStatus(false);
     }
 
     /**

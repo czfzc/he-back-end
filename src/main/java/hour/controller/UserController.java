@@ -30,7 +30,7 @@ public class UserController {
      */
     @RequestMapping("/login")
     String login(@RequestParam("code")String code){
-        return createStatus(userService.wxLogin(code));
+        return userService.wxLogin(code);
     }
 
 

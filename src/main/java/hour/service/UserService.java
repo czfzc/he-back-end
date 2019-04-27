@@ -6,7 +6,7 @@ public interface UserService {
      * @param code 微信传过来的登录码
      * @return
      */
-    public boolean wxLogin(String code);
+    public String wxLogin(String code);
 
     /**
      * 微信二次登陆 传过来加密了的手机号码

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Random;
 
 public class StringUtil {
     /**
@@ -68,5 +69,8 @@ public class StringUtil {
         return null;
     }
 
+    public static String getRandom(int length){
+        return String.valueOf((int)(new Random().nextInt((int)((Math.pow(10,length)-Math.pow(10, length-1))))+Math.pow(10, length-1)));
+    }
 
 }

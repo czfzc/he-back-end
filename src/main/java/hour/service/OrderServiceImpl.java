@@ -11,6 +11,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -109,9 +110,14 @@ public class OrderServiceImpl implements OrderService {
      * 调用统一下单接口
      */
 
-    String mch_id="1527312851";
-    String appid="wxf3bea9542d72b8de";
-    String mykey="32efb0ecf01749c8854ac34d04d998fc";
+    @Value("${wexin.mchid}")
+    private String mch_id;
+    @Value("${wexin.appid}")
+    private String appid;
+    @Value("${wexin.mykey}")
+    private String mykey;
+    @Value("${wexin.onfinish}")
+    private String onFinish;
 
     private JSONObject unifiedorder(String orderid, String ip, String openid, Integer total){
         String nonce_str= UUID.randomUUID().toString().replace("-", "");
@@ -120,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
         content.put("!body", "express");																					//商品描述
         content.put("!mch_id", mch_id);																						//商户id
         content.put("!nonce_str", nonce_str);																				//随机数 不超过32位
-        content.put("!notify_url", "https://shop.wly01.cn/myshop/onFinishPayed");													//订单完成的会调接口
+        content.put("!notify_url", onFinish);													//订单完成的会调接口
         content.put("!openid", openid);																						//用户身份标识
         content.put("!out_trade_no", orderid);																				//订单id
         content.put("!spbill_create_ip", ip);																				//用户ip地址
