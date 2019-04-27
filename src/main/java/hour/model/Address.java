@@ -1,5 +1,7 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,6 +10,7 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     Integer mainkey;
     String id;
     String userId;
@@ -16,6 +19,7 @@ public class Address {
     String roomNum;
     String buildId;
     String addition;
+    @JsonIgnore
     Integer abled;
     Integer isDefault;
 

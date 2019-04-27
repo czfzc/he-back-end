@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.Preorder;
 import hour.model.User;
+import hour.repository.AddressRepository;
 import hour.repository.PreorderRepository;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import javax.persistence.Query;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.UUID;
 
 @Service("PreorderService")
@@ -32,6 +34,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    AddressRepository addressRepository;
+
     @Override
     public double calculateTotal(String order_id) {
         String sql="select sum(u.totalFee) " +
@@ -39,6 +44,17 @@ public class PreorderServiceImpl implements PreorderService{
         Query query=entityManager.createQuery(sql);
         double sum=(double)query.getSingleResult();
         return sum;
+    }
+
+    @Override
+    public List<Preorder> getPreorder(String order_id){
+        List<Preorder> list=preorderRepository.findAllByOrderId(order_id);
+        for(int i=0;i<list.size();i++){
+            Preorder preorder=list.get(i);
+            preorder.setExpress(expressService.getExpress(preorder.getId()));
+            preorder.setAddress(addressRepository.findById(preorder.getAddressId()));
+        }
+        return list;
     }
 
     @Override

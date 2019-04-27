@@ -3,6 +3,7 @@ package hour.controller;
 import com.alibaba.fastjson.JSONArray;
 import hour.Util.NetUtil;
 import hour.Util.StringUtil;
+import hour.model.Order;
 import hour.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -44,6 +46,11 @@ public class OrderController {
                 "<return_code><![CDATA[FAILURE]]></return_code>\n" +
                 "<return_msg><![CDATA[OK]]></return_msg>\n" +
                 "</xml>\n");
+    }
+
+    @RequestMapping("get_order")
+    List<Order> getOrder(@RequestParam("mysession")String mysession){
+        return orderService.getOrder(mysession);
     }
 
 }

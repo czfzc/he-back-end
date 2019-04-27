@@ -1,21 +1,38 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="user_order")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     private Integer mainkey;
     private String orderId;
+    @JsonIgnore
     private String userId;
+    @JsonIgnore
     private String ip;
     private Double totalFee;
     private Date time;
     private Integer payed;
+    @JsonIgnore
     private Integer abled;
+    @Transient
+    private List<Preorder> preorder;
+
+    public List<Preorder> getPreorder() {
+        return preorder;
+    }
+
+    public void setPreorder(List<Preorder> preorder) {
+        this.preorder = preorder;
+    }
 
     public Integer getMainkey() {
         return mainkey;

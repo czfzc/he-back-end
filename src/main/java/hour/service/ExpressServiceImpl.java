@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.Transient;
+import java.util.List;
 import java.util.UUID;
 
 @Service("ExpressService")
@@ -47,6 +49,11 @@ public class ExpressServiceImpl implements ExpressService {
         return true;
     }
 
+    @Override
+    public List<Express> getExpress(String preorder_id){
+        return expressRepository.findAllByPreorderId(preorder_id);
+    }
+
     /**
      * 计算一件快递的送货价格
      * @param express
@@ -58,7 +65,7 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public Double getTotalPrice(String preorder_id) {
-        String jpql="select sum(express.total_fee) from Express express where express.preorder_id='"+preorder_id+"'";
+        String jpql="select sum(express.totalFee) from Express express where express.preorderId='"+preorder_id+"'";
         Query query=entityManager.createQuery(jpql);
         double sum=(double)query.getSingleResult();
         return sum;

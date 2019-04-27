@@ -1,6 +1,9 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
+import hour.model.Order;
+
+import java.util.List;
 
 public interface OrderService {
     /**
@@ -19,4 +22,5 @@ public interface OrderService {
     boolean onFinishPayed(String xml);
 
 
+    List<Order> getOrder(String mysession);
 }

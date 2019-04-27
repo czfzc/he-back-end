@@ -1,5 +1,7 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,9 +9,12 @@ import javax.persistence.*;
 public class Express {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     Integer mainkey;
     String expressId;
+    @JsonIgnore
     String preorderId;
+    @JsonIgnore
     String addressId;
     String name;
     String phoneNum;

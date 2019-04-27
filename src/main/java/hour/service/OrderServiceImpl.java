@@ -31,6 +31,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     PreorderService preorderService;
 
+    @Autowired
+    UserService userService;
+
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
         User user=userRepository.findByMysession(mysession);
@@ -190,5 +193,19 @@ public class OrderServiceImpl implements OrderService {
         return md5(toret).toUpperCase();
     }
 
+
+    /**
+     * 获取订单
+     */
+    @Override
+    public List<Order> getOrder(String mysession){
+        String user_id=userService.getUserId(mysession);
+        List<Order> list=orderRepository.findAllByUserId(user_id);
+        for(int i=0;i<list.size();i++){
+            Order order=list.get(i);
+            order.setPreorder(preorderService.getPreorder(order.getOrderId()));
+        }
+        return list;
+    }
 
 }

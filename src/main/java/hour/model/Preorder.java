@@ -1,7 +1,10 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="user_proxy_express_preorder")
@@ -9,18 +12,42 @@ public class Preorder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     private Integer mainkey;
     private String id;
     private Double totalFee;
+    @JsonIgnore
     private String addressId;
     private Date time;
+    @JsonIgnore
     private String orderId;
+    @JsonIgnore
     private String userId;
     private Integer serviceId;
     private Integer status;
     private Integer payed;
     private Integer abled;
     private Integer sendMethodId;
+    @Transient
+    private List<Express> express;
+    @Transient
+    private Address address;
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<Express> getExpress() {
+        return express;
+    }
+
+    public void setExpress(List<Express> express) {
+        this.express = express;
+    }
 
     public Integer getMainkey() {
         return mainkey;
