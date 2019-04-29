@@ -2,6 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import hour.model.Order;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -23,15 +24,17 @@ public interface OrderService {
 
 
     /**
-     * 获取所有订单
-     * @param mysession
+     * 获取订单
+     * @param page 页数
+     * @param size 每页大小
      * @return
      */
 
-    List<Order> getOrder(String mysession);
+    List<Order> getOrder(Integer page, Integer size);
 
     /**
      * 退款
      */
     boolean refundOrder(String orderid);
+
 }

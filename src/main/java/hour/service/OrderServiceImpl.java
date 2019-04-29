@@ -14,9 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static hour.Util.CodeUtil.md5;
 import static hour.Util.NetUtil.postData;
@@ -201,21 +206,6 @@ public class OrderServiceImpl implements OrderService {
         return md5(toret).toUpperCase();
     }
 
-
-    /**
-     * 获取订单
-     */
-    @Override
-    public List<Order> getOrder(String mysession){
-        String user_id=userService.getUserId(mysession);
-        List<Order> list=orderRepository.findAllByUserId(user_id);
-        for(int i=0;i<list.size();i++){
-            Order order=list.get(i);
-            order.setPreorder(preorderService.getPreorder(order.getOrderId()));
-        }
-        return list;
-    }
-
     /**
      * 退款
      * @return
@@ -258,6 +248,21 @@ public class OrderServiceImpl implements OrderService {
             e.printStackTrace();
         }
         return true;
+    }
+
+
+    /**
+     * 获取订单
+     */
+    @Override
+    public List<Order> getOrder(Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Order> orders=orderRepository.findAll(pageable);
+        for(Iterator<Order> i=orders.iterator();i.hasNext();){
+            Order order=i.next();
+            order.setPreorder(preorderService.getPreorder(order.getOrderId()));
+        }
+        return orders.getContent();
     }
 
 

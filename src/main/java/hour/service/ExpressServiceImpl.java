@@ -5,6 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import hour.model.Express;
 import hour.repository.ExpressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -56,8 +59,15 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     @Override
-    public List<Express> getExpress(String preorder_id){
-        return expressRepository.findAllByPreorderIdAndAbledTrue(preorder_id);
+    public List<Express> getExpress(String preorder_id, Integer page, Integer size){
+        Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
+        return expressRepository.findAllByPreorderIdAndAbledTrue(preorder_id,pageable).getContent();
+    }
+
+    @Override
+    public List<Express> getAllExpress( Integer page, Integer size){
+        Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
+        return expressRepository.findAll(pageable).getContent();
     }
 
     /**

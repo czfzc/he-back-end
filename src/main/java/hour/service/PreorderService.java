@@ -10,5 +10,7 @@ public interface PreorderService {
 
     List<Preorder> getPreorder(String order_id);
 
+    List<Preorder> getAllPreorder(Integer page, Integer size);
+
     public boolean preorderIt(JSONArray arr, String order_id, String user_id);
 }

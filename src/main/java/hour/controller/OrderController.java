@@ -9,6 +9,7 @@ import hour.service.OrderService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,11 +59,6 @@ public class OrderController {
                 "</xml>\n");
     }
 
-    @RequestMapping("/get_order")
-    List<Order> getOrder(@RequestParam("mysession")String mysession){
-        return orderService.getOrder(mysession);
-    }
-
     @RequestMapping("/delete_order")
     String deleteOrder(@RequestParam("order_id")String order_id,@RequestParam("mysession")String mysession){
         //条件效验
@@ -80,6 +76,14 @@ public class OrderController {
 
         return createStatus(true);
 
+    }
+
+    @RequestMapping("/get_order")
+    List<Order> testOrder(@RequestParam("mysession")String mysession,
+                          @RequestParam("page")Integer page,@RequestParam("size")Integer size){
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return null;
+        return orderService.getOrder(page,size);
     }
 
 }

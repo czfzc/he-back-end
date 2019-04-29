@@ -7,9 +7,12 @@ import hour.repository.AddressRepository;
 import hour.repository.PreorderRepository;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.awt.print.Pageable;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -46,10 +49,16 @@ public class PreorderServiceImpl implements PreorderService{
         List<Preorder> list=preorderRepository.findAllByOrderId(order_id);
         for(int i=0;i<list.size();i++){
             Preorder preorder=list.get(i);
-            preorder.setExpress(expressService.getExpress(preorder.getId()));
+            preorder.setExpress(expressService.getExpress(preorder.getId(),0,1000));
             preorder.setAddress(addressRepository.findById(preorder.getAddressId()));
         }
         return list;
+    }
+
+    @Override
+    public List<Preorder> getAllPreorder(Integer page, Integer size){
+        PageRequest pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
+        return preorderRepository.findAll(pageable).getContent();
     }
 
     @Override

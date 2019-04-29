@@ -9,6 +9,7 @@ import hour.repository.OrderRepository;
 import hour.repository.PreorderRepository;
 import hour.repository.RefundRepository;
 import hour.service.AdminService;
+import hour.service.ExpressService;
 import hour.service.OrderService;
 import hour.service.PreorderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +47,29 @@ public class AdminController {
     @Autowired
     RefundRepository refundRepository;
 
+    @Autowired
+    ExpressService expressService;
+
+    /**
+     * 登录
+     * @param admin_id
+     * @param raw_password
+     * @return
+     */
 
     @RequestMapping("/login")
     String login(@RequestParam("admin_id") String admin_id,@RequestParam("raw_password")String raw_password){
         return adminService.login(admin_id,raw_password);
     }
+
+    /**
+     * 注册
+     * @param admin_id
+     * @param raw_password
+     * @param name
+     * @param sms_code
+     * @return
+     */
 
     @RequestMapping("/regist")
     String regist(@RequestParam("admin_id")String admin_id,@RequestParam("raw_pawword")String raw_password,
@@ -58,31 +77,60 @@ public class AdminController {
         return adminService.regist(admin_id,raw_password,sms_code,name);
     }
 
+    /**
+     * 发送短信并预注册
+     * @param admin_id
+     * @return
+     */
+
     @RequestMapping("/send_sms")
     String sendSms(@RequestParam("admin_id")String admin_id){
         return adminService.send(admin_id);
     }
 
+    /**
+     * 获取总订单
+     * @param session_key
+     * @param page
+     * @param size
+     * @return
+     */
+
     @RequestMapping("/get_order")
-    List<Order> getOrder(@RequestParam("session_key")String session_key){
-        if(adminService.getAdminId(session_key)!=null)
-            return orderRepository.findAll();
-        else return null;
+    List<Order> getOrder(@RequestParam("session_key")String session_key,
+                         @RequestParam("page")Integer page,@RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return orderService.getOrder(page,size);
     }
+
+    /**
+     * 获取快递单
+     * @param session_key
+     * @param page
+     * @param size
+     * @return
+     */
 
     @RequestMapping("/get_express")
-    List<Express> getExpress(@RequestParam("session_key")String session_key){
-        String admin_id=adminService.getAdminId(session_key);
-        if(admin_id!=null){
-            return expressRepository.findAll();
-        }return null;
+    List<Express> getExpress(@RequestParam("session_key")String session_key,
+                             @RequestParam("page")Integer page,@RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressService.getAllExpress(page, size);
     }
 
+    /**
+     * 获取预付单
+     * @param session_key
+     * @param page
+     * @param size
+     * @return
+     */
+
     @RequestMapping("/get_preorder")
-    List<Preorder> getPreorder(@RequestParam("session_key")String session_key){
-        if(adminService.getAdminId(session_key)!=null)
-            return preorderRepository.findAll();
-        else return null;
+    List<Preorder> getPreorder(@RequestParam("session_key")String session_key,
+                               @RequestParam("page")Integer page,@RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return preorderService.getAllPreorder(page,size);
     }
 
     /**
