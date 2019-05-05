@@ -1,6 +1,5 @@
 package hour.service;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.github.qcloudsms.SmsSingleSender;
 import hour.model.Admin;
@@ -8,9 +7,10 @@ import hour.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import static hour.Util.CodeUtil.md5;
-import static hour.Util.StringUtil.createStatus;
-import static hour.Util.StringUtil.getRandom;
+
+import static hour.util.CodeUtil.md5;
+import static hour.util.StringUtil.createStatus;
+import static hour.util.StringUtil.getRandom;
 
 @Service("AdminService")
 public class AdminServiceImpl implements AdminService {
@@ -30,6 +30,7 @@ public class AdminServiceImpl implements AdminService {
     public String login(String admin_id, String raw_password) {
         String password = md5(admin_id + raw_password);
         Admin admin = adminRepository.findFirstByAdminIdAndPassword(admin_id, password);
+        System.out.println(admin_id+"  "+password);
         if (admin != null&&admin.isAbled()) {
             String session_key = md5(System.currentTimeMillis() + password);
             admin.setSessionKey(session_key);
@@ -66,6 +67,14 @@ public class AdminServiceImpl implements AdminService {
             }.toJSONString();
         }
 
+    }
+
+    /**
+     * 验证session_id
+     */
+    @Override
+    public boolean validateSession(String session_key){
+        return adminRepository.findFirstBySessionKey(session_key)!=null;
     }
 
     /**

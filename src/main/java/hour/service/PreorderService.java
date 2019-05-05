@@ -6,11 +6,16 @@ import hour.model.Preorder;
 import java.util.List;
 
 public interface PreorderService {
-    public double calculateTotal(String order_id);
 
-    List<Preorder> getPreorder(String order_id);
+    double calculateTotal(String order_id);
+
+    List<Preorder> getAllPreorderByOrderId(String order_id);
 
     List<Preorder> getAllPreorder(Integer page, Integer size);
 
-    public boolean preorderIt(JSONArray arr, String order_id, String user_id);
+    List<Preorder> getExpressPreorder(Integer page, Integer size);
+
+    Long getExpressCount();
+
+    boolean preorderIt(JSONArray arr, String order_id, String user_id);
 }

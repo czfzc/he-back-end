@@ -22,10 +22,9 @@ public class Preorder {
     @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
-    @JsonIgnore
     private String orderId;
-    @JsonIgnore
     private String userId;
+    @JsonIgnore
     private Integer serviceId;
     private Integer status;
     private Integer payed;

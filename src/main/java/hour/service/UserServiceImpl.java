@@ -1,15 +1,15 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONObject;
-import hour.Util.CodeUtil;
-import hour.Util.NetUtil;
+import hour.util.CodeUtil;
+import hour.util.NetUtil;
 import hour.model.User;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static hour.Util.CodeUtil.md5;
-import static hour.Util.StringUtil.createStatus;
+import static hour.util.CodeUtil.md5;
+import static hour.util.StringUtil.createStatus;
 
 @Service("UserService")
 public class UserServiceImpl implements UserService{

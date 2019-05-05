@@ -86,4 +86,16 @@ public class ExpressServiceImpl implements ExpressService {
         double sum=(double)query.getSingleResult();
         return sum;
     }
+
+    /**
+     * 获取总快递数
+     * @return
+     */
+
+    @Override
+    public Long getCount(){
+        String sql="select count(a.expressId) from Express a";
+        Query query = entityManager.createQuery(sql);
+        return (Long)query.getSingleResult();
+    }
 }

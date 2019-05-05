@@ -1,6 +1,7 @@
 package hour.repository;
 
 import hour.model.Preorder;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,5 @@ public interface PreorderRepository extends JpaRepository<Preorder,Integer> {
     List<Preorder> findAllByOrderId(String order_id);
     Preorder findById(String preorder_id);
     List<Preorder> findAllByOrderIdAndStatus(String order_id,Integer status);
+    Page<Preorder> findAllByServiceId(Integer service_id, Pageable pageable);
 }

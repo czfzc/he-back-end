@@ -10,6 +10,7 @@ import java.util.Date;
 public class Refund {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     Integer mainkey;
     String refundId;
     String orderId;

@@ -15,7 +15,6 @@ public class Order {
     @JsonIgnore
     private Integer mainkey;
     private String orderId;
-    @JsonIgnore
     private String userId;
     @JsonIgnore
     private String ip;
@@ -24,7 +23,6 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
     private Integer payed;
-    @JsonIgnore
     private boolean abled;
     @Transient
     private List<Preorder> preorder;

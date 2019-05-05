@@ -1,4 +1,4 @@
-package hour.Util;
+package hour.util;
 
 
 import org.apache.http.HttpEntity;
@@ -20,7 +20,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
-import java.sql.ResultSetMetaData;
 import java.util.List;
 import java.util.Map;
 

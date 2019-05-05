@@ -2,11 +2,14 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.Express;
 import hour.model.Preorder;
 import hour.repository.AddressRepository;
+import hour.repository.ExpressRepository;
 import hour.repository.PreorderRepository;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.awt.print.Pageable;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +39,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     AddressRepository addressRepository;
 
+    @Autowired
+    ExpressRepository expressRepository;
+
     @Override
     public double calculateTotal(String order_id) {
         String sql="select sum(u.totalFee) " +
@@ -45,7 +52,7 @@ public class PreorderServiceImpl implements PreorderService{
     }
 
     @Override
-    public List<Preorder> getPreorder(String order_id){
+    public List<Preorder> getAllPreorderByOrderId(String order_id){
         List<Preorder> list=preorderRepository.findAllByOrderId(order_id);
         for(int i=0;i<list.size();i++){
             Preorder preorder=list.get(i);
@@ -58,7 +65,33 @@ public class PreorderServiceImpl implements PreorderService{
     @Override
     public List<Preorder> getAllPreorder(Integer page, Integer size){
         PageRequest pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return preorderRepository.findAll(pageable).getContent();
+        List<Preorder> list=preorderRepository.findAll(pageable).getContent();
+        for(int i=0;i<list.size();i++){
+            Preorder p=list.get(i);
+            p.setAddress(addressRepository.findById(p.getAddressId()));
+            p.setExpress(expressRepository.findAllByPreorderId(p.getId()));
+        }
+        return list;
+    }
+
+    /**
+     * 获取所有快递预付单 快递的service_id为1
+     * @param page
+     * @param size
+     * @return
+     */
+
+    @Override
+    public List<Preorder> getExpressPreorder(Integer page, Integer size){
+        PageRequest pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
+        return preorderRepository.findAllByServiceId(1,pageable).getContent();
+    }
+
+    @Override
+    public Long getExpressCount(){
+        String sql="select count(a.id) from Preorder a where a.serviceId=1";
+        Query query = entityManager.createQuery(sql);
+        return (Long)query.getSingleResult();
     }
 
     @Override

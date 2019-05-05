@@ -4,7 +4,6 @@ import hour.model.Order;
 import hour.model.Refund;
 import hour.repository.OrderRepository;
 import hour.repository.RefundRepository;
-import hour.service.OrderService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 import java.util.UUID;
 
-import static hour.Util.StringUtil.createStatus;
+import static hour.util.StringUtil.createStatus;
 
 @RestController
 @ComponentScan(basePackages = "hour")

@@ -2,7 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import hour.Util.NetUtil;
+import hour.util.NetUtil;
 import hour.model.Order;
 import hour.model.User;
 import hour.repository.OrderRepository;
@@ -20,12 +20,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.*;
-import java.util.function.Function;
 
-import static hour.Util.CodeUtil.md5;
-import static hour.Util.NetUtil.postData;
-import static hour.Util.StringUtil.*;
+import static hour.util.CodeUtil.md5;
+import static hour.util.NetUtil.postData;
+import static hour.util.StringUtil.*;
 
 @Service("OrderService")
 public class OrderServiceImpl implements OrderService {
@@ -41,6 +42,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    EntityManager entityManager;
 
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
@@ -260,10 +264,20 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders=orderRepository.findAll(pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
-            order.setPreorder(preorderService.getPreorder(order.getOrderId()));
+            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
         }
         return orders.getContent();
     }
 
+    /**
+     * 获取总订单数
+     * @return
+     */
 
+    @Override
+    public Long getCount(){
+        String sql="select count(a.orderId) from Order a";
+        Query query = entityManager.createQuery(sql);
+        return (Long)query.getSingleResult();
+    }
 }

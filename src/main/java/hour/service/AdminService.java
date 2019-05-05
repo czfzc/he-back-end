@@ -5,6 +5,8 @@ public interface AdminService {
 
     String regist(String admin_id, String raw_password, Integer sms_code, String name);
 
+    boolean validateSession(String session_key);
+
     String send(String admin_id);
 
     String getAdminId(String session_key);

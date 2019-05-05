@@ -11,4 +11,5 @@ public interface ExpressRepository extends JpaRepository<Express,Integer> {
     Page<Express> findAllByPreorderIdAndAbledTrue(String preorder_id, Pageable pageable);
     List<Express> findAllByAbledTrue();
     Express findFirstByExpressId(String express_id);
+    List<Express> findAllByPreorderId(String preorderid);
 }

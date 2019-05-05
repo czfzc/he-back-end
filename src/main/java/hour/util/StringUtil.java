@@ -1,4 +1,4 @@
-package hour.Util;
+package hour.util;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -20,7 +20,7 @@ public class StringUtil {
      * @return
      */
     public static String createStatus(boolean bool){
-        return "{'status':"+bool+"}";
+        return "{\"status\":"+bool+"}";
     }
 
     /**

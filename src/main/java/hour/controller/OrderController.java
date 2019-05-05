@@ -1,23 +1,19 @@
 package hour.controller;
 
 import com.alibaba.fastjson.JSONArray;
-import hour.Util.NetUtil;
-import hour.Util.StringUtil;
+import hour.util.NetUtil;
+import hour.util.StringUtil;
 import hour.model.Order;
 import hour.repository.OrderRepository;
 import hour.service.OrderService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
 import java.util.List;
 
-import static hour.Util.StringUtil.createStatus;
+import static hour.util.StringUtil.createStatus;
 
 @RestController
 @RequestMapping("/order")

@@ -13,4 +13,6 @@ public interface ExpressService {
     List<Express> getAllExpress(Integer page, Integer size);
 
     Double getTotalPrice(String preorder_id);
+
+    Long getCount();
 }

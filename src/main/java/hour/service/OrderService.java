@@ -37,4 +37,5 @@ public interface OrderService {
      */
     boolean refundOrder(String orderid);
 
+    Long getCount();
 }

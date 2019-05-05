@@ -9,9 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
-import static hour.Util.StringUtil.createStatus;
+import static hour.util.StringUtil.createStatus;
 
 @RestController
 @RequestMapping("/address")

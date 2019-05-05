@@ -23,7 +23,6 @@ public class Express {
     Double totalFee;
     String smsContent;
     String receiveCode;
-    @JsonIgnore
     String userId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)

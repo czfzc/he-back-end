@@ -1,4 +1,4 @@
-package hour.Util;
+package hour.util;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -85,7 +85,7 @@ public class CodeUtil {
     }
 
     public static String md5(String content){
-        return new String(DigestUtils.md5Digest(content.getBytes())).toLowerCase();
+        return DigestUtils.md5DigestAsHex(content.getBytes()).toLowerCase();
     }
 
 }
