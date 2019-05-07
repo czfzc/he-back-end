@@ -11,11 +11,11 @@ import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.awt.print.Pageable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -63,35 +63,17 @@ public class PreorderServiceImpl implements PreorderService{
     }
 
     @Override
-    public List<Preorder> getAllPreorder(Integer page, Integer size){
+    public Page<Preorder> getAllPreorder(Integer page, Integer size){
         PageRequest pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        List<Preorder> list=preorderRepository.findAll(pageable).getContent();
-        for(int i=0;i<list.size();i++){
-            Preorder p=list.get(i);
+
+        Page<Preorder> pages=preorderRepository.findAll(pageable);
+
+        for(Iterator<Preorder> i=pages.iterator();i.hasNext();){
+            Preorder p=i.next();
             p.setAddress(addressRepository.findById(p.getAddressId()));
             p.setExpress(expressRepository.findAllByPreorderId(p.getId()));
         }
-        return list;
-    }
-
-    /**
-     * 获取所有快递预付单 快递的service_id为1
-     * @param page
-     * @param size
-     * @return
-     */
-
-    @Override
-    public List<Preorder> getExpressPreorder(Integer page, Integer size){
-        PageRequest pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return preorderRepository.findAllByServiceId(1,pageable).getContent();
-    }
-
-    @Override
-    public Long getExpressCount(){
-        String sql="select count(a.id) from Preorder a where a.serviceId=1";
-        Query query = entityManager.createQuery(sql);
-        return (Long)query.getSingleResult();
+        return pages;
     }
 
     @Override
@@ -131,5 +113,26 @@ public class PreorderServiceImpl implements PreorderService{
             }
         }
         return toret;
+    }
+
+    /**
+     *根据预付单号搜索预付单
+     */
+
+    @Override
+    public Page<Preorder> searchPreorderById(String value, Integer page, Integer size){
+        org.springframework.data.domain.Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Preorder> preorder=preorderRepository.findAllByIdContaining(value,pageable);
+        return preorder;
+    }
+
+    /**
+     * 根据用户账号搜索预付单
+     */
+    @Override
+    public Page<Preorder> searchPreorderByUserId(String value, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Preorder> preorder=preorderRepository.findAllByUserIdContaining(value,pageable);
+        return preorder;
     }
 }

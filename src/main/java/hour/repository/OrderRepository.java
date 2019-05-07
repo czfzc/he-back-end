@@ -2,6 +2,7 @@ package hour.repository;
 
 import hour.model.Order;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -11,5 +12,6 @@ public interface OrderRepository  extends JpaRepository<Order,Integer>, JpaSpeci
     Order findByOrderIdAndUserId(String order_id,String user_id);
     List<Order> findAllByUserId(String user_id);
     Order findByOrderId(String order_id);
-  //  Order findAllByOrderIdAAndAbledTrue(String order_id);
+    Page<Order> findAllByOrderIdContaining(String value, Pageable pageable);
+    Page<Order> findAllByUserIdContaining(String value, Pageable pageable);
 }

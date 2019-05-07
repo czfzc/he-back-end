@@ -34,9 +34,8 @@ public class RefundServiceImpl implements RefundService{
     }
 
     @Override
-    public List<Refund> getRefund(int page, int size){
+    public Page<Refund> getRefund(int page, int size){
         Pageable pageable=new PageRequest(page, size, Sort.Direction.DESC, "time");
-        Page<Refund> refunds=refundRepository.findAll(pageable);
-        return refunds.getContent();
+        return refundRepository.findAll(pageable);
     }
 }

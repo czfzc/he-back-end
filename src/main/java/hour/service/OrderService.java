@@ -30,7 +30,7 @@ public interface OrderService {
      * @return
      */
 
-    List<Order> getOrder(Integer page, Integer size);
+    Page<Order> getOrder(Integer page, Integer size);
 
     /**
      * 退款
@@ -38,4 +38,8 @@ public interface OrderService {
     boolean refundOrder(String orderid);
 
     Long getCount();
+
+    Page<Order> searchOrderById(String value, Integer page, Integer size);
+
+    Page<Order> searchOrderByUserId(String value, Integer page, Integer size);
 }

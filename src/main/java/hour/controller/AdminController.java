@@ -12,11 +12,13 @@ import hour.repository.RefundRepository;
 import hour.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import java.util.HashMap;
 import java.util.List;
 
 import static hour.util.StringUtil.createStatus;
@@ -108,51 +110,10 @@ public class AdminController {
      */
 
     @RequestMapping("/get_order")
-    List<Order> getOrder(@RequestParam("session_key")String session_key,
+    Page<Order> getOrder(@RequestParam("session_key")String session_key,
                          @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
         return orderService.getOrder(page,size);
-    }
-
-    /**
-     * 获取总订单数
-     */
-    @RequestMapping("/get_total_order")
-    String getTotalOrder(@RequestParam("session_key")String session_key){
-        return new JSONObject(){
-            {
-                this.put("status",true);
-                this.put("total",orderService.getCount());
-            }
-        }.toJSONString();
-    }
-
-    /**
-     * 获取总订单数
-     */
-    @RequestMapping("/get_total_express_preorder")
-    String getTotalExpressPreOrder(@RequestParam("session_key")String session_key){
-        if(adminService.getAdminId(session_key)==null) return createStatus(false);
-        return new JSONObject(){
-            {
-                this.put("status",true);
-                this.put("total",preorderService.getExpressCount());
-            }
-        }.toJSONString();
-    }
-
-    /**
-     * 获取总代取快递数
-     */
-    @RequestMapping("/get_total_express")
-    String getTotalExpress(@RequestParam("session_key")String session_key){
-        if(adminService.getAdminId(session_key)==null) return createStatus(false);
-        return new JSONObject(){
-            {
-                this.put("status",true);
-                this.put("total",expressService.getCount());
-            }
-        }.toJSONString();
     }
 
     /**
@@ -164,7 +125,7 @@ public class AdminController {
      */
 
     @RequestMapping("/get_express")
-    List<Express> getExpress(@RequestParam("session_key")String session_key,
+    Page<Express> getExpress(@RequestParam("session_key")String session_key,
                              @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
         return expressService.getAllExpress(page, size);
@@ -178,27 +139,25 @@ public class AdminController {
      * @return
      */
 
-    @RequestMapping("/get_preorder")
-    List<Preorder> getPreorder(@RequestParam("session_key")String session_key,
+    @RequestMapping("/get_express_preorder")
+    Page<Preorder> getPreorder(@RequestParam("session_key")String session_key,
                                @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
         return preorderService.getAllPreorder(page,size);
     }
 
     /**
-     * 获取预付单
-     * @param session_key
-     * @param page
-     * @param size
-     * @return
+     * 查看退款列表
      */
-
-    @RequestMapping("/get_express_preorder")
-    List<Preorder> getExpressPreorder(@RequestParam("session_key")String session_key,
-                               @RequestParam("page")Integer page,@RequestParam("size")Integer size){
-        if(adminService.getAdminId(session_key)==null) return null;
-        return preorderService.getExpressPreorder(page,size);
+    @RequestMapping("/get_refund")
+    Page<Refund> getRefund(@RequestParam("session_key")String session_key,
+                           @RequestParam("page")Integer page, @RequestParam("size")Integer size){
+        String admin_id=adminService.getAdminId(session_key);
+        if(admin_id==null)
+            return null;
+        return refundService.getRefund(page,size);
     }
+
 
     /**
      * 设置已取到快递
@@ -335,32 +294,6 @@ public class AdminController {
     }
 
     /**
-     * 查看退款列表
-     */
-    @RequestMapping("/get_refund")
-    List<Refund> getRefund(@RequestParam("session_key")String session_key,
-        @RequestParam("page")Integer page, @RequestParam("size")Integer size){
-        String admin_id=adminService.getAdminId(session_key);
-        if(admin_id==null)
-            return null;
-        return refundService.getRefund(page,size);
-    }
-
-    /**
-     * 获取总退款数
-     */
-    @RequestMapping("/get_total_refund")
-    String getTotalRefund(@RequestParam("session_key")String session_key){
-        if(adminService.getAdminId(session_key)==null) return createStatus(false);
-        return new JSONObject(){
-            {
-                this.put("status",true);
-                this.put("total",refundService.getCount());
-            }
-        }.toJSONString();
-    }
-
-    /**
      * 拒绝退款
      */
     @RequestMapping("/refuse_refund")
@@ -404,6 +337,77 @@ public class AdminController {
         orderService.refundOrder(refund.getOrderId());
 
         return createStatus(true);
+    }
+
+
+
+    //////接下来全是搜索有关
+
+    /**
+     * 根据订单号搜索订单
+     */
+    @RequestMapping("/search_order_by_order_id")
+    Page<Order> searchOrderByOrderId(@RequestParam("session_key")String session_key,
+                                     @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                     @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return orderService.searchOrderById(value, page, size);
+    }
+
+    /**
+     * 根据用户账号搜索订单
+     */
+    @RequestMapping("/search_order_by_user_id")
+    Page<Order> searchOrderByUserId(@RequestParam("session_key")String session_key,
+                                     @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                     @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return orderService.searchOrderByUserId(value, page, size);
+    }
+
+    /**
+     * 根据快递号搜索快递
+     */
+    @RequestMapping("/search_express_by_express_id")
+    Page<Express> searchExpressByExpressId(@RequestParam("session_key")String session_key,
+                                     @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                     @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressService.searchExpressById(value, page, size);
+    }
+
+    /**
+     * 根据用户账号搜索快递
+     */
+    @RequestMapping("/search_express_by_user_id")
+    Page<Express> searchExpressByUserId(@RequestParam("session_key")String session_key,
+                                    @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                    @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressService.searchExpressByUserId(value, page, size);
+    }
+
+
+    /**
+     * 根据预付单号搜索预付单
+     */
+    @RequestMapping("/search_preorder_by_id")
+    Page<Preorder> searchPreorderById(@RequestParam("session_key")String session_key,
+                                           @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                           @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return preorderService.searchPreorderByUserId(value, page, size);
+    }
+
+    /**
+     * 根据用户账号搜索预付单
+     */
+    @RequestMapping("/search_preorder_by_user_id")
+    Page<Preorder> searchPreorderByUserId(@RequestParam("session_key")String session_key,
+                                        @RequestParam("value")String value, @RequestParam("page")Integer page,
+                                        @RequestParam("size")Integer size){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return preorderService.searchPreorderByUserId(value, page, size);
     }
 
 }

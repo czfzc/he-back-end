@@ -3,8 +3,11 @@ package hour.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.Express;
+import hour.model.Order;
+import hour.model.Preorder;
 import hour.repository.ExpressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,9 +69,9 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     @Override
-    public List<Express> getAllExpress( Integer page, Integer size){
+    public Page<Express> getAllExpress(Integer page, Integer size){
         Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return expressRepository.findAll(pageable).getContent();
+        return expressRepository.findAll(pageable);
     }
 
     /**
@@ -88,14 +92,25 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     /**
-     * 获取总快递数
-     * @return
+     *根据快递号搜索快递
      */
 
     @Override
-    public Long getCount(){
-        String sql="select count(a.expressId) from Express a";
-        Query query = entityManager.createQuery(sql);
-        return (Long)query.getSingleResult();
+    public Page<Express> searchExpressById(String value, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Express> express=expressRepository.findAllByExpressIdContaining(value,pageable);
+        return express;
     }
+
+    /**
+     * 根据用户账号搜索快递
+     */
+    @Override
+    public Page<Express> searchExpressByUserId(String value, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Express> express=expressRepository.findAllByUserIdContaining(value,pageable);
+        return express;
+    }
+
+
 }

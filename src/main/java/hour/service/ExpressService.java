@@ -2,6 +2,8 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import hour.model.Express;
+import hour.model.Order;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -10,9 +12,11 @@ public interface ExpressService {
 
     List<Express> getExpress(String preorder_id, Integer page, Integer size);
 
-    List<Express> getAllExpress(Integer page, Integer size);
+    Page<Express> getAllExpress(Integer page, Integer size);
 
     Double getTotalPrice(String preorder_id);
 
-    Long getCount();
+    Page<Express> searchExpressById(String value, Integer page, Integer size);
+
+    Page<Express> searchExpressByUserId(String value, Integer page, Integer size);
 }

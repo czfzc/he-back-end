@@ -9,6 +9,7 @@ import hour.service.OrderService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -75,8 +76,8 @@ public class OrderController {
     }
 
     @RequestMapping("/get_order")
-    List<Order> testOrder(@RequestParam("mysession")String mysession,
-                          @RequestParam("page")Integer page,@RequestParam("size")Integer size){
+    Page<Order> testOrder(@RequestParam("mysession")String mysession,
+                          @RequestParam("page")Integer page, @RequestParam("size")Integer size){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return null;
         return orderService.getOrder(page,size);

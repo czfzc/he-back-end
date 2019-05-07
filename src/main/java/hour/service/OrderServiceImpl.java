@@ -259,14 +259,14 @@ public class OrderServiceImpl implements OrderService {
      * 获取订单
      */
     @Override
-    public List<Order> getOrder(Integer page, Integer size){
+    public Page<Order> getOrder(Integer page, Integer size){
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
         Page<Order> orders=orderRepository.findAll(pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
             order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
         }
-        return orders.getContent();
+        return orders;
     }
 
     /**
@@ -280,4 +280,39 @@ public class OrderServiceImpl implements OrderService {
         Query query = entityManager.createQuery(sql);
         return (Long)query.getSingleResult();
     }
+
+    /**
+     * 获取搜索的总订单数
+     * @return
+     */
+
+    /**
+     * 根据订单号搜索订单
+     */
+    @Override
+    public Page<Order> searchOrderById(String value, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Order> orders=orderRepository.findAllByOrderIdContaining(value,pageable);
+        for(Iterator<Order> i=orders.iterator();i.hasNext();){
+            Order order=i.next();
+            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
+        }
+        return orders;
+    }
+
+    /**
+     * 根据用户账号搜索订单
+     */
+    @Override
+    public Page<Order> searchOrderByUserId(String value, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Order> orders=orderRepository.findAllByUserIdContaining(value,pageable);
+        for(Iterator<Order> i=orders.iterator();i.hasNext();){
+            Order order=i.next();
+            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
+        }
+        return orders;
+    }
+
+
 }

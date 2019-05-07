@@ -2,6 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import hour.model.Preorder;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -11,11 +12,11 @@ public interface PreorderService {
 
     List<Preorder> getAllPreorderByOrderId(String order_id);
 
-    List<Preorder> getAllPreorder(Integer page, Integer size);
-
-    List<Preorder> getExpressPreorder(Integer page, Integer size);
-
-    Long getExpressCount();
+    Page<Preorder> getAllPreorder(Integer page, Integer size);
 
     boolean preorderIt(JSONArray arr, String order_id, String user_id);
+
+    Page<Preorder> searchPreorderById(String value, Integer page, Integer size);
+
+    Page<Preorder> searchPreorderByUserId(String value, Integer page, Integer size);
 }

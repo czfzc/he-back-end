@@ -1,6 +1,7 @@
 package hour.repository;
 
 import hour.model.Express;
+import hour.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,8 @@ public interface ExpressRepository extends JpaRepository<Express,Integer> {
     List<Express> findAllByAbledTrue();
     Express findFirstByExpressId(String express_id);
     List<Express> findAllByPreorderId(String preorderid);
+
+    Page<Express> findAllByExpressIdContaining(String value, Pageable pageable);
+
+    Page<Express> findAllByUserIdContaining(String value, Pageable pageable);
 }
