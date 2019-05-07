@@ -33,7 +33,7 @@ public class AddressServiceImpl implements AddressService{
         address.setBuildId(build_id);
         address.setAddition(addition);
         address.setAbled(true);;
-        address.setIsDefault(0);
+        address.setDefault(true);
         addressRepository.save(address);
         this.setDefaultDAO(user_id,id);
         return true;
@@ -55,11 +55,11 @@ public class AddressServiceImpl implements AddressService{
     private boolean setDefaultDAO(String user_id, String address_id){
         Address ad1=addressRepository.findFirstByUserIdAndIsDefault(user_id,1);
         if(ad1!=null) {
-            ad1.setIsDefault(0);
+            ad1.setDefault(true);
             addressRepository.save(ad1);
         }
         Address ad2=addressRepository.findByUserIdAndId(user_id,address_id);
-        ad2.setIsDefault(1);
+        ad2.setDefault(false);
         addressRepository.save(ad2);
         return true;
     }

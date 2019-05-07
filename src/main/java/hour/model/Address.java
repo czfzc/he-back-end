@@ -21,7 +21,7 @@ public class Address {
     String addition;
     @JsonIgnore
     boolean abled;
-    Integer isDefault;
+    boolean isDefault;
 
     public boolean isAbled() {
         return abled;
@@ -95,11 +95,11 @@ public class Address {
         this.addition = addition;
     }
 
-    public Integer getIsDefault() {
+    public boolean isDefault() {
         return isDefault;
     }
 
-    public void setIsDefault(Integer isDefault) {
-        this.isDefault = isDefault;
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }

@@ -24,7 +24,6 @@ public class Preorder {
     private Date time;
     private String orderId;
     private String userId;
-    @JsonIgnore
     private Integer serviceId;
     private Integer status;
     private Integer payed;

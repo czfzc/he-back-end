@@ -1,5 +1,7 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -9,7 +11,27 @@ public class SendMethod {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     Integer id;
     String value;
+    @JsonIgnore
+    String typeStr;
+    @JsonIgnore
     String serviceId;
+    boolean abled;
+
+    public String getTypeStr() {
+        return typeStr;
+    }
+
+    public void setTypeStr(String typeStr) {
+        this.typeStr = typeStr;
+    }
+
+    public boolean isAbled() {
+        return abled;
+    }
+
+    public void setAbled(boolean abled) {
+        this.abled = abled;
+    }
 
     public Integer getId() {
         return id;
