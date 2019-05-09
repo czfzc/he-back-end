@@ -10,11 +10,14 @@ import java.util.List;
 
 public interface ExpressRepository extends JpaRepository<Express,Integer> {
     Page<Express> findAllByPreorderIdAndAbledTrue(String preorder_id, Pageable pageable);
-    List<Express> findAllByAbledTrue();
+
     Express findFirstByExpressId(String express_id);
+
     List<Express> findAllByPreorderId(String preorderid);
 
     Page<Express> findAllByExpressIdContaining(String value, Pageable pageable);
 
     Page<Express> findAllByUserIdContaining(String value, Pageable pageable);
+
+    Page<Express> findAllByExpressPointId(String express_point_id,Pageable pageable);
 }

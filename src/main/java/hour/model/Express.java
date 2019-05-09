@@ -29,6 +29,15 @@ public class Express {
     Date time;
     int Status;
     boolean abled;
+    String expressPointId;
+
+    public String getExpressPointId() {
+        return expressPointId;
+    }
+
+    public void setExpressPointId(String expressPointId) {
+        this.expressPointId = expressPointId;
+    }
 
     public boolean isAbled() {
         return abled;

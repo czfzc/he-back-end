@@ -19,4 +19,6 @@ public interface ExpressService {
     Page<Express> searchExpressById(String value, Integer page, Integer size);
 
     Page<Express> searchExpressByUserId(String value, Integer page, Integer size);
+
+    Page<Express> getExpressByExpressPoint(String express_point_id, Integer page, Integer size);
 }

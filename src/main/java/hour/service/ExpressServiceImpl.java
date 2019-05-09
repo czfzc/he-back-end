@@ -112,5 +112,14 @@ public class ExpressServiceImpl implements ExpressService {
         return express;
     }
 
+    /**
+     * 根据取货点获取快递
+     */
+    @Override
+    public Page<Express> getExpressByExpressPoint(String express_point_id,Integer page,Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Express> express=expressRepository.findAllByExpressPointId(express_point_id,pageable);
+        return express;
+    }
 
 }

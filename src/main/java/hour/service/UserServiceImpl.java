@@ -6,6 +6,7 @@ import hour.util.NetUtil;
 import hour.model.User;
 import hour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import static hour.util.CodeUtil.md5;
@@ -19,8 +20,10 @@ public class UserServiceImpl implements UserService{
     private String session_key;
     private String openid;
 
-    private String appid="appid";
-    private String secret="secret";
+    @Value("${wexin.appid}")
+    private String appid;
+    @Value("${wexin.mykey}")
+    private String secret;
 
     private User user;
 
@@ -86,7 +89,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public String getUserId(String mysession) {
-        return userRepository.findByMysession(mysession).getUserId();
+        User user=userRepository.findByMysession(mysession);
+        if(user==null) return null;
+        return user.getUserId();
     }
 
 

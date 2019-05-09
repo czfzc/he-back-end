@@ -1,14 +1,8 @@
 package hour.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import hour.model.Express;
-import hour.model.Order;
-import hour.model.Preorder;
-import hour.model.Refund;
-import hour.repository.ExpressRepository;
-import hour.repository.OrderRepository;
-import hour.repository.PreorderRepository;
-import hour.repository.RefundRepository;
+import hour.model.*;
+import hour.repository.*;
 import hour.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -54,6 +48,9 @@ public class AdminController {
 
     @Autowired
     RefundService refundService;
+
+    @Autowired
+    ExpressPointRepository expressPointRepository;
 
     /**
      * 登录
@@ -129,6 +126,31 @@ public class AdminController {
                              @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
         return expressService.getAllExpress(page, size);
+    }
+
+    /**
+     * 根据快递点获取快递单
+     * @param session_key
+     * @param page
+     * @param size
+     * @return
+     */
+
+    @RequestMapping("/get_express_by_point")
+    Page<Express> getExpressByPoint(@RequestParam("session_key")String session_key,
+                             @RequestParam("page")Integer page,@RequestParam("size")Integer size,
+                                    @RequestParam("express_point_id")String express_point_id){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressService.getExpressByExpressPoint(express_point_id, page, size);
+    }
+
+    /**
+     * 获取取货点
+     */
+    @RequestMapping("/get_express_point")
+    List<ExpressPoint> getExpressPoint(@RequestParam("session_key")String session_key){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressPointRepository.findAll();
     }
 
     /**
