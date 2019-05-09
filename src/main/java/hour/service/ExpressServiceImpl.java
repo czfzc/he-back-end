@@ -2,9 +2,13 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.Address;
 import hour.model.Express;
-import hour.model.Order;
-import hour.model.Preorder;
+import hour.model.ExpressPoint;
+import hour.model.ExpressPrice;
+import hour.repository.AddressRepository;
+import hour.repository.ExpressPointRepository;
+import hour.repository.ExpressPriceRepository;
 import hour.repository.ExpressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,11 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +30,12 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    ExpressPriceRepository expressPriceRepository;
+
+    @Autowired
+    AddressRepository addressRepository;
 
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,String address_id,String user_id) {
@@ -80,7 +88,8 @@ public class ExpressServiceImpl implements ExpressService {
      * @return
      */
     private Double calculatePrice(JSONObject express){
-        return 1d;
+        return this.getTotal(express.getString("expressPointId"),
+                express.getString("addressId"));
     }
 
     @Override
@@ -121,5 +130,29 @@ public class ExpressServiceImpl implements ExpressService {
         Page<Express> express=expressRepository.findAllByExpressPointId(express_point_id,pageable);
         return express;
     }
+
+    /**
+     * 计算一个JSONObject的express的总价
+     * @param express
+     * @return
+     */
+
+    @Override
+    public double getTotalByObject(JSONObject express){
+        return this.getTotal(express.getString("expressPointId"),
+                express.getString("addressId"));
+    }
+
+    private double getTotal(String expressPointId,String addressId){
+        double total=1.5;
+        Address address=addressRepository.findById(addressId);
+        if(address==null) return total;
+        String dest_building_id=address.getBuildId();
+        ExpressPrice expressPrice=expressPriceRepository.
+                findFirstByDestBuildingIdAndExpressPointId(dest_building_id,expressPointId);
+        if(expressPrice==null) return total;
+        return expressPrice.getPrice();
+    }
+
 
 }

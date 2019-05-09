@@ -12,6 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 
 import static hour.util.StringUtil.createStatus;
@@ -81,6 +82,18 @@ public class OrderController {
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return null;
         return orderService.getOrder(page,size);
+    }
+
+    @RequestMapping("/get_total")
+    HashMap getTotal(@RequestParam("mysession")String mysession,
+                     @RequestParam("preorders")String preorders){
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return null;
+        HashMap map=new HashMap();
+        JSONArray preordersJson=JSONArray.parseArray(preorders);
+        map.put("total",orderService.calcuToal(preordersJson));
+        map.put("status",true);
+        return map;
     }
 
 }

@@ -315,5 +315,20 @@ public class OrderServiceImpl implements OrderService {
         return orders;
     }
 
+    @Override
+    public double calcuToal(JSONArray preorders){
+
+        double sum=0;
+
+        for(int i=0;i<preorders.size();i++){
+            JSONObject preorder=preorders.getJSONObject(i);
+            if("1".equals(preorder.getString("serviceId"))){  //快递代取服务的id为1
+                sum+=preorderService.cacuTotalByObject(preorder);
+            }
+        }
+
+        return sum;
+
+    }
 
 }

@@ -2,12 +2,8 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import hour.model.Express;
-import hour.model.Preorder;
-import hour.repository.AddressRepository;
-import hour.repository.ExpressRepository;
-import hour.repository.PreorderRepository;
-import hour.repository.UserRepository;
+import hour.model.*;
+import hour.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service("PreorderService")
 public class PreorderServiceImpl implements PreorderService{
@@ -41,6 +34,16 @@ public class PreorderServiceImpl implements PreorderService{
 
     @Autowired
     ExpressRepository expressRepository;
+
+    @Autowired
+    ExpressMonthCardRepository expressMonthCardRepository;
+
+    @Autowired
+    ExpressMonthCardService expressMonthCardService;
+
+    @Autowired
+    MoreProductRepository moreProductRepository;
+
 
     @Override
     public double calculateTotal(String order_id) {
@@ -80,7 +83,6 @@ public class PreorderServiceImpl implements PreorderService{
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
         if(arr.size()==0)
             return false;
-        boolean toret=true;
         for(int i=0;i<arr.size();i++){
             JSONObject jo=arr.getJSONObject(i);
             if(jo.getInteger("service_id")==1){ //快递代取业务预付单
@@ -109,10 +111,35 @@ public class PreorderServiceImpl implements PreorderService{
                     Double total=expressService.getTotalPrice(preorder_id);
                     preorder.setTotalFee(total);
                     preorderRepository.save(preorder);
-                }else toret=false;
+                }else return false;
+            }else if(jo.getInteger("service_id")==9){   //购买月代取卡
+
+                String preorder_id= UUID.randomUUID().toString().replace("-","");
+
+                Address address =addressRepository.findFirstByUserId(user_id);
+                if(address==null) return false;
+                String address_id=jo.getString(address.getId());
+
+                MoreProduct moreProduct=moreProductRepository.
+                        findFirstByProductId("09201921"); //月卡产品的产品id为09201921
+                if(moreProduct==null) return false;
+                Double total=moreProduct.getSum();
+
+                Preorder preorder=new Preorder();
+                preorder.setId(preorder_id);
+                preorder.setAddressId(address_id);
+                preorder.setTime(new Date());
+                preorder.setOrderId(order_id);
+                preorder.setUserId(user_id);
+                preorder.setServiceId(1);
+                preorder.setStatus(0);
+                preorder.setPayed(0);
+                preorder.setAbled(true);
+                preorder.setTotalFee(total);
+                preorderRepository.save(preorder);
             }
         }
-        return toret;
+        return true;
     }
 
     /**
@@ -134,5 +161,17 @@ public class PreorderServiceImpl implements PreorderService{
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
         Page<Preorder> preorder=preorderRepository.findAllByUserIdContaining(value,pageable);
         return preorder;
+    }
+
+    /**
+     * 计算该快递预付单的价格，传入一个preorder的JSONObject
+     */
+    @Override
+    public double cacuTotalByObject(JSONObject preorder){
+        double sum=0;
+        JSONArray express=preorder.getJSONArray("express");
+        for(int i=0;i<express.size();i++)
+            sum+=expressService.getTotalByObject(express.getJSONObject(i));
+        return sum;
     }
 }

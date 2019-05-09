@@ -85,6 +85,7 @@ public class ExpressPointServiceImpl implements  ExpressPointService{
         return toret;
     }
 
+
     public static void main(String[] args){
         String sms="【菜鸟驿站】您的百世快递包裹到东大校内七舍北侧菜鸟驿站，请17:30前凭1-1-6200及时取，询19904053317";
         ExpressPointServiceImpl expressPointService=new ExpressPointServiceImpl();

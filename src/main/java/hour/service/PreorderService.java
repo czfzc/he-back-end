@@ -1,6 +1,7 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import hour.model.Preorder;
 import org.springframework.data.domain.Page;
 
@@ -19,4 +20,6 @@ public interface PreorderService {
     Page<Preorder> searchPreorderById(String value, Integer page, Integer size);
 
     Page<Preorder> searchPreorderByUserId(String value, Integer page, Integer size);
+
+    double cacuTotalByObject(JSONObject preorder);
 }

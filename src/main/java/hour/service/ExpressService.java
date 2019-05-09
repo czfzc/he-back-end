@@ -1,6 +1,7 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import hour.model.Express;
 import hour.model.Order;
 import org.springframework.data.domain.Page;
@@ -21,4 +22,6 @@ public interface ExpressService {
     Page<Express> searchExpressByUserId(String value, Integer page, Integer size);
 
     Page<Express> getExpressByExpressPoint(String express_point_id, Integer page, Integer size);
+
+    double getTotalByObject(JSONObject express);
 }

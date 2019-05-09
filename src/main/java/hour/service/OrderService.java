@@ -42,4 +42,7 @@ public interface OrderService {
     Page<Order> searchOrderById(String value, Integer page, Integer size);
 
     Page<Order> searchOrderByUserId(String value, Integer page, Integer size);
+
+
+    double calcuToal(JSONArray preorders);
 }
