@@ -17,6 +17,7 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
 
     @Override
     public boolean isAbled(ExpressMonthCard expressMonthCard){
+        if(expressMonthCard==null) return false;
         if(!expressMonthCard.isAbled()) return false;
         if(!expressMonthCard.isPayed()) return false;
         Date date1=expressMonthCard.getEndTime();
@@ -28,7 +29,7 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
     @Override
     public boolean payIt(String user_id,String preorder_id){
         ExpressMonthCard expressMonthCard=expressMonthCardRepository.
-                findFirstByUserIdAndPayedTrueAnAndAbledTrue(user_id);
+                findFirstByUserIdAndPayedTrueAndAbledTrue(user_id);
         if(expressMonthCard!=null) return false;
         if(this.isAbled(expressMonthCard)) return false;
         expressMonthCard=new ExpressMonthCard();

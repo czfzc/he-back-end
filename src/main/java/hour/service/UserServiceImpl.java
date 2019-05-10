@@ -31,13 +31,14 @@ public class UserServiceImpl implements UserService{
     public String wxLogin(String code) {
 
         String str= NetUtil.sendGet("https://api.weixin.qq.com/sns/jscode2session" ,
-                "appid="+appid+"&secret="+secret+"&js_code=JSCODE&grant_type=authorization_code");
+                "appid="+appid+"&secret="+secret+"&js_code="+code+"&grant_type=authorization_code");
+        System.out.println(str);
         JSONObject js=JSONObject.parseObject(str);
         String openid=js.getString("openid");
         String session_key=js.getString("session_key");
         Integer errcode=js.getInteger("errcode");
 
-        if(errcode==0){
+        if(errcode==null||errcode==0){
             user=userRepository.findByOpenId(openid);
             if(user==null)  //当此用户不存在
                 user=new User();
@@ -52,6 +53,7 @@ public class UserServiceImpl implements UserService{
                 {
                     this.put("mysession",user.getMysession());
                     this.put("status",true);
+                    this.put("registed",user.getUserId()!=null);
                 }
             }.toJSONString();
         }else return createStatus(false);
@@ -68,6 +70,10 @@ public class UserServiceImpl implements UserService{
     public String registWithPhoneNum(String encryptedData, String iv, String code) {
 
         this.wxLogin(code);
+
+        System.out.println(session_key);
+
+        if(session_key==null) return createStatus(false);
 
         String str=CodeUtil.decrypt(encryptedData,session_key,iv);
 

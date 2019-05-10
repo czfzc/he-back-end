@@ -20,6 +20,7 @@ public class UserController {
      */
     @RequestMapping("/regist")
     String regist(@RequestParam("encrypted_data")String data, @RequestParam("iv")String iv, @RequestParam("code")String code){
+        System.out.println(data+" "+iv+" "+code);
         return userService.registWithPhoneNum(data,iv,code);
     }
 
@@ -28,6 +29,7 @@ public class UserController {
      */
     @RequestMapping("/login")
     String login(@RequestParam("code")String code){
+        System.out.println(code);
         return userService.wxLogin(code);
     }
 

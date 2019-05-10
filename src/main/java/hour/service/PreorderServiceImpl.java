@@ -85,6 +85,7 @@ public class PreorderServiceImpl implements PreorderService{
             return false;
         for(int i=0;i<arr.size();i++){
             JSONObject jo=arr.getJSONObject(i);
+            if(jo==null) return false;
             if(jo.getInteger("service_id")==1){ //快递代取业务预付单
                 JSONArray express=jo.getJSONArray("express");
                 String preorder_id= UUID.randomUUID().toString().replace("-","");
@@ -131,12 +132,14 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
                 preorder.setUserId(user_id);
-                preorder.setServiceId(1);
+                preorder.setServiceId(9);
                 preorder.setStatus(0);
                 preorder.setPayed(0);
                 preorder.setAbled(true);
                 preorder.setTotalFee(total);
                 preorderRepository.save(preorder);
+
+                return expressMonthCardService.payIt(user_id,preorder_id);
             }
         }
         return true;
