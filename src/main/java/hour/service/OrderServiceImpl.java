@@ -69,10 +69,12 @@ public class OrderServiceImpl implements OrderService {
             double total=preorderService.calculateTotal(order_id);
             order.setTotalFee(total);
             orderRepository.save(order);
-            return this.unifiedorder(order_id,ip,open_id,(int)total*100).toJSONString();
-        }
-
-        return createStatus(false);
+            if(total==0){
+                order.setPayed(1);
+                orderRepository.save(order);
+                return createStatus(true);
+            }else return this.unifiedorder(order_id,ip,open_id,(int)total*100).toJSONString();
+        }else return createStatus(false);
 
     }
 

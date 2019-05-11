@@ -48,6 +48,7 @@ public class ExpressServiceImpl implements ExpressService {
             String phone_num=jo.getString("phone_num");
             String sms_content=jo.getString("sms_content");
             String receive_code=jo.getString("receive_code");
+            String express_point_id=jo.getString("express_point_id");
             String express_id= UUID.randomUUID().toString().replace("-","");
 
             Express express=new Express();
@@ -60,6 +61,7 @@ public class ExpressServiceImpl implements ExpressService {
             express.setSmsContent(sms_content);
             express.setReceiveCode(receive_code);
             express.setAddressId(address_id);
+            express.setExpressPointId(express_point_id);
             express.setUserId(user_id);
             express.setTime(new Date());
             express.setStatus(0);

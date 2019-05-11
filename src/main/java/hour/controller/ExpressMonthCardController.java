@@ -1,5 +1,7 @@
 package hour.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import hour.model.ExpressMonthCard;
 import hour.repository.ExpressMonthCardRepository;
 import hour.service.ExpressMonthCardService;
@@ -30,9 +32,16 @@ public class ExpressMonthCardController {
     public String hasCard(@RequestParam("mysession")String mysession){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return createStatus(false);
-        ExpressMonthCard expressMonthCard=expressMonthCardRepository.
-                findFirstByUserIdAndPayedTrueAndAbledTrue(user_id);
-        if(expressMonthCard==null) return createStatus(false);
-        return createStatus(expressMonthCardService.isAbled(expressMonthCard));
+        int days=expressMonthCardService.getRemainsTime(user_id);
+        if(days==0){
+            return createStatus(false);
+        }else{
+            return new JSONObject(){
+                {
+                    this.put("true",false);
+                    this.put("remain_days",days);
+                }
+            }.toJSONString();
+        }
     }
 }

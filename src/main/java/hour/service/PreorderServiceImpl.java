@@ -109,9 +109,11 @@ public class PreorderServiceImpl implements PreorderService{
                 preorderRepository.save(preorder);
 
                 if(expressService.addExpress(express,preorder_id,address_id,user_id)){
-                    Double total=expressService.getTotalPrice(preorder_id);
-                    preorder.setTotalFee(total);
-                    preorderRepository.save(preorder);
+                    if(!expressMonthCardService.isAbled(user_id)) {
+                        Double total = expressService.getTotalPrice(preorder_id);
+                        preorder.setTotalFee(total);
+                        preorderRepository.save(preorder);
+                    }
                 }else return false;
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
 

@@ -3,12 +3,17 @@ package hour.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.Address;
+import hour.model.Building;
 import hour.repository.AddressRepository;
+import hour.repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static hour.util.StringUtil.createStatus;
 
 @Service("AddressService")
 public class AddressServiceImpl implements AddressService{
@@ -19,12 +24,16 @@ public class AddressServiceImpl implements AddressService{
     @Autowired
     AddressRepository addressRepository;
 
+    @Autowired
+    BuildingRepository buildingRepository;
+
     @Override
-    public boolean addAddress(String mysession, String name, String phone_num,
+    public String addAddress(String mysession, String name, String phone_num,
                               String room_num, String build_id, String addition){
         Address address=new Address();
         String id= UUID.randomUUID().toString().replace("-","");
         String user_id=userService.getUserId(mysession);
+        if(user_id==null) return createStatus(false);
         address.setId(id);
         address.setUserId(user_id);
         address.setName(name);
@@ -36,20 +45,52 @@ public class AddressServiceImpl implements AddressService{
         address.setDefault(true);
         addressRepository.save(address);
         this.setDefaultDAO(user_id,id);
-        return true;
+        return new JSONObject(){
+            {
+                this.put("address_id",id);
+                this.put("status",true);
+            }
+        }.toJSONString();
     }
 
     @Override
     public boolean setDefault(String mysession, String address_id){
         String user_id=userService.getUserId(mysession);
+        if(user_id==null) return false;
         return this.setDefaultDAO(user_id,address_id);
     }
 
     @Override
     public List<Address> getAllAddress(String mysession){
         String user_id=userService.getUserId(mysession);
+        if(user_id==null) return null;
         List<Address> list=addressRepository.findByUserId(user_id);
         return addressRepository.findByUserId(user_id);
+    }
+
+    @Override
+    public boolean editAddress(String address_id, String mysession, String name,
+                               String phone_num, String room_num, String build_id, String addition) {
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return false;
+        Address address=addressRepository.findByUserIdAndId(user_id,address_id);
+        if(address==null) return false;
+        Building building=buildingRepository.findFirstById(build_id);
+        if(build_id==null) return false;
+        address.setName(name);
+        address.setPhoneNum(phone_num);
+        address.setRoomNum(room_num);
+        address.setBuildId(build_id);
+        address.setAddition(addition);
+        return true;
+    }
+
+    @Override
+    public boolean deleteAddress(String address_id, String mysession){
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return false;
+        addressRepository.deleteAddressByUserIdAndIdAndIsDefaultFalse(user_id,address_id);
+        return true;
     }
 
     private boolean setDefaultDAO(String user_id, String address_id){

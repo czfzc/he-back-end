@@ -41,11 +41,25 @@ public class AddressController {
 
     @RequestMapping("/add_address")
     @ResponseBody
-    String addAddress(@RequestParam("name") String name,@RequestParam("mysession") String mysession,
+    String addAddress(@RequestParam("mysession") String mysession,@RequestParam("name") String name,
                       @RequestParam("phone_num")String phone_num,@RequestParam("room_num")String room_num,
                       @RequestParam("build_id")String build_id,@RequestParam("addition")String addition){
-        addressService.addAddress(mysession,name,phone_num,room_num,build_id,addition);
-        return createStatus(true);
+        return addressService.addAddress(mysession,name,phone_num,room_num,build_id,addition);
+    }
+
+    @RequestMapping("/edit_address")
+    @ResponseBody
+    String editAddress(@RequestParam("address_id")String address_id,
+                         @RequestParam("mysession") String mysession,@RequestParam("name") String name,
+                         @RequestParam("phone_num")String phone_num,@RequestParam("room_num")String room_num,
+                         @RequestParam("build_id")String build_id,@RequestParam("addition")String addition){
+        return createStatus(addressService.editAddress(address_id,mysession,name,phone_num,room_num,build_id,addition));
+    }
+
+    @RequestMapping("/delete_address")
+    @ResponseBody
+    String deleteAddress(@RequestParam("address_id")String address_id,@RequestParam("mysession")String mysession){
+        return createStatus(addressService.deleteAddress(address_id, mysession));
     }
 
 }
