@@ -10,4 +10,5 @@ public interface ExpressMonthCardService {
     boolean payIt(String user_id, String preorder_id);
 
     int getRemainsTime(String user_id);
+    
 }

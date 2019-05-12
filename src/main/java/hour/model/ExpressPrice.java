@@ -3,7 +3,7 @@ package hour.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="express_price")
+@Table(name="user_express_price")
 public class ExpressPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -11,6 +11,15 @@ public class ExpressPrice {
     String destBuildingId;
     String expressPointId;
     Double price;
+    String sizeId;
+
+    public String getSizeId() {
+        return sizeId;
+    }
+
+    public void setSizeId(String sizeId) {
+        this.sizeId = sizeId;
+    }
 
     public Integer getMainkey() {
         return mainkey;

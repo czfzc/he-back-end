@@ -91,7 +91,7 @@ public class ExpressServiceImpl implements ExpressService {
      */
     private Double calculatePrice(JSONObject express){
         return this.getTotal(express.getString("expressPointId"),
-                express.getString("addressId"));
+                express.getString("addressId"),express.getString("sizeId"));
     }
 
     @Override
@@ -142,16 +142,16 @@ public class ExpressServiceImpl implements ExpressService {
     @Override
     public double getTotalByObject(JSONObject express){
         return this.getTotal(express.getString("expressPointId"),
-                express.getString("addressId"));
+                express.getString("addressId"),express.getString("size_id"));
     }
 
-    private double getTotal(String expressPointId,String addressId){
+    private double getTotal(String expressPointId,String addressId,String sizeId){
         double total=1.5;
         Address address=addressRepository.findById(addressId);
         if(address==null) return total;
         String dest_building_id=address.getBuildId();
         ExpressPrice expressPrice=expressPriceRepository.
-                findFirstByDestBuildingIdAndExpressPointId(dest_building_id,expressPointId);
+                findFirstByDestBuildingIdAndExpressPointIdAndSizeId(dest_building_id,expressPointId,sizeId);
         if(expressPrice==null) return total;
         return expressPrice.getPrice();
     }
