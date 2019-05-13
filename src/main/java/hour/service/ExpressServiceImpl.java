@@ -38,7 +38,8 @@ public class ExpressServiceImpl implements ExpressService {
     AddressRepository addressRepository;
 
     @Override
-    public boolean addExpress(JSONArray expresses,String preorder_id,String address_id,String user_id) {
+    public boolean addExpress(JSONArray expresses,String preorder_id,
+                              String address_id,String user_id, String send_method_id) {
         if(expresses.size()==0)
             return false;
         for(int i=0;i<expresses.size();i++){
@@ -49,6 +50,7 @@ public class ExpressServiceImpl implements ExpressService {
             String sms_content=jo.getString("sms_content");
             String receive_code=jo.getString("receive_code");
             String express_point_id=jo.getString("express_point_id");
+            String size_id=jo.getString("size_id");
             String express_id= UUID.randomUUID().toString().replace("-","");
 
             Express express=new Express();
@@ -66,6 +68,8 @@ public class ExpressServiceImpl implements ExpressService {
             express.setTime(new Date());
             express.setStatus(0);
             express.setAbled(true);
+            express.setSizeId(size_id);
+            express.setSendMethodId(send_method_id);
 
             expressRepository.save(express);
         }
@@ -91,7 +95,8 @@ public class ExpressServiceImpl implements ExpressService {
      */
     private Double calculatePrice(JSONObject express){
         return this.getTotal(express.getString("expressPointId"),
-                express.getString("addressId"),express.getString("sizeId"));
+                express.getString("addressId"),express.getString("sizeId"),
+                express.getString("sendMethodId"));
     }
 
     @Override
@@ -141,17 +146,19 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public double getTotalByObject(JSONObject express){
-        return this.getTotal(express.getString("expressPointId"),
-                express.getString("addressId"),express.getString("size_id"));
+        return this.getTotal(express.getString("express_point_id"),
+                express.getString("address_id"),express.getString("size_id"),
+                express.getString("send_method_id"));
     }
 
-    private double getTotal(String expressPointId,String addressId,String sizeId){
-        double total=1.5;
+    private double getTotal(String expressPointId,String addressId,String sizeId,String sendMethodId){
+        double total=1.5;  //默认计费价格
         Address address=addressRepository.findById(addressId);
         if(address==null) return total;
         String dest_building_id=address.getBuildId();
         ExpressPrice expressPrice=expressPriceRepository.
-                findFirstByDestBuildingIdAndExpressPointIdAndSizeId(dest_building_id,expressPointId,sizeId);
+                findFirstByDestBuildingIdAndExpressPointIdAndSizeIdAndSendMethodId(dest_building_id,
+                        expressPointId,sizeId,sendMethodId);
         if(expressPrice==null) return total;
         return expressPrice.getPrice();
     }

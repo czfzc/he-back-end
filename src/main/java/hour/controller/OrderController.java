@@ -1,6 +1,8 @@
 package hour.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import hour.util.NetUtil;
 import hour.util.StringUtil;
 import hour.model.Order;
@@ -35,12 +37,15 @@ public class OrderController {
      * 统一下单
      * @return
      */
-
+    @ResponseBody
     @RequestMapping("/unified_order")
-    String unifiedOrder(@RequestParam("mysession")String mysession,
-                        @RequestParam("preorders")String preorders, HttpServletRequest request){
-        String ip= NetUtil.getIpAddr(request);
-        return orderService.payOrder(ip, mysession, JSONArray.parseArray(preorders));
+    String unifiedOrder(@RequestBody JSONObject data,HttpServletRequest httpServletRequest){
+
+        String mysession=data.getString("mysession");
+        JSONArray preorders=data.getJSONArray("preorders");
+
+        String ip= NetUtil.getIpAddr(httpServletRequest);
+        return orderService.payOrder(ip, mysession, preorders);
     }
 
     @RequestMapping("/on_finish_pay")
@@ -84,14 +89,17 @@ public class OrderController {
         return orderService.getOrder(page,size);
     }
 
+    @ResponseBody
     @RequestMapping("/get_total")
-    HashMap getTotal(@RequestParam("mysession")String mysession,
-                     @RequestParam("preorders")String preorders){
+    HashMap getTotal(@RequestBody JSONObject data, HttpServletRequest httpServletRequest){
+        String mysession=data.getString("mysession");
+        JSONArray preordersJson=data.getJSONArray("preorders");
+
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return null;
         HashMap map=new HashMap();
-        JSONArray preordersJson=JSONArray.parseArray(preorders);
-        map.put("total",orderService.calcuToal(preordersJson));
+
+        map.put("total",orderService.calcuTotal(preordersJson));
         map.put("status",true);
         return map;
     }

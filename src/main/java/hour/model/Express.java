@@ -24,12 +24,30 @@ public class Express {
     String smsContent;
     String receiveCode;
     String userId;
+    String sizeId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     Date time;
     int Status;
     boolean abled;
     String expressPointId;
+    String sendMethodId;
+
+    public String getSendMethodId() {
+        return sendMethodId;
+    }
+
+    public void setSendMethodId(String sendMethodId) {
+        this.sendMethodId = sendMethodId;
+    }
+
+    public String getSizeId() {
+        return sizeId;
+    }
+
+    public void setSizeId(String sizeId) {
+        this.sizeId = sizeId;
+    }
 
     public String getExpressPointId() {
         return expressPointId;

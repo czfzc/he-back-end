@@ -44,5 +44,5 @@ public interface OrderService {
     Page<Order> searchOrderByUserId(String value, Integer page, Integer size);
 
 
-    double calcuToal(JSONArray preorders);
+    double calcuTotal(JSONArray preorders);
 }

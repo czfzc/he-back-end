@@ -92,7 +92,7 @@ public class PreorderServiceImpl implements PreorderService{
                 String address_id=jo.getString("address_id");
 
                 Preorder preorder=new Preorder();
-                Integer send_method_id=jo.getInteger("send_method_id");
+                String send_method_id=jo.getString("send_method_id");
 
 
                 preorder.setId(preorder_id);
@@ -108,7 +108,7 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setTotalFee(0D);
                 preorderRepository.save(preorder);
 
-                if(expressService.addExpress(express,preorder_id,address_id,user_id)){
+                if(expressService.addExpress(express,preorder_id,address_id,user_id,send_method_id)){
                     if(!expressMonthCardService.isAbled(user_id)) {
                         Double total = expressService.getTotalPrice(preorder_id);
                         preorder.setTotalFee(total);

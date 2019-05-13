@@ -52,6 +52,19 @@ public class AdminController {
     @Autowired
     ExpressPointRepository expressPointRepository;
 
+    @Autowired
+    ExpressSizeRepository expressSizeRepository;
+
+    @Autowired
+    ExpressPriceRepository expressPriceRepository;
+
+    @Autowired
+    ExpressPriceService expressPriceService;
+
+    @Autowired
+    BuildingRepository buildingRepository;
+
+
     /**
      * 登录
      * @param admin_id
@@ -178,6 +191,19 @@ public class AdminController {
         if(admin_id==null)
             return null;
         return refundService.getRefund(page,size);
+    }
+
+    /**
+     * 获取快递大小
+     * @return
+     */
+
+    @RequestMapping("/get_express_size")
+    List<ExpressSize> getExpressSize(@RequestParam("session_key")String session_key){
+        String admin_id=adminService.getAdminId(session_key);
+        if(admin_id==null)
+            return null;
+        return expressSizeRepository.findAll();
     }
 
 
@@ -363,8 +389,6 @@ public class AdminController {
 
 
 
-    //////接下来全是搜索有关
-
     /**
      * 根据订单号搜索订单
      */
@@ -432,4 +456,45 @@ public class AdminController {
         return preorderService.searchPreorderByUserId(value, page, size);
     }
 
+
+    @RequestMapping("/get_express_price")
+    List<ExpressPrice> getExpressPrice(@RequestParam("session_key")String session_key){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return expressPriceRepository.findAll();
+    }
+
+    @RequestMapping("/edit_express_price")
+    String editExpressPrice(@RequestParam("session_key")String session_key,
+                            @RequestParam("mainkey")Integer mainkey,
+                            @RequestParam("dest_building_id")String dest_building_id,
+                            @RequestParam("express_point_id")String express_point_id,
+                            @RequestParam("price")Double price,
+                            @RequestParam("size_id")String size_id){
+        if(adminService.getAdminId(session_key)==null) return createStatus(false);
+        return expressPriceService.editExpressPrice(mainkey, dest_building_id, express_point_id, price, size_id);
+    }
+
+    @RequestMapping("/add_express_price")
+    String addExpressPrice(@RequestParam("session_key")String session_key,
+                            @RequestParam("mainkey")Integer mainkey,
+                            @RequestParam("dest_building_id")String dest_building_id,
+                            @RequestParam("express_point_id")String express_point_id,
+                            @RequestParam("price")Double price,
+                            @RequestParam("size_id")String size_id){
+        if(adminService.getAdminId(session_key)==null) return createStatus(false);
+        return expressPriceService.addExpressPrice(dest_building_id, express_point_id, price, size_id);
+    }
+
+    @RequestMapping("/delete_express_price")
+    String deleteExpressPrice(@RequestParam("session_key")String session_key,
+                              @RequestParam("mainkey")Integer mainkey){
+        if(adminService.getAdminId(session_key)==null) return createStatus(false);
+        return expressPriceService.deleteExpressPrice(mainkey);
+    }
+
+    @RequestMapping("/get_building")
+    List<Building> getBuilding(@RequestParam("session_key")String session_key){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return buildingRepository.findAll();
+    }
 }

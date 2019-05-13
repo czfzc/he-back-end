@@ -82,6 +82,7 @@ public class AddressServiceImpl implements AddressService{
         address.setRoomNum(room_num);
         address.setBuildId(build_id);
         address.setAddition(addition);
+        addressRepository.save(address);
         return true;
     }
 

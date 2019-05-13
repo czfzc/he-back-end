@@ -12,6 +12,15 @@ public class ExpressPrice {
     String expressPointId;
     Double price;
     String sizeId;
+    String sendMethodId;
+
+    public String getSendMethodId() {
+        return sendMethodId;
+    }
+
+    public void setSendMethodId(String sendMethodId) {
+        this.sendMethodId = sendMethodId;
+    }
 
     public String getSizeId() {
         return sizeId;

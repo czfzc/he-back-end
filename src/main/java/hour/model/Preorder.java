@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="user_proxy_express_preorder")
+@Table(name="user_preorder")
 public class Preorder {
 
     @Id
@@ -28,11 +28,19 @@ public class Preorder {
     private Integer status;
     private Integer payed;
     private boolean abled;
-    private Integer sendMethodId;
+    private String sendMethodId;
     @Transient
     private List<Express> express;
     @Transient
     private Address address;
+
+    public String getSendMethodId() {
+        return sendMethodId;
+    }
+
+    public void setSendMethodId(String sendMethodId) {
+        this.sendMethodId = sendMethodId;
+    }
 
     public Address getAddress() {
         return address;
@@ -138,11 +146,4 @@ public class Preorder {
         this.abled = abled;
     }
 
-    public Integer getSendMethodId() {
-        return sendMethodId;
-    }
-
-    public void setSendMethodId(Integer sendMethodId) {
-        this.sendMethodId = sendMethodId;
-    }
 }

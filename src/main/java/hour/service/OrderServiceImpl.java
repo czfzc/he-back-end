@@ -170,13 +170,19 @@ public class OrderServiceImpl implements OrderService {
 
     private JSONObject orderXmlToJson(String xml,String appid,String mykey){
         JSONObject toret=new JSONObject();
-        toret.put("timeStamp", String.valueOf(System.currentTimeMillis()));
-        toret.put("appId", appid);
-        toret.put("nonceStr", UUID.randomUUID().toString().replace("-", ""));
-        toret.put("signType", "MD5");
         try {
             Document doc= DocumentHelper.parseText(xml);
             Element ele=doc.getRootElement();
+            if("FAIL".equals(ele.element("return_code").getText()))
+                return new JSONObject(){
+                    {
+                        this.put("status", false);
+                    }
+                };
+            toret.put("timeStamp", String.valueOf(System.currentTimeMillis()));
+            toret.put("appId", appid);
+            toret.put("nonceStr", UUID.randomUUID().toString().replace("-", ""));
+            toret.put("signType", "MD5");
             toret.put("package", "prepay_id="+ele.element("prepay_id").getText());
             toret.put("paySign", this.calculateSign(toret, mykey));
         } catch (Exception e) {
@@ -318,14 +324,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public double calcuToal(JSONArray preorders){
+    public double calcuTotal(JSONArray preorders){
 
         double sum=0;
 
         for(int i=0;i<preorders.size();i++){
             JSONObject preorder=preorders.getJSONObject(i);
-            if("1".equals(preorder.getString("serviceId"))){  //快递代取服务的id为1
+            if(preorder.getInteger("service_id")==1){  //快递代取服务的id为1
                 sum+=preorderService.cacuTotalByObject(preorder);
+            }else if(preorder.getInteger("service_id")==9){
+                sum+=10;
             }
         }
 
