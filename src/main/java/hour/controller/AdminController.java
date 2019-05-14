@@ -64,6 +64,9 @@ public class AdminController {
     @Autowired
     BuildingRepository buildingRepository;
 
+    @Autowired
+    SendMethodService sendMethodService;
+
 
     /**
      * 登录
@@ -206,6 +209,14 @@ public class AdminController {
         return expressSizeRepository.findAll();
     }
 
+    @RequestMapping("/get_send_method")
+    List<SendMethod> getSendMethod(@RequestParam("session_key")String session_key){
+        String admin_id=adminService.getAdminId(session_key);
+        if(admin_id==null)
+            return null;
+        return sendMethodService.getSendMethodByServiceId("1");
+    }
+
 
     /**
      * 设置已取到快递
@@ -293,19 +304,7 @@ public class AdminController {
         String admin_id=adminService.getAdminId(session_key);
         if(admin_id==null)
             return createStatus(false);
-        Order order=orderRepository.findByOrderId(order_id);
-        if(order==null)
-            return createStatus(false);
-        int i=preorderRepository.findAllByOrderIdAndStatus(order_id,1).size();  //检查总订单里预付单完结的个数
-        if(i!=0)
-            return createStatus(false);
-        //此处写退款函数
-        if(!orderService.refundOrder(order_id)){
-            return createStatus(false);
-        }
-        order.setPayed(2);  //payed为2则为退款状态
-        orderRepository.save(order);
-        return createStatus(true);
+        return refundService.adminRefundOrder(order_id);
     }
 
 
@@ -338,7 +337,7 @@ public class AdminController {
         //应在此给用户发送推送提醒退款到账
         order.setAbled(false);
         orderRepository.save(order);
-        return createStatus(orderService.refundOrder(order_id));
+        return refundService.adminRefundOrder(order_id);
     }
 
     /**
@@ -382,7 +381,7 @@ public class AdminController {
 
         refundRepository.save(refund);
 
-        orderService.refundOrder(refund.getOrderId());
+        refundService.adminRefundOrder(refund.getOrderId());
 
         return createStatus(true);
     }
@@ -458,9 +457,10 @@ public class AdminController {
 
 
     @RequestMapping("/get_express_price")
-    List<ExpressPrice> getExpressPrice(@RequestParam("session_key")String session_key){
+    Page<ExpressPrice> getExpressPrice(@RequestParam("session_key")String session_key,
+        @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
-        return expressPriceRepository.findAll();
+        return expressPriceService.getExpressPrice(page, size);
     }
 
     @RequestMapping("/edit_express_price")
@@ -469,9 +469,10 @@ public class AdminController {
                             @RequestParam("dest_building_id")String dest_building_id,
                             @RequestParam("express_point_id")String express_point_id,
                             @RequestParam("price")Double price,
-                            @RequestParam("size_id")String size_id){
+                            @RequestParam("size_id")String size_id,
+                            @RequestParam("send_method_id")String send_method_id){
         if(adminService.getAdminId(session_key)==null) return createStatus(false);
-        return expressPriceService.editExpressPrice(mainkey, dest_building_id, express_point_id, price, size_id);
+        return expressPriceService.editExpressPrice(mainkey, dest_building_id, express_point_id, price, size_id,send_method_id);
     }
 
     @RequestMapping("/add_express_price")

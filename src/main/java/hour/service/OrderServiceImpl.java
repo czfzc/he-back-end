@@ -7,6 +7,7 @@ import hour.model.Order;
 import hour.model.User;
 import hour.repository.OrderRepository;
 import hour.repository.UserRepository;
+import hour.util.StringUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -144,10 +145,10 @@ public class OrderServiceImpl implements OrderService {
         content.put("!openid", openid);																						//用户身份标识
         content.put("!out_trade_no", orderid);																				//订单id
         content.put("!spbill_create_ip", ip);																				//用户ip地址
-        content.put("!total_fee", String.valueOf((int)(total*100)));															//总价
+        content.put("!total_fee", String.valueOf(total));															//总价
         content.put("!trade_type", "JSAPI");																				//接口种类 此为小程序
 
-        content.put("!sign", this.calculateSign(content,mykey));
+        content.put("!sign", StringUtil.calculateSign(content,mykey));
         String xml=xmlCreater(content);
         System.out.println(xml);
         String prepay= NetUtil.sendPost("https://api.mch.weixin.qq.com/pay/unifiedorder",xml);
@@ -184,7 +185,7 @@ public class OrderServiceImpl implements OrderService {
             toret.put("nonceStr", UUID.randomUUID().toString().replace("-", ""));
             toret.put("signType", "MD5");
             toret.put("package", "prepay_id="+ele.element("prepay_id").getText());
-            toret.put("paySign", this.calculateSign(toret, mykey));
+            toret.put("paySign", StringUtil.calculateSign(toret, mykey));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -198,70 +199,7 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    /**
-     * 计算微信接口的sign
-     * @param map
-     * @param mykey
-     * @return
-     */
 
-    private String calculateSign(Map map,String mykey){
-        String toret="";
-        Collection<String> keyset=map.keySet();
-        List<String> list=new ArrayList<String>(keyset);
-        Collections.sort(list);
-        for(int i=0;i<list.size();i++){
-            toret+=(list.get(i).replaceFirst("!", "")+"="+map.get(list.get(i))+"&");
-        }
-
-        toret+="key="+mykey;
-        System.out.println(toret);
-        return md5(toret).toUpperCase();
-    }
-
-    /**
-     * 退款
-     * @return
-     */
-    @Override
-    public boolean refundOrder(String orderid){
-
-        Order order=orderRepository.findByOrderId(orderid);
-
-        if(order==null)
-            return false;
-
-        if(order.getPayed()!=1)
-            return false;
-
-        Double total=order.getTotalFee();
-
-        Map<String,String> content=new LinkedHashMap<String,String>();
-        content.put("!appid", appid);																						//小程序appid
-        content.put("!mch_id", mch_id);																						//商户id
-        content.put("!nonce_str", getRandom(10));																				//随机数 不超过32位
-        //	content.put("!notify_url", "https://shop.wly01.cn/myshop/onFinishedPayed");											//退款完成的会调接口
-        content.put("!out_trade_no", orderid);																				//订单id
-        content.put("!out_refund_no", orderid);																				//退款id
-        content.put("!total_fee", String.valueOf(total));														//订单总价
-        content.put("!refund_fee", String.valueOf(total));														//退款金额
-        //	content.put("refund_desc", "sold_out");																				//退款原因
-        content.put("!sign", this.calculateSign(content,mykey));
-        String xml=xmlCreater(content);
-        System.out.println(xml);
-        try {
-            Resource res = new ClassPathResource("cer.p12");
-            String cerPath=res.getFile().getPath();
-            String refund=postData("https://api.mch.weixin.qq.com/secapi/pay/refund", xml, mch_id, cerPath);
-            System.out.println(new String(refund.getBytes(),"UTF-8"));
-            if(refund.contains("FAIL"))
-                return false;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return true;
-    }
 
 
     /**

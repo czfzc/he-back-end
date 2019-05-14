@@ -32,11 +32,6 @@ public interface OrderService {
 
     Page<Order> getOrder(Integer page, Integer size);
 
-    /**
-     * 退款
-     */
-    boolean refundOrder(String orderid);
-
     Long getCount();
 
     Page<Order> searchOrderById(String value, Integer page, Integer size);

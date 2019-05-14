@@ -10,8 +10,9 @@ import org.springframework.core.io.Resource;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+
+import static hour.util.CodeUtil.md5;
 
 public class StringUtil {
     /**
@@ -88,6 +89,27 @@ public class StringUtil {
 
     public static String getRandom(int length){
         return String.valueOf((int)(new Random().nextInt((int)((Math.pow(10,length)-Math.pow(10, length-1))))+Math.pow(10, length-1)));
+    }
+
+    /**
+     * 计算微信接口的sign
+     * @param map
+     * @param mykey
+     * @return
+     */
+
+    public static String calculateSign(Map map,String mykey){
+        String toret="";
+        Collection<String> keyset=map.keySet();
+        List<String> list=new ArrayList<String>(keyset);
+        Collections.sort(list);
+        for(int i=0;i<list.size();i++){
+            toret+=(list.get(i).replaceFirst("!", "")+"="+map.get(list.get(i))+"&");
+        }
+
+        toret+="key="+mykey;
+        System.out.println(toret);
+        return md5(toret).toUpperCase();
     }
 
 }
