@@ -8,6 +8,7 @@ import hour.model.User;
 import hour.repository.OrderRepository;
 import hour.repository.UserRepository;
 import hour.util.StringUtil;
+import hour.util.TimeUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -79,6 +80,23 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Value("${order.max-time-min}")
+    int max_time;
+    @Override
+    public String repayOrder(String user_id, String order_id){
+        Order order=orderRepository.findByOrderIdAndUserId(order_id,user_id);
+        if(order==null) return createStatus(false);
+        if(!order.isAbled()) return createStatus(false);
+        if(order.getPayed()!=0) return createStatus(false);
+        if(order.getTotalFee()==0) return createStatus(false);
+        if(TimeUtil.getTimeDiffMin(new Date(),order.getTime())>max_time) return createStatus(false);
+
+        return this.unifiedorder(order.getOrderId(),order.getIp(),
+                userRepository.findByUserId(user_id).getOpenId(),(int)(order.getTotalFee()*100)).toJSONString();
+
+    }
+
+
 
 
     /**
@@ -138,7 +156,7 @@ public class OrderServiceImpl implements OrderService {
         String nonce_str= UUID.randomUUID().toString().replace("-", "");
         Map<String,String> content=new LinkedHashMap<String,String>();
         content.put("!appid", appid);																						//小程序appid
-        content.put("!body", "express");																					//商品描述
+        content.put("!body", "快递代取");																					//商品描述
         content.put("!mch_id", mch_id);																						//商户id
         content.put("!nonce_str", nonce_str);																				//随机数 不超过32位
         content.put("!notify_url", onFinish);													//订单完成的会调接口
@@ -277,6 +295,17 @@ public class OrderServiceImpl implements OrderService {
 
         return sum;
 
+    }
+
+    @Override
+    public Page<Order> getOrderByUserId(String user_id, Integer page, Integer size) {
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Order> orders=orderRepository.findAllByUserId(user_id,pageable);
+        for(Iterator<Order> i=orders.iterator();i.hasNext();){
+            Order order=i.next();
+            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
+        }
+        return orders;
     }
 
 }

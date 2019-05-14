@@ -46,6 +46,13 @@ public class OrderController {
         return orderService.payOrder(ip, mysession, preorders);
     }
 
+    @RequestMapping("/repay_order")
+    String repayOrder(@RequestParam("mysession")String mysession,@RequestParam("order_id")String order_id){
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) return createStatus(false);
+        return orderService.repayOrder(user_id,order_id);
+    }
+
     @RequestMapping("/on_finish_pay")
     String finishPay(HttpServletRequest request){
         String xml= StringUtil.getRawContent(request);
@@ -79,12 +86,17 @@ public class OrderController {
 
     }
 
+    @RequestMapping("/cancel_order")
+    String cancalOrder(@RequestParam("order_id")String order_id,@RequestParam("mysession")String mysession){
+        return this.deleteOrder(order_id, mysession);
+    }
+
     @RequestMapping("/get_order")
     Page<Order> testOrder(@RequestParam("mysession")String mysession,
                           @RequestParam("page")Integer page, @RequestParam("size")Integer size){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return null;
-        return orderService.getOrder(page,size);
+        return orderService.getOrderByUserId(user_id,page,size);
     }
 
     @ResponseBody

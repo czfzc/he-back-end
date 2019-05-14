@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface OrderRepository  extends JpaRepository<Order,Integer>, JpaSpecificationExecutor<Order> {
     Order findByOrderIdAndUserId(String order_id,String user_id);
-    List<Order> findAllByUserId(String user_id);
+    Page<Order> findAllByUserId(String user_id,Pageable pageable);
     Order findByOrderId(String order_id);
     Page<Order> findAllByOrderIdContaining(String value, Pageable pageable);
     Page<Order> findAllByUserIdContaining(String value, Pageable pageable);

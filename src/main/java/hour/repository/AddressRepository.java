@@ -7,10 +7,9 @@ import java.util.List;
 
 public interface AddressRepository extends JpaRepository<Address,Integer> {
     Address findByName(String name);
-    List<Address> findByUserId(String user_id);
-    Address findFirstByUserIdAndIsDefault(String user_id,Integer is_default);
+    List<Address> findByUserIdAndAbledTrue(String user_id);
+    Address findFirstByUserIdAndIsDefaultTrue(String user_id);
     Address findByUserIdAndId(String user_id,String id);
     Address findById(String id);
     Address findFirstByUserId(String user_id);
-    void deleteAddressByUserIdAndIdAndIsDefaultFalse(String user_id,String id);
 }

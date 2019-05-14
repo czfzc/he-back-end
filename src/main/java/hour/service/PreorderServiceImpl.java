@@ -81,6 +81,7 @@ public class PreorderServiceImpl implements PreorderService{
 
     @Override
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
+        if(arr==null) return false;
         if(arr.size()==0)
             return false;
         for(int i=0;i<arr.size();i++){
@@ -93,7 +94,6 @@ public class PreorderServiceImpl implements PreorderService{
 
                 Preorder preorder=new Preorder();
                 String send_method_id=jo.getString("send_method_id");
-
 
                 preorder.setId(preorder_id);
                 preorder.setAddressId(address_id);
@@ -139,6 +139,7 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setPayed(0);
                 preorder.setAbled(true);
                 preorder.setTotalFee(total);
+                preorder.setSendMethodId("4");
                 preorderRepository.save(preorder);
 
                 return expressMonthCardService.payIt(user_id,preorder_id);

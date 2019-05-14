@@ -41,13 +41,13 @@ public class AddressServiceImpl implements AddressService{
         address.setRoomNum(room_num);
         address.setBuildId(build_id);
         address.setAddition(addition);
-        address.setAbled(true);;
+        address.setAbled(true);
         address.setDefault(true);
         addressRepository.save(address);
         this.setDefaultDAO(user_id,id);
         return new JSONObject(){
             {
-                this.put("address_id",id);
+                this.put("address",address);
                 this.put("status",true);
             }
         }.toJSONString();
@@ -64,8 +64,7 @@ public class AddressServiceImpl implements AddressService{
     public List<Address> getAllAddress(String mysession){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return null;
-        List<Address> list=addressRepository.findByUserId(user_id);
-        return addressRepository.findByUserId(user_id);
+        return addressRepository.findByUserIdAndAbledTrue(user_id);
     }
 
     @Override
@@ -90,18 +89,20 @@ public class AddressServiceImpl implements AddressService{
     public boolean deleteAddress(String address_id, String mysession){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return false;
-        addressRepository.deleteAddressByUserIdAndIdAndIsDefaultFalse(user_id,address_id);
+        Address address=addressRepository.findByUserIdAndId(user_id,address_id);
+        address.setAbled(false);
+        addressRepository.save(address);
         return true;
     }
 
     private boolean setDefaultDAO(String user_id, String address_id){
-        Address ad1=addressRepository.findFirstByUserIdAndIsDefault(user_id,1);
+        Address ad1=addressRepository.findFirstByUserIdAndIsDefaultTrue(user_id);
         if(ad1!=null) {
-            ad1.setDefault(true);
+            ad1.setDefault(false);
             addressRepository.save(ad1);
         }
         Address ad2=addressRepository.findByUserIdAndId(user_id,address_id);
-        ad2.setDefault(false);
+        ad2.setDefault(true);
         addressRepository.save(ad2);
         return true;
     }

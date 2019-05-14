@@ -11,6 +11,7 @@ import hour.repository.ExpressPointRepository;
 import hour.repository.ExpressPriceRepository;
 import hour.repository.ExpressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ public class ExpressServiceImpl implements ExpressService {
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
+        if(expresses==null) return false;
         if(expresses.size()==0)
             return false;
         for(int i=0;i<expresses.size();i++){
@@ -150,6 +152,8 @@ public class ExpressServiceImpl implements ExpressService {
                 express.getString("address_id"),express.getString("size_id"),
                 express.getString("send_method_id"));
     }
+
+    @Value("${express.default-price}")
 
     private double getTotal(String expressPointId,String addressId,String sizeId,String sendMethodId){
         double total=1.5;  //默认计费价格

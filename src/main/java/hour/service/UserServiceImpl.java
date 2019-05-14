@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService{
 
     @Value("${wexin.appid}")
     private String appid;
-    @Value("${wexin.mykey}")
+    @Value("${wexin.key}")
     private String secret;
 
     private User user;
@@ -54,6 +54,8 @@ public class UserServiceImpl implements UserService{
                     this.put("mysession",user.getMysession());
                     this.put("status",true);
                     this.put("registed",user.getUserId()!=null);
+                    if(user.getUserId()!=null)
+                        this.put("user_id",user.getUserId());
                 }
             }.toJSONString();
         }else return createStatus(false);

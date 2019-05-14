@@ -14,6 +14,8 @@ public interface OrderService {
 
     String payOrder(String ip, String mysession, JSONArray preorders);
 
+    String repayOrder(String user_id, String order_id);
+
     /**
      * 根据微信回调接口的发送来的xml设置订单付款
      * @param xml
@@ -40,4 +42,6 @@ public interface OrderService {
 
 
     double calcuTotal(JSONArray preorders);
+
+    Page<Order> getOrderByUserId(String user_id, Integer page, Integer size);
 }
