@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService{
         Integer errcode=js.getInteger("errcode");
 
         if(errcode==null||errcode==0){
-            user=userRepository.findByOpenId(openid);
+            user=userRepository.findByOpenIdAndAbledTrue(openid);
             if(user==null)  //当此用户不存在
                 user=new User();
             String mysession=md5(openid+session_key);

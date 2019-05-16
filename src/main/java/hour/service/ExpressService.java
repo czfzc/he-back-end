@@ -11,7 +11,7 @@ import java.util.List;
 public interface ExpressService {
     boolean addExpress(JSONArray express,String preorder_id,String address_id,String user_id,String send_method_id);
 
-    List<Express> getExpress(String preorder_id, Integer page, Integer size);
+    List<Express> getExpress(String preorder_id);
 
     Page<Express> getAllExpress(Integer page, Integer size);
 

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import hour.model.*;
 import hour.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     MoreProductRepository moreProductRepository;
 
+    @Autowired
+    ServiceRepository serviceRepository;
+
 
     @Override
     public double calculateTotal(String order_id) {
@@ -57,11 +61,17 @@ public class PreorderServiceImpl implements PreorderService{
     @Override
     public List<Preorder> getAllPreorderByOrderId(String order_id){
         List<Preorder> list=preorderRepository.findAllByOrderId(order_id);
-        for(int i=0;i<list.size();i++){
-            Preorder preorder=list.get(i);
-            preorder.setExpress(expressService.getExpress(preorder.getId(),0,1000));
+        for(Iterator<Preorder> i=list.iterator();i.hasNext();){
+            Preorder preorder=i.next();
+            if(!serviceRepository.findById(preorder.getServiceId()).get().isShow()) {
+                i.remove();
+                continue;
+            }
+
+            preorder.setExpress(expressService.getExpress(preorder.getId()));
             preorder.setAddress(addressRepository.findById(preorder.getAddressId()));
         }
+
         return list;
     }
 
@@ -79,6 +89,9 @@ public class PreorderServiceImpl implements PreorderService{
         return pages;
     }
 
+    @Value("${express.max-express-count}")
+    Integer max_express_count;
+
     @Override
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
         if(arr==null) return false;
@@ -86,9 +99,14 @@ public class PreorderServiceImpl implements PreorderService{
             return false;
         for(int i=0;i<arr.size();i++){
             JSONObject jo=arr.getJSONObject(i);
-            if(jo==null) return false;
+            if(jo==null) continue;
+            if(!serviceRepository.findById(jo.getInteger("service_id")).get().isAbled()) //判断业务不可用则下单失败
+                continue;
             if(jo.getInteger("service_id")==1){ //快递代取业务预付单
+
                 JSONArray express=jo.getJSONArray("express");
+                if(express.size()>max_express_count)             //快递数目不得超过指定件数
+                    continue;
                 String preorder_id= UUID.randomUUID().toString().replace("-","");
                 String address_id=jo.getString("address_id");
 
@@ -114,7 +132,7 @@ public class PreorderServiceImpl implements PreorderService{
                         preorder.setTotalFee(total);
                         preorderRepository.save(preorder);
                     }
-                }else return false;
+                }
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
 
                 String preorder_id= UUID.randomUUID().toString().replace("-","");

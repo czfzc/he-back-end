@@ -11,6 +11,7 @@ import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class OrderController {
      */
     @ResponseBody
     @RequestMapping("/unified_order")
+    @Transactional(rollbackFor = Exception.class)
     String unifiedOrder(@RequestBody JSONObject data,HttpServletRequest httpServletRequest){
 
         String mysession=data.getString("mysession");

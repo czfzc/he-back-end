@@ -14,6 +14,15 @@ public class User {
     private String openId;
     private String sessionId;
     private String mysession;
+    private boolean abled;
+
+    public boolean isAbled() {
+        return abled;
+    }
+
+    public void setAbled(boolean abled) {
+        this.abled = abled;
+    }
 
     public String getMysession() {
         return mysession;

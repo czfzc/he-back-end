@@ -230,6 +230,7 @@ public class AdminController {
         Express express = expressRepository.findFirstByExpressId(express_id);
         if(express==null)
             return createStatus(false);
+        express.setSenderAdminId(admin_id);
         express.setStatus(1);
         expressRepository.save(express);
         return createStatus(true);

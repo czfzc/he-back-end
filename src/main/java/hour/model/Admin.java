@@ -1,5 +1,7 @@
 package hour.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,12 +9,17 @@ import javax.persistence.*;
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @JsonIgnore
     Integer mainkey;
     String adminId;
     String name;
+    @JsonIgnore
     String password;
+    @JsonIgnore
     String sessionKey;
+    @JsonIgnore
     Integer smsCode;
+    @JsonIgnore
     boolean abled;
 
     public boolean isAbled() {

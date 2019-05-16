@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "user_proxy_express")
+@Table(name = "user_express")
 public class Express {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -32,6 +32,26 @@ public class Express {
     boolean abled;
     String expressPointId;
     String sendMethodId;
+    @JsonIgnore
+    String senderAdminId;
+    @Transient
+    Admin sender;
+
+    public Admin getSender() {
+        return sender;
+    }
+
+    public void setSender(Admin sender) {
+        this.sender = sender;
+    }
+
+    public String getSenderAdminId() {
+        return senderAdminId;
+    }
+
+    public void setSenderAdminId(String senderAdminId) {
+        this.senderAdminId = senderAdminId;
+    }
 
     public String getSendMethodId() {
         return sendMethodId;

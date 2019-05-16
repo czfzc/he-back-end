@@ -29,7 +29,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public String login(String admin_id, String raw_password) {
         String password = md5(admin_id + raw_password);
-        Admin admin = adminRepository.findFirstByAdminIdAndPassword(admin_id, password);
+        Admin admin = adminRepository.findFirstByAdminIdAndPasswordAndAbledTrue(admin_id, password);
         System.out.println(admin_id+"  "+password);
         if (admin != null&&admin.isAbled()) {
             String session_key = md5(System.currentTimeMillis() + password);
@@ -49,7 +49,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public String regist(String admin_id, String raw_password, Integer sms_code, String name) {
-        Admin admin = adminRepository.findFirstByAdminIdAndSmsCode(admin_id, sms_code);
+        Admin admin = adminRepository.findFirstByAdminIdAndSmsCodeAndAbledTrue(admin_id, sms_code);
         if (admin == null)
             return createStatus(false);
         else {

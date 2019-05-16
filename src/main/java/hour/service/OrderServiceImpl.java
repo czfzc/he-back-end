@@ -2,6 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.repository.ServiceRepository;
 import hour.util.NetUtil;
 import hour.model.Order;
 import hour.model.User;
@@ -75,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setPayed(1);
                 orderRepository.save(order);
                 return createStatus(true);
-            }else return this.unifiedorder(order_id,ip,open_id,(int)total*100).toJSONString();
+            }else return this.unifiedorder(order_id,ip,open_id,(int)(total*100)).toJSONString();
         }else return createStatus(false);
 
     }
@@ -120,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
                 String weixin_orderid= ele.elementText("transaction_id");
                 String finish_time= ele.elementText("time_end");
 
-                String user_id=userRepository.findByOpenId(open_id).getUserId();
+                String user_id=userRepository.findByOpenIdAndAbledTrue(open_id).getUserId();
 
                 Order order=orderRepository.findByOrderIdAndUserId(order_id,user_id);
 
@@ -229,6 +230,7 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders=orderRepository.findAll(pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
+
             order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
         }
         return orders;

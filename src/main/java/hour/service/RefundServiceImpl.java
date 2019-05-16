@@ -142,6 +142,8 @@ public class RefundServiceImpl implements RefundService{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        order.setPayed(2);
+        orderRepository.save(order);
         return true;
     }
 

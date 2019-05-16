@@ -6,10 +6,7 @@ import hour.model.Address;
 import hour.model.Express;
 import hour.model.ExpressPoint;
 import hour.model.ExpressPrice;
-import hour.repository.AddressRepository;
-import hour.repository.ExpressPointRepository;
-import hour.repository.ExpressPriceRepository;
-import hour.repository.ExpressRepository;
+import hour.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -37,6 +34,9 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     AddressRepository addressRepository;
+
+    @Autowired
+    AdminRepository adminRepository;
 
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
@@ -79,9 +79,15 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     @Override
-    public List<Express> getExpress(String preorder_id, Integer page, Integer size){
-        Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return expressRepository.findAllByPreorderIdAndAbledTrue(preorder_id,pageable).getContent();
+    public List<Express> getExpress(String preorder_id){
+        Pageable pageable=new PageRequest(0,100, Sort.Direction.DESC,"time");
+        List<Express> list=expressRepository.findAllByPreorderIdAndAbledTrue(preorder_id,pageable).getContent();
+        for(int i=0;i<list.size();i++){
+            Express express=list.get(i);
+            if(express.getSenderAdminId()!=null)
+                express.setSender(adminRepository.findFirstByAdminId(express.getSenderAdminId()));
+        }
+        return list;
     }
 
     @Override

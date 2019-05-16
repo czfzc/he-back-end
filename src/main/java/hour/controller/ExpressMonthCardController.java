@@ -16,7 +16,7 @@ import static hour.util.StringUtil.createStatus;
 
 @RestController
 @ComponentScan(basePackages = "hour")
-@RequestMapping("express_month_card")
+@RequestMapping("/express_month_card")
 public class ExpressMonthCardController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class ExpressMonthCardController {
     @Autowired
     UserService userService;
 
-    @RequestMapping("has_card")
+    @RequestMapping("/has_card")
     public String hasCard(@RequestParam("mysession")String mysession){
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return createStatus(false);
@@ -38,7 +38,7 @@ public class ExpressMonthCardController {
         }else{
             return new JSONObject(){
                 {
-                    this.put("true",false);
+                    this.put("status",true);
                     this.put("remain_days",days);
                 }
             }.toJSONString();

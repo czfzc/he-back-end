@@ -42,7 +42,7 @@ public class AddressServiceImpl implements AddressService{
         address.setBuildId(build_id);
         address.setAddition(addition);
         address.setAbled(true);
-        address.setDefault(true);
+        address.setDefault(false);
         addressRepository.save(address);
         this.setDefaultDAO(user_id,id);
         return new JSONObject(){
@@ -102,6 +102,7 @@ public class AddressServiceImpl implements AddressService{
             addressRepository.save(ad1);
         }
         Address ad2=addressRepository.findByUserIdAndId(user_id,address_id);
+        if(ad2==null) return false;
         ad2.setDefault(true);
         addressRepository.save(ad2);
         return true;

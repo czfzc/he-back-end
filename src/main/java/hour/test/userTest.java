@@ -1,14 +1,18 @@
 package hour.test;
 
-import com.alibaba.fastjson.JSONArray;
-import hour.model.Order;
-import hour.service.OrderService;
-import hour.service.OrderServiceImpl;
-
-import java.util.List;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class userTest {
 
-    OrderServiceImpl order=new OrderServiceImpl();
+    public static void main(String[] args){
+        int A=0;
+        for(int i=0;i<10;i++){
+            if(i++%2==0)
+                i++;
+            A++;
+        }
+        System.out.println(A);
+    }
 
 }
