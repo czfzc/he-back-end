@@ -38,6 +38,11 @@ public class ExpressServiceImpl implements ExpressService {
     @Autowired
     AdminRepository adminRepository;
 
+    @Autowired
+    VoucherService voucherService;
+
+    @Value("${express.voucher-type-id}")
+    String type_id;
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
@@ -46,7 +51,12 @@ public class ExpressServiceImpl implements ExpressService {
             return false;
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
-            double total_fee=this.calculatePrice(jo);
+            double total_fee=0;
+            if(jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
+                //如果用户不选择使用代金卷或者选择使用代金劵但是代金劵无效 则计费
+                total_fee=this.calculatePrice(jo);
+            }
+
             String name=jo.getString("name");
             String phone_num=jo.getString("phone_num");
             String sms_content=jo.getString("sms_content");
@@ -154,15 +164,16 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public double getTotalByObject(JSONObject express){
-        return this.getTotal(express.getString("express_point_id"),
+        if(express.getBoolean("use_voucher")==true) return 0;
+        else return this.getTotal(express.getString("express_point_id"),
                 express.getString("address_id"),express.getString("size_id"),
                 express.getString("send_method_id"));
     }
 
     @Value("${express.default-price}")
+    double total;
 
     private double getTotal(String expressPointId,String addressId,String sizeId,String sendMethodId){
-        double total=1.5;  //默认计费价格
         Address address=addressRepository.findById(addressId);
         if(address==null) return total;
         String dest_building_id=address.getBuildId();

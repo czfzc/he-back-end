@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public String getUserId(String mysession) {
-        User user=userRepository.findByMysession(mysession);
+        User user=userRepository.findByMysessionAndAbledTrue(mysession);
         if(user==null) return null;
         return user.getUserId();
     }

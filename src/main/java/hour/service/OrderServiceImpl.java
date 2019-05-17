@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
-        User user=userRepository.findByMysession(mysession);
+        User user=userRepository.findByMysessionAndAbledTrue(mysession);
         if(user==null) return createStatus(false);
         String open_id=user.getOpenId();
         String user_id=user.getUserId();
