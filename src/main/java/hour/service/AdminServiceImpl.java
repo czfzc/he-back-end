@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.qcloudsms.SmsSingleSender;
 import hour.model.Admin;
 import hour.repository.AdminRepository;
+import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 import static hour.util.CodeUtil.md5;
 import static hour.util.StringUtil.createStatus;
@@ -34,6 +37,7 @@ public class AdminServiceImpl implements AdminService {
         if (admin != null&&admin.isAbled()) {
             String session_key = md5(System.currentTimeMillis() + password);
             admin.setSessionKey(session_key);
+            admin.setLastLoginTime(new Date());
             adminRepository.save(admin);
             return new JSONObject() {
                 {
@@ -58,6 +62,7 @@ public class AdminServiceImpl implements AdminService {
             admin.setPassword(password);
             admin.setName(name);
             admin.setSessionKey(session_key);
+            admin.setLastLoginTime(new Date());
             admin.setAbled(true);
             return new JSONObject() {
                 {
@@ -69,12 +74,22 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
+    @Value("${admin.session-expire-min}")
+    Integer expireMin;
+
     /**
      * 验证session_id
      */
     @Override
     public boolean validateSession(String session_key){
-        return adminRepository.findFirstBySessionKey(session_key)!=null;
+        Admin admin= adminRepository.findFirstBySessionKeyAndAbledTrue(session_key);
+        if(admin==null) return false;
+        Date lastLoginTime=admin.getLastLoginTime();
+        if(lastLoginTime==null) return false;
+        if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expireMin) return false;
+        admin.setLastLoginTime(new Date());
+        adminRepository.save(admin);
+        return true;
     }
 
     /**
@@ -92,8 +107,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public String getAdminId(String session_key) {
-        Admin admin=adminRepository.findFirstBySessionKey(session_key);
-        if(admin!=null&&admin.isAbled())
+        Admin admin=adminRepository.findFirstBySessionKeyAndAbledTrue(session_key);
+        if(admin!=null)
             return admin.getAdminId();
         return null;
     }

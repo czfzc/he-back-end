@@ -5,9 +5,12 @@ import hour.util.CodeUtil;
 import hour.util.NetUtil;
 import hour.model.User;
 import hour.repository.UserRepository;
+import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 import static hour.util.CodeUtil.md5;
 import static hour.util.StringUtil.createStatus;
@@ -95,10 +98,17 @@ public class UserServiceImpl implements UserService{
         }else return createStatus(false);
     }
 
+    @Value("${user.session-expire-min}")
+    Integer expire;
+
     @Override
     public String getUserId(String mysession) {
         User user=userRepository.findByMysessionAndAbledTrue(mysession);
         if(user==null) return null;
+        Date lastLoginTime=user.getLastLoginTime();
+        if(lastLoginTime==null) return null;
+        if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expire)
+            return null;
         return user.getUserId();
     }
 

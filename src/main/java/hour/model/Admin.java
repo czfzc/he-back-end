@@ -3,6 +3,7 @@ package hour.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name="admin_inf")
@@ -21,6 +22,16 @@ public class Admin {
     Integer smsCode;
     @JsonIgnore
     boolean abled;
+    @JsonIgnore
+    Date lastLoginTime;
+
+    public Date getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Date lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
 
     public boolean isAbled() {
         return abled;

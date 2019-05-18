@@ -1,6 +1,7 @@
 package hour.model;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name="user_inf")
@@ -15,6 +16,15 @@ public class User {
     private String sessionId;
     private String mysession;
     private boolean abled;
+    private Date lastLoginTime;
+
+    public Date getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Date lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
 
     public boolean isAbled() {
         return abled;
