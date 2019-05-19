@@ -49,6 +49,7 @@ public class UserServiceImpl implements UserService{
             user.setMysession(mysession);
             user.setOpenId(openid);
             user.setSessionId(session_key);
+            user.setAbled(true);
             this.session_key=session_key;
             this.openid=openid;
             userRepository.save(user);
@@ -82,12 +83,17 @@ public class UserServiceImpl implements UserService{
 
         String str=CodeUtil.decrypt(encryptedData,session_key,iv);
 
+        System.out.println(str);
+
         JSONObject json=JSONObject.parseObject(str);
         String phoneNum=json.getString("purePhoneNumber");
         String appid=json.getJSONObject("watermark").getString("appid");
 
+        if(!this.appid.equals(appid)) return createStatus(false);
+
         if(this.appid.equalsIgnoreCase(appid)){
             user.setUserId(phoneNum);
+            user.setLastLoginTime(new Date());
             userRepository.save(user);
             return new JSONObject(){
                 {
@@ -107,6 +113,7 @@ public class UserServiceImpl implements UserService{
         if(user==null) return null;
         Date lastLoginTime=user.getLastLoginTime();
         if(lastLoginTime==null) return null;
+        System.out.println(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime));
         if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expire)
             return null;
         return user.getUserId();

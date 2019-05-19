@@ -51,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
+        if(userService.getUserId(mysession)==null) return createStatus(false);
         User user=userRepository.findByMysessionAndAbledTrue(mysession);
         if(user==null) return createStatus(false);
         String open_id=user.getOpenId();
@@ -281,6 +282,11 @@ public class OrderServiceImpl implements OrderService {
         return orders;
     }
 
+    /**
+     * 计算订单总价
+     * @param preorders
+     * @return
+     */
     @Override
     public double calcuTotal(JSONArray preorders){
 

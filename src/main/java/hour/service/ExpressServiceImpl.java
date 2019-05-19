@@ -51,7 +51,7 @@ public class ExpressServiceImpl implements ExpressService {
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
             double total_fee=0;
-            if(jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
+            if(jo.getBoolean("use_voucher")==null||jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
                 //如果用户不选择使用代金卷或者选择使用代金劵但是代金劵无效 则计费
                 total_fee=this.calculatePrice(jo);
             }
@@ -163,7 +163,8 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public double getTotalByObject(JSONObject express){
-        if(express.getBoolean("use_voucher")==true) return 0;
+        if(express.getBoolean("use_voucher")!=null&&
+                express.getBoolean("use_voucher")==true) return 0;
         else return this.getTotal(express.getString("express_point_id"),
                 express.getString("address_id"),express.getString("size_id"),
                 express.getString("send_method_id"));

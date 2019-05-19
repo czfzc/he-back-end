@@ -20,7 +20,7 @@ public class CommonExceptionHandler {
     public Map<String,Object> exceptionHandler(Exception e){
         Map<String,Object> result = new HashMap<String,Object>();
         result.put("status", false);
-        result.put("message", e.getMessage());
+    //    result.put("message", e.getMessage());
         //正常开发中，可创建一个统一响应实体，如CommonResp
         return result;
     }
