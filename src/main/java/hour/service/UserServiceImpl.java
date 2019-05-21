@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService{
             user.setOpenId(openid);
             user.setSessionId(session_key);
             user.setAbled(true);
+            user.setLastLoginTime(new Date());
             this.session_key=session_key;
             this.openid=openid;
             userRepository.save(user);
