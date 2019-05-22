@@ -69,7 +69,7 @@ public class PreorderServiceImpl implements PreorderService{
             }
 
             preorder.setExpress(expressService.getExpress(preorder.getId()));
-            preorder.setAddress(addressRepository.findById(preorder.getAddressId()));
+            preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
         }
 
         return list;
@@ -83,7 +83,7 @@ public class PreorderServiceImpl implements PreorderService{
 
         for(Iterator<Preorder> i=pages.iterator();i.hasNext();){
             Preorder p=i.next();
-            p.setAddress(addressRepository.findById(p.getAddressId()));
+            p.setAddress(addressRepository.findById(p.getAddressId()).get());
             p.setExpress(expressRepository.findAllByPreorderId(p.getId()));
         }
         return pages;
@@ -107,13 +107,11 @@ public class PreorderServiceImpl implements PreorderService{
                 JSONArray express=jo.getJSONArray("express");
                 if(express.size()>max_express_count)             //快递数目不得超过指定件数
                     continue;
-                String preorder_id= UUID.randomUUID().toString().replace("-","");
                 String address_id=jo.getString("address_id");
 
                 Preorder preorder=new Preorder();
                 String send_method_id=jo.getString("send_method_id");
 
-                preorder.setId(preorder_id);
                 preorder.setAddressId(address_id);
                 preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
@@ -124,7 +122,9 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setAbled(true);
                 preorder.setSendMethodId(send_method_id);
                 preorder.setTotalFee(0D);
-                preorderRepository.save(preorder);
+                String preorder_id=preorderRepository.save(preorder).getId();
+
+                System.out.println("preorder_id="+preorder_id);
 
                 if(expressService.addExpress(express,preorder_id,address_id,user_id,send_method_id)){
                     if(!expressMonthCardService.isAbled(user_id)) {
@@ -134,8 +134,6 @@ public class PreorderServiceImpl implements PreorderService{
                     }
                 }
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
-
-                String preorder_id= UUID.randomUUID().toString().replace("-","");
 
                 Address address =addressRepository.findFirstByUserId(user_id);
                 if(address==null) return false;
@@ -147,7 +145,6 @@ public class PreorderServiceImpl implements PreorderService{
                 Double total=moreProduct.getSum();
 
                 Preorder preorder=new Preorder();
-                preorder.setId(preorder_id);
                 preorder.setAddressId(address_id);
                 preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
@@ -159,8 +156,6 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setTotalFee(total);
                 preorder.setSendMethodId("4");
                 preorderRepository.save(preorder);
-
-                return expressMonthCardService.payIt(user_id,preorder_id);
             }
         }
         return true;
@@ -198,4 +193,5 @@ public class PreorderServiceImpl implements PreorderService{
             sum+=expressService.getTotalByObject(express.getJSONObject(i));
         return sum;
     }
+
 }

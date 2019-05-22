@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface OrderRepository  extends JpaRepository<Order,Integer>, JpaSpecificationExecutor<Order> {
+public interface OrderRepository  extends JpaRepository<Order,String>, JpaSpecificationExecutor<Order> {
     Order findByOrderIdAndUserId(String order_id,String user_id);
     Page<Order> findAllByUserId(String user_id,Pageable pageable);
     Order findByOrderId(String order_id);

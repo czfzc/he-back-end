@@ -7,11 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PreorderRepository extends JpaRepository<Preorder,Integer> {
+public interface PreorderRepository extends JpaRepository<Preorder,String> {
 
     List<Preorder> findAllByOrderId(String order_id);
-
-    Preorder findById(String preorder_id);
 
     Page<Preorder> findAllByIdContaining(String value, Pageable pageable);
 

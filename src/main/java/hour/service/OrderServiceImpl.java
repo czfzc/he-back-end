@@ -2,6 +2,8 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.Preorder;
+import hour.repository.PreorderRepository;
 import hour.repository.ServiceRepository;
 import hour.util.NetUtil;
 import hour.model.Order;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -49,6 +52,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    ExpressMonthCardService expressMonthCardService;
+
+    @Autowired
+    PreorderRepository preorderRepository;
+
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
         if(userService.getUserId(mysession)==null) return createStatus(false);
@@ -56,18 +65,18 @@ public class OrderServiceImpl implements OrderService {
         if(user==null) return createStatus(false);
         String open_id=user.getOpenId();
         String user_id=user.getUserId();
-        String order_id=UUID.randomUUID().toString().replace("-","");
 
         Order order=new Order();
 
         order.setAbled(true);
         order.setIp(ip);
-        order.setOrderId(order_id);
         order.setPayed(0);
         order.setTime(new Date());
         order.setTotalFee(0D);
         order.setUserId(user_id);
-        orderRepository.save(order);
+        String order_id=orderRepository.save(order).getOrderId();
+
+        System.out.println("order_id="+order_id);
 
         if(preorderService.preorderIt(preorders,order_id,user_id)){
             double total=preorderService.calculateTotal(order_id);
@@ -118,21 +127,19 @@ public class OrderServiceImpl implements OrderService {
             if("SUCCESS".equals(ele.elementText("return_code"))&&"SUCCESS".equals(ele.elementText("result_code"))){
                 String open_id=ele.elementText("openid");
                 String order_id=ele.elementText("out_trade_no");
-                float total=Float.valueOf(ele.elementText("total_fee"))/100;
-                String weixin_orderid= ele.elementText("transaction_id");
-                String finish_time= ele.elementText("time_end");
 
-                String user_id=userRepository.findByOpenIdAndAbledTrue(open_id).getUserId();
+                String user_id=userRepository.findByOpenId(open_id).getUserId();
 
                 Order order=orderRepository.findByOrderIdAndUserId(order_id,user_id);
 
                 order.setPayed(1);
 
                 orderRepository.save(order);
-
                 //此处如果失败应当报警
 
-                return true;
+                //对预付单做特异性操作
+                return this.finishIt(order_id);
+
             }else return false;
         }catch(Exception e){
             e.printStackTrace();
@@ -231,7 +238,11 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders=orderRepository.findAll(pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
-
+            List<Preorder> preorders=preorderService.getAllPreorderByOrderId(order.getOrderId());
+            if(preorders.size()==0) {
+                i.remove();
+                continue;
+            }
             order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
         }
         return orders;
@@ -311,9 +322,36 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders=orderRepository.findAllByUserId(user_id,pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
-            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
+            List<Preorder> preorders=preorderService.getAllPreorderByOrderId(order.getOrderId());
+            if(preorders.size()==0) {
+                i.remove();
+                continue;
+            }
+            order.setPreorder(preorders);
         }
         return orders;
     }
 
+
+    /**
+     * 完成支付后预付单的特异性操作
+     * @param order_id
+     * @return
+     */
+
+    @Override
+    public boolean finishIt(String order_id){
+        List<Preorder> preorders=preorderRepository.findAllByOrderId(order_id);
+        if(preorders==null||preorders.size()==0) return false;
+        boolean ret=true;
+        for(int i=0;i<preorders.size();i++){
+            Preorder preorder=preorders.get(i);
+            if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
+                ret=true;
+            }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
+                expressMonthCardService.reNew(preorder.getUserId());
+            }
+        }
+        return ret;
+    }
 }

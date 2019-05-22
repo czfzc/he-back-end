@@ -2,7 +2,9 @@ package hour.service;
 
 import hour.model.ExpressMonthCard;
 import hour.repository.ExpressMonthCardRepository;
+import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
@@ -20,11 +22,7 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
 
     @Override
     public boolean isAbled(ExpressMonthCard expressMonthCard) {
-        if (expressMonthCard == null) return false;
-        Date date1 = expressMonthCard.getEndTime();
-        Date date2 = new Date();
-        if (date2.compareTo(date1) > 0) return false;
-        return true;
+        return this.getRemainsTime(expressMonthCard.getUserId())>0;
     }
 
     @Override
@@ -33,45 +31,48 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
     }
 
     @Override
-    public boolean payIt(String user_id, String preorder_id) {
-        ExpressMonthCard expressMonthCard = new ExpressMonthCard();
-
-        expressMonthCard.setCardId(UUID.randomUUID().toString().replace("-", ""));
-        expressMonthCard.setUserId(user_id);
-        expressMonthCard.setServiceId(1);
-        expressMonthCard.setProductId("09201921");
-        expressMonthCard.setAbled(true);
-        expressMonthCard.setPayed(false);
-        expressMonthCard.setPreorderId(preorder_id);
-
-        Calendar rightNow = Calendar.getInstance();
-        rightNow.setTime(new Date());
-        rightNow.add(Calendar.MONTH, 1);
-        Date dt1 = rightNow.getTime();
-
-        expressMonthCard.setEndTime(dt1);
-
-        expressMonthCardRepository.save(expressMonthCard);
-        return true;
-    }
-
-    @Override
     public int getRemainsTime(String user_id) {
         int sum=0;
-        List<ExpressMonthCard> cards = expressMonthCardRepository.
-                findByUserIdAndPayedTrueAndAbledTrue(user_id);
-        if (cards == null) return 0;
-        for(int i=0;i<cards.size();i++){
-            ExpressMonthCard expressMonthCard=cards.get(i);
-            if (isAbled(expressMonthCard)) {
-                Date date1 = new Date();
-                Date date2 = expressMonthCard.getEndTime();
-                int days = (int) ((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
-                if(days>0)
-                    sum+=days;
-            }
+        ExpressMonthCard card = expressMonthCardRepository.
+                findFirstByUserIdAndAbledTrue(user_id);
+        if (card == null) return 0;
+        int last=(int)TimeUtil.getTimeDiffDate(card.getEndTime(),new Date());
+        return last<0?0:last;
+    }
+
+    @Value("${address.card.renew-add-day}")
+    int renew_add_day;
+
+    /**
+     * 续费快递代取会员卡
+     * @return
+     */
+    @Override
+    public boolean reNew(String user_id) {
+        ExpressMonthCard card = expressMonthCardRepository.
+                findFirstByUserIdAndAbledTrue(user_id);
+        if(card==null){         //假如用户没有卡
+            card=new ExpressMonthCard();
+            card.setUserId(user_id);
+            card.setServiceId(1);
+            card.setProductId("09201921");
+            card.setAbled(true);
+            card.setEndTime(TimeUtil.addDay(new Date(),renew_add_day));
+            expressMonthCardRepository.save(card);
+        }else if(this.getRemainsTime(user_id)==0){   //用户卡到期
+            card.setServiceId(1);
+            card.setProductId("09201921");
+            card.setAbled(true);
+            card.setEndTime(TimeUtil.addDay(new Date(),renew_add_day));
+            expressMonthCardRepository.save(card);
+        }else if(this.getRemainsTime(user_id)>0){
+            card.setServiceId(1);
+            card.setProductId("09201921");
+            card.setAbled(true);
+            card.setEndTime(TimeUtil.addDay(card.getEndTime(),renew_add_day));
+            expressMonthCardRepository.save(card);
         }
-        return sum;
+        return true;
     }
 
 }

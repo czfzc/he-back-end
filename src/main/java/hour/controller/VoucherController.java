@@ -37,6 +37,7 @@ public class VoucherController {
     @RequestMapping("/get_voucher")
     List getVoucher(@RequestParam("mysession")String mysession){
         String user_id=userService.getUserId(mysession);
+        System.out.println("hahahaha");
         if(user_id==null) return null;
         return voucherService.getVoucher(user_id);
     }

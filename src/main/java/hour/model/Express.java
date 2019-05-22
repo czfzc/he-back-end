@@ -2,6 +2,7 @@ package hour.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,9 +11,8 @@ import java.util.Date;
 @Table(name = "user_express")
 public class Express {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @JsonIgnore
-    Integer mainkey;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String expressId;
     @JsonIgnore
     String preorderId;
@@ -107,14 +107,6 @@ public class Express {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public Integer getMainkey() {
-        return mainkey;
-    }
-
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
     }
 
     public String getExpressId() {

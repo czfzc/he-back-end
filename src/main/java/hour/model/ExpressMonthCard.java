@@ -1,45 +1,31 @@
 package hour.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name="user_express_month_card")
 public class ExpressMonthCard {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    Integer mainkey;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String cardId;
     String userId;
     Date endTime;
     Integer serviceId;
     String productId;
-    String preorderId;
     boolean abled;
-    boolean payed;
+    Integer useTimes;
 
-    public String getPreorderId() {
-        return preorderId;
+    public Integer getUseTimes() {
+        return useTimes;
     }
 
-    public void setPreorderId(String preorderId) {
-        this.preorderId = preorderId;
-    }
-
-    public boolean isPayed() {
-        return payed;
-    }
-
-    public void setPayed(boolean payed) {
-        this.payed = payed;
-    }
-
-    public Integer getMainkey() {
-        return mainkey;
-    }
-
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
+    public void setUseTimes(Integer useTimes) {
+        this.useTimes = useTimes;
     }
 
     public String getCardId() {

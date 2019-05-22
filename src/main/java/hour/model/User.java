@@ -1,5 +1,7 @@
 package hour.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -7,16 +9,24 @@ import java.util.Date;
 @Table(name="user_inf")
 public class User {
 
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer mainkey;
-    private String userId;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
+    private String mainId;
     private String openId;
+    private String userId;
     private String sessionId;
     private String mysession;
     private boolean abled;
     private Date lastLoginTime;
+
+    public String getMainId() {
+        return mainId;
+    }
+
+    public void setMainId(String mainId) {
+        this.mainId = mainId;
+    }
 
     public Date getLastLoginTime() {
         return lastLoginTime;
@@ -40,14 +50,6 @@ public class User {
 
     public void setMysession(String mysession) {
         this.mysession = mysession;
-    }
-
-    public Integer getMainkey() {
-        return mainkey;
-    }
-
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
     }
 
     public String getUserId() {

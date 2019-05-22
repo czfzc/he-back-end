@@ -45,16 +45,13 @@ public class ExpressServiceImpl implements ExpressService {
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
+        System.out.println("hahahahaha");
         if(expresses==null) return false;
         if(expresses.size()==0)
             return false;
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
             double total_fee=0;
-            if(jo.getBoolean("use_voucher")==null||jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
-                //如果用户不选择使用代金卷或者选择使用代金劵但是代金劵无效 则计费
-                total_fee=this.calculatePrice(jo);
-            }
 
             String name=jo.getString("name");
             String phone_num=jo.getString("phone_num");
@@ -62,12 +59,16 @@ public class ExpressServiceImpl implements ExpressService {
             String receive_code=jo.getString("receive_code");
             String express_point_id=jo.getString("express_point_id");
             String size_id=jo.getString("size_id");
-            String express_id= UUID.randomUUID().toString().replace("-","");
+
+            if(jo.getBoolean("use_voucher")==null||jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
+                //如果用户不选择使用代金卷或者选择使用代金劵但是代金劵无效 则计费
+                total_fee=this.getTotal(express_point_id,address_id,size_id,send_method_id);
+            }
+
+
 
             Express express=new Express();
-            express.setExpressId(express_id);
             express.setPreorderId(preorder_id);
-            express.setExpressId(express_id);
             express.setName(name);
             express.setPhoneNum(phone_num);
             express.setTotalFee(total_fee);
@@ -174,7 +175,7 @@ public class ExpressServiceImpl implements ExpressService {
     double total;
 
     private double getTotal(String expressPointId,String addressId,String sizeId,String sendMethodId){
-        Address address=addressRepository.findById(addressId);
+        Address address=addressRepository.findById(addressId).get();
         if(address==null) return total;
         String dest_building_id=address.getBuildId();
         ExpressPrice expressPrice=expressPriceRepository.

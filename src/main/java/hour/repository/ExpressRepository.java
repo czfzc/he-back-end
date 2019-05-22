@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ExpressRepository extends JpaRepository<Express,Integer> {
+public interface ExpressRepository extends JpaRepository<Express,String> {
     Page<Express> findAllByPreorderIdAndAbledTrue(String preorder_id, Pageable pageable);
 
     Express findFirstByExpressId(String express_id);

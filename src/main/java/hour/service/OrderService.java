@@ -44,4 +44,6 @@ public interface OrderService {
     double calcuTotal(JSONArray preorders);
 
     Page<Order> getOrderByUserId(String user_id, Integer page, Integer size);
+
+    boolean finishIt(String order_id);
 }

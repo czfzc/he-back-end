@@ -31,10 +31,8 @@ public class AddressServiceImpl implements AddressService{
     public String addAddress(String mysession, String name, String phone_num,
                               String room_num, String build_id, String addition){
         Address address=new Address();
-        String id= UUID.randomUUID().toString().replace("-","");
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return createStatus(false);
-        address.setId(id);
         address.setUserId(user_id);
         address.setName(name);
         address.setPhoneNum(phone_num);
@@ -43,11 +41,11 @@ public class AddressServiceImpl implements AddressService{
         address.setAddition(addition);
         address.setAbled(true);
         address.setDefault(false);
-        addressRepository.save(address);
-        this.setDefaultDAO(user_id,id);
+        final Address address1=addressRepository.save(address);
+        this.setDefaultDAO(user_id,address1.getId());
         return new JSONObject(){
             {
-                this.put("address",address);
+                this.put("address",address1);
                 this.put("status",true);
             }
         }.toJSONString();

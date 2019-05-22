@@ -320,7 +320,7 @@ public class AdminController {
         String admin_id=adminService.getAdminId(session_key);
         if(admin_id==null)
             return createStatus(false);
-        Preorder preorder=preorderRepository.findById(preorder_id);
+        Preorder preorder=preorderRepository.findById(preorder_id).get();
         preorder.setStatus(1);
         return createStatus(true);
     }

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ExpressMonthCardRepository extends JpaRepository<ExpressMonthCard,Integer> {
-    List<ExpressMonthCard> findByUserIdAndPayedTrueAndAbledTrue(String userid);
+public interface ExpressMonthCardRepository extends JpaRepository<ExpressMonthCard,String> {
+    ExpressMonthCard findFirstByUserIdAndAbledTrue(String user_id);
 
 }
