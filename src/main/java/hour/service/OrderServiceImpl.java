@@ -339,7 +339,6 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
 
-    @Override
     public boolean finishIt(String order_id){
         List<Preorder> preorders=preorderRepository.findAllByOrderId(order_id);
         if(preorders==null||preorders.size()==0) return false;
@@ -349,7 +348,7 @@ public class OrderServiceImpl implements OrderService {
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
                 ret=true;
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
-                expressMonthCardService.reNew(preorder.getUserId());
+                ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }
         return ret;

@@ -52,27 +52,30 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
         ExpressMonthCard card = expressMonthCardRepository.
                 findFirstByUserIdAndAbledTrue(user_id);
         if(card==null){         //假如用户没有卡
+            Date date=TimeUtil.addDay(new Date(),renew_add_day);
             card=new ExpressMonthCard();
             card.setUserId(user_id);
             card.setServiceId(1);
             card.setProductId("09201921");
             card.setAbled(true);
-            card.setEndTime(TimeUtil.addDay(new Date(),renew_add_day));
-            expressMonthCardRepository.save(card);
+            card.setEndTime(date);
+            card.setUseTimes(0);
+            Date date2=expressMonthCardRepository.save(card).getEndTime();
+            return date.compareTo(date2)==0;
         }else if(this.getRemainsTime(user_id)==0){   //用户卡到期
-            card.setServiceId(1);
-            card.setProductId("09201921");
+            Date date=TimeUtil.addDay(new Date(),renew_add_day);
             card.setAbled(true);
-            card.setEndTime(TimeUtil.addDay(new Date(),renew_add_day));
-            expressMonthCardRepository.save(card);
-        }else if(this.getRemainsTime(user_id)>0){
-            card.setServiceId(1);
-            card.setProductId("09201921");
+            card.setEndTime(date);
+            Date date2=expressMonthCardRepository.save(card).getEndTime();
+            return date.compareTo(date2)==0;
+        }else if(this.getRemainsTime(user_id)>0){   //没到期
+            Date date=TimeUtil.addDay(card.getEndTime(),renew_add_day);
             card.setAbled(true);
-            card.setEndTime(TimeUtil.addDay(card.getEndTime(),renew_add_day));
-            expressMonthCardRepository.save(card);
+            card.setEndTime(date);
+            Date date2=expressMonthCardRepository.save(card).getEndTime();
+            return date.compareTo(date2)==0;
         }
-        return true;
+        return false;
     }
 
 }

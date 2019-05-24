@@ -14,6 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.*;
@@ -49,19 +52,6 @@ public class RefundServiceImpl implements RefundService{
     }
 
     @Override
-    public String adminRefundOrder(String order_id){
-        Order order=orderRepository.findByOrderId(order_id);
-        if(order==null)
-            return createStatus(false);
-        if(!this.refundOrder(order_id)){
-            return createStatus(false);
-        }
-        order.setPayed(2);  //payed为2则为退款成功
-        orderRepository.save(order);
-        return createStatus(true);
-    }
-
-    @Override
     public String userRefundOrder(String user_id,String order_id, String reason){
         if(user_id==null) return createStatus(false);
         Order order=orderRepository.findByOrderId(order_id);
@@ -69,20 +59,16 @@ public class RefundServiceImpl implements RefundService{
         if(order.getPayed()!=1) return createStatus(false);
         if(!user_id.equals(order.getUserId())) return createStatus(false);
         Refund refund=new Refund();
-        String refund_id= UUID.randomUUID().toString().replace("-","");
-        refund.setRefundId(refund_id);
         refund.setOrderId(order_id);
         refund.setUserId(user_id);
         refund.setTime(new Date());
         refund.setReason(reason);
-        refund.setRefused(false);
         refund.setAbled(true);
-        refund.setSucceed(false);
-
-        order.setPayed(3);     //order的payed字段： 3是等待退款 2是退款成功 1是已付款 0是未付款
-
+        refund.setPayed(1);
         refundRepository.save(refund);
-
+        order.setPayed(3);     //order的payed字段：4是被拒绝 3是等待退款 2是退款成功 1是已付款 0是未付款
+        // order的payed和refund的级联
+        orderRepository.save(order);
         //此处应该通知管理员处理
 
         return createStatus(true);
@@ -113,10 +99,15 @@ public class RefundServiceImpl implements RefundService{
         if(order==null)
             return false;
 
-        if(order.getPayed()!=1)
+        if(order.getPayed()==4||order.getPayed()==2||order.getPayed()==0)
             return false;
 
         Double total=order.getTotalFee();
+
+        if(total==0) {           //假如没花钱
+            return true;
+        }
+
 
         Map<String,String> content=new LinkedHashMap<String,String>();
         content.put("!appid", appid);																						//小程序appid
@@ -125,8 +116,8 @@ public class RefundServiceImpl implements RefundService{
         //	content.put("!notify_url", "https://shop.wly01.cn/myshop/onFinishedPayed");											//退款完成的会调接口
         content.put("!out_trade_no", orderid);																				//订单id
         content.put("!out_refund_no", orderid);																				//退款id
-        content.put("!total_fee", String.valueOf(total));														//订单总价
-        content.put("!refund_fee", String.valueOf(total));														//退款金额
+        content.put("!total_fee",String.valueOf((int)(total*100)));														//订单总价
+        content.put("!refund_fee", String.valueOf((int)(total*100)));														//退款金额
         //	content.put("refund_desc", "sold_out");																				//退款原因
         content.put("!sign", StringUtil.calculateSign(content,mykey));
         String xml=xmlCreater(content);
@@ -142,12 +133,49 @@ public class RefundServiceImpl implements RefundService{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        order.setPayed(2);
-        orderRepository.save(order);
         return true;
     }
 
+    @Override
+    public boolean acceptRefund(String refund_id){
+        Refund refund=refundRepository.findByRefundId(refund_id);
+        if(refund==null) return false;
+        Order order=orderRepository.findByOrderId(refund.getOrderId());
 
+        if(refund.getPayed()==3) {
 
+            if(!this.refundOrder(refund.getOrderId())) return false;
+
+            order.setPayed(2);  //payed为2则为退款成功
+
+            return (orderRepository.save(order).getPayed()==2);
+
+        }else return false;
+    }
+
+    @Override
+    public boolean refuseRefund(String refund_id){
+
+        Refund refund=refundRepository.findByRefundId(refund_id);
+        if(refund==null) return false;
+
+        Order order=orderRepository.findByOrderId(refund.getOrderId());
+        if(order==null) return false;
+
+        if(refund.getPayed()==3){
+            order.setPayed(4);      //四代表被拒绝
+        }else return false;
+
+        return (orderRepository.save(order).getPayed()==4);
+    }
+
+    @Override
+    public boolean adminRefund(String order_id){
+        if(!this.refundOrder(order_id)) return false;
+        Order order=orderRepository.findByOrderId(order_id);
+        if(order==null) return false;
+        order.setPayed(2);
+        return orderRepository.save(order).getPayed()==2;
+    }
 
 }

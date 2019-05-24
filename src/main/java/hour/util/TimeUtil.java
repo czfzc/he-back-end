@@ -16,7 +16,7 @@ public class TimeUtil {
     public static Date addDay(Date date,int day){
         Calendar rightNow = Calendar.getInstance();
         rightNow.setTime(date);
-        rightNow.add(Calendar.MONTH, day);
+        rightNow.add(Calendar.DATE, day);
         return rightNow.getTime();
     }
 

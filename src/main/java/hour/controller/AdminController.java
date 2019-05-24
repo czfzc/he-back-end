@@ -7,6 +7,8 @@ import hour.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -305,7 +307,7 @@ public class AdminController {
         String admin_id=adminService.getAdminId(session_key);
         if(admin_id==null)
             return createStatus(false);
-        return refundService.adminRefundOrder(order_id);
+        return createStatus(refundService.adminRefund(order_id));
     }
 
 
@@ -326,22 +328,6 @@ public class AdminController {
     }
 
     /**
-     * 拒绝订单
-     */
-    @RequestMapping("/refuse_order")
-    String refuseOrder(@RequestParam("session_key")String session_key,@RequestParam("order_id")String order_id){
-        String admin_id=adminService.getAdminId(session_key);
-        if(admin_id==null)
-            return createStatus(false);
-        Order order=orderRepository.findByOrderId(order_id);
-        //加入事务
-        //应在此给用户发送推送提醒退款到账
-        order.setAbled(false);
-        orderRepository.save(order);
-        return refundService.adminRefundOrder(order_id);
-    }
-
-    /**
      * 拒绝退款
      */
     @RequestMapping("/refuse_refund")
@@ -349,42 +335,18 @@ public class AdminController {
         String admin_id=adminService.getAdminId(session_key);
         //控制无效条件
         if(admin_id==null) return createStatus(false);
-        Refund refund=refundRepository.findByRefundId(refund_id);
-        if(refund==null) return createStatus(false);
-        if(refund.isSucceed()) return createStatus(false);
-        if(!refund.isAbled()) return createStatus(false);
-        if(refund.isRefused()) return createStatus(false);
-
-        refund.setSucceed(false);
-        refund.setRefused(true);
-
-        refundRepository.save(refund);
-
-        return createStatus(true);
+        return createStatus(refundService.refuseRefund(refund_id));
     }
 
     /**
-     * 拒绝退款
+     * 通过
      */
     @RequestMapping("/accept_refund")
     String acceptRefund(@RequestParam("refund_id")String refund_id,@RequestParam("session_key")String session_key){
         String admin_id=adminService.getAdminId(session_key);
         //控制无效条件
         if(admin_id==null) return createStatus(false);
-        Refund refund=refundRepository.findByRefundId(refund_id);
-        if(refund==null) return createStatus(false);
-        if(refund.isSucceed()) return createStatus(false);
-        if(!refund.isAbled()) return createStatus(false);
-        if(refund.isRefused()) return createStatus(false);
-
-        refund.setSucceed(true);
-        refund.setRefused(false);
-
-        refundRepository.save(refund);
-
-        refundService.adminRefundOrder(refund.getOrderId());
-
-        return createStatus(true);
+        return createStatus(refundService.acceptRefund(refund_id));
     }
 
 

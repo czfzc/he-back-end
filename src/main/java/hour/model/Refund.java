@@ -2,6 +2,8 @@ package hour.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -9,9 +11,8 @@ import java.util.Date;
 @Table(name="user_refund")
 public class Refund {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @JsonIgnore
-    Integer mainkey;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String refundId;
     String orderId;
     String userId;
@@ -19,18 +20,9 @@ public class Refund {
     @Temporal(TemporalType.TIMESTAMP)
     Date time;
     String reason;
-    boolean refused;
-    boolean succeed;
+    Integer payed;
     @JsonIgnore
     boolean abled;
-
-    public Integer getMainkey() {
-        return mainkey;
-    }
-
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
-    }
 
     public String getRefundId() {
         return refundId;
@@ -72,27 +64,19 @@ public class Refund {
         this.reason = reason;
     }
 
-    public boolean isRefused() {
-        return refused;
-    }
-
-    public void setRefused(boolean refused) {
-        this.refused = refused;
-    }
-
-    public boolean isSucceed() {
-        return succeed;
-    }
-
-    public void setSucceed(boolean succeed) {
-        this.succeed = succeed;
-    }
-
     public boolean isAbled() {
         return abled;
     }
 
     public void setAbled(boolean abled) {
         this.abled = abled;
+    }
+
+    public Integer getPayed() {
+        return payed;
+    }
+
+    public void setPayed(Integer payed) {
+        this.payed = payed;
     }
 }
