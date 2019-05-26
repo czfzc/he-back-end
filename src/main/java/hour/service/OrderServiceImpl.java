@@ -2,14 +2,13 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.MoreProduct;
 import hour.model.Preorder;
-import hour.repository.PreorderRepository;
-import hour.repository.ServiceRepository;
+import hour.repository.*;
 import hour.util.NetUtil;
 import hour.model.Order;
 import hour.model.User;
-import hour.repository.OrderRepository;
-import hour.repository.UserRepository;
+import hour.util.PushUtil;
 import hour.util.StringUtil;
 import hour.util.TimeUtil;
 import org.dom4j.Document;
@@ -58,6 +57,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     PreorderRepository preorderRepository;
 
+    @Autowired
+    MoreProductRepository moreProductRepository;
+
     @Override
     public String payOrder(String ip, String mysession,JSONArray preorders){
         if(userService.getUserId(mysession)==null) return createStatus(false);
@@ -74,9 +76,8 @@ public class OrderServiceImpl implements OrderService {
         order.setTime(new Date());
         order.setTotalFee(0D);
         order.setUserId(user_id);
-        String order_id=orderRepository.save(order).getOrderId();
-
-        System.out.println("order_id="+order_id);
+        Order order1=orderRepository.save(order);
+        String order_id=order1.getOrderId();
 
         if(preorderService.preorderIt(preorders,order_id,user_id)){
             double total=preorderService.calculateTotal(order_id);
@@ -84,9 +85,16 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(order);
             if(total==0){
                 order.setPayed(1);
-                orderRepository.save(order);
-                return createStatus(true);
-            }else return this.unifiedorder(order_id,ip,open_id,(int)(total*100)).toJSONString();
+                this.finishIt(order_id);
+                Order order2=orderRepository.save(order);
+                return createStatus(order2.getPayed()==1);
+            }else{
+                JSONObject result=this.unifiedorder(order_id,ip,open_id,(int)(total*100));
+                String prepay_id=result.getString("package").replaceFirst("prepay_id=","");
+                order1.setPrepayId(prepay_id);
+                orderRepository.save(order1);
+                return result.toJSONString();
+            }
         }else return createStatus(false);
 
     }
@@ -179,7 +187,9 @@ public class OrderServiceImpl implements OrderService {
         String xml=xmlCreater(content);
         System.out.println(xml);
         String prepay= NetUtil.sendPost("https://api.mch.weixin.qq.com/pay/unifiedorder",xml);
+
         try {
+
             System.out.println(new String(prepay.getBytes(),"UTF-8"));
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -298,6 +308,8 @@ public class OrderServiceImpl implements OrderService {
      * @param preorders
      * @return
      */
+    @Value("${express.card.product-id}")
+    String expressCardProductId;
     @Override
     public double calcuTotal(JSONArray preorders){
 
@@ -306,9 +318,9 @@ public class OrderServiceImpl implements OrderService {
         for(int i=0;i<preorders.size();i++){
             JSONObject preorder=preorders.getJSONObject(i);
             if(preorder.getInteger("service_id")==1){  //快递代取服务的id为1
-                sum+=preorderService.cacuTotalByObject(preorder);
+                sum+=preorderService.cacuExpressTotalByObject(preorder);
             }else if(preorder.getInteger("service_id")==9){
-                sum+=10;
+                sum+=moreProductRepository.findFirstByProductId(expressCardProductId).getSum();
             }
         }
 
@@ -339,15 +351,23 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
 
+    @Value("${express.card.product-id}")
+    String addressCardProductId;
+
     public boolean finishIt(String order_id){
         List<Preorder> preorders=preorderRepository.findAllByOrderId(order_id);
         if(preorders==null||preorders.size()==0) return false;
         boolean ret=true;
         for(int i=0;i<preorders.size();i++){
             Preorder preorder=preorders.get(i);
+            MoreProduct moreProduct=moreProductRepository.findFirstByProductId(preorder.getProductId());
+            Order order=orderRepository.findByOrderId(order_id);
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
-                ret=true;
+                ret=PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                        order.getTotalFee(),order.getTime(),order.getOrderId());
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
+                ret=PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                        order.getTotalFee(),order.getTime(),order.getOrderId());
                 ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }

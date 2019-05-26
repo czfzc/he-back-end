@@ -1,19 +1,21 @@
 package hour.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name="user_send_method")
 public class SendMethod {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String id;
     String value;
     @JsonIgnore
     String typeStr;
-    @JsonIgnore
     String serviceId;
     boolean abled;
 

@@ -1,6 +1,7 @@
 package hour.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -8,21 +9,12 @@ import javax.persistence.*;
 @Table(name="user_more_product")
 public class MoreProduct {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @JsonIgnore
-    Integer mainkey;
-    String productName;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String productId;
+    String productName;
     Double sum;
     boolean abled;
-
-    public Integer getMainkey() {
-        return mainkey;
-    }
-
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
-    }
 
     public String getProductName() {
         return productName;

@@ -92,6 +92,12 @@ public class PreorderServiceImpl implements PreorderService{
     @Value("${express.max-express-count}")
     Integer max_express_count;
 
+    @Value("${express.card.product-id}")
+    String addressCardProductId;
+
+    @Value("${express.product-id}")
+    String addressProductId;
+
     @Override
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
         if(arr==null) return false;
@@ -122,6 +128,7 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setAbled(true);
                 preorder.setSendMethodId(send_method_id);
                 preorder.setTotalFee(0D);
+                preorder.setProductId(addressProductId);
                 String preorder_id=preorderRepository.save(preorder).getId();
 
                 System.out.println("preorder_id="+preorder_id);
@@ -152,6 +159,7 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setServiceId(9);
                 preorder.setStatus(0);
                 preorder.setPayed(0);
+                preorder.setProductId(addressCardProductId);
                 preorder.setAbled(true);
                 preorder.setTotalFee(total);
                 preorder.setSendMethodId("4");
@@ -185,12 +193,15 @@ public class PreorderServiceImpl implements PreorderService{
     /**
      * 计算该快递预付单的价格，传入一个preorder的JSONObject
      */
+    @Value("${express.max-express-count}")
+    Integer expressMaxExpressCount;
     @Override
-    public double cacuTotalByObject(JSONObject preorder){
+    public double cacuExpressTotalByObject(JSONObject preorder){
         double sum=0;
         JSONArray express=preorder.getJSONArray("express");
-        for(int i=0;i<express.size();i++)
-            sum+=expressService.getTotalByObject(express.getJSONObject(i));
+        if(express.size()<=expressMaxExpressCount)
+            for(int i=0;i<express.size();i++)
+                sum+=expressService.getTotalByObject(express.getJSONObject(i));
         return sum;
     }
 

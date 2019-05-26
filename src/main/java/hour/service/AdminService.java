@@ -7,7 +7,7 @@ public interface AdminService {
 
     boolean validateSession(String session_key);
 
-    String send(String admin_id);
+ /*   String send(String admin_id);*/
 
     String getAdminId(String session_key);
 }

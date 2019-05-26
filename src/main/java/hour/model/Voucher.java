@@ -1,5 +1,7 @@
 package hour.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -8,8 +10,8 @@ import java.util.Date;
 public class Voucher {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    Integer mainkey;
+    @GenericGenerator(name="idGenerator", strategy="uuid") //这个是hibernate的注解/生成32位UUID
+    @GeneratedValue(generator="idGenerator")
     String cardId;
     String typeId;
     String name;
@@ -17,13 +19,14 @@ public class Voucher {
     boolean used;
     Date checkTime;
     String checkUserId;
+    int ServiceId;
 
-    public Integer getMainkey() {
-        return mainkey;
+    public int getServiceId() {
+        return ServiceId;
     }
 
-    public void setMainkey(Integer mainkey) {
-        this.mainkey = mainkey;
+    public void setServiceId(int serviceId) {
+        ServiceId = serviceId;
     }
 
     public String getCardId() {

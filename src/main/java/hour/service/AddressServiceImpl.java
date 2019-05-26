@@ -79,9 +79,15 @@ public class AddressServiceImpl implements AddressService{
         address.setRoomNum(room_num);
         address.setBuildId(build_id);
         address.setAddition(addition);
-        addressRepository.save(address);
-        return true;
+        return addressRepository.save(address).getPhoneNum().equals(phone_num);
     }
+
+    /**
+     * 删除收货地址
+     * @param address_id
+     * @param mysession
+     * @return
+     */
 
     @Override
     public boolean deleteAddress(String address_id, String mysession){
@@ -89,9 +95,20 @@ public class AddressServiceImpl implements AddressService{
         if(user_id==null) return false;
         Address address=addressRepository.findByUserIdAndId(user_id,address_id);
         address.setAbled(false);
-        addressRepository.save(address);
-        return true;
+        if(address.isDefault()){
+            Address ad2=addressRepository.findFirstByUserIdAndIsDefaultFalse(user_id);
+            return (!addressRepository.save(address).isAbled())&&
+                    this.setDefaultDAO(user_id,ad2.getId());
+        }
+        return !addressRepository.save(address).isAbled();
     }
+
+    /**
+     * 设置默认收货地址的私有方法
+     * @param user_id
+     * @param address_id
+     * @return
+     */
 
     private boolean setDefaultDAO(String user_id, String address_id){
         Address ad1=addressRepository.findFirstByUserIdAndIsDefaultTrue(user_id);
@@ -102,7 +119,6 @@ public class AddressServiceImpl implements AddressService{
         Address ad2=addressRepository.findByUserIdAndId(user_id,address_id);
         if(ad2==null) return false;
         ad2.setDefault(true);
-        addressRepository.save(ad2);
-        return true;
+        return addressRepository.save(ad2).isDefault();
     }
 }

@@ -11,4 +11,5 @@ public interface AddressRepository extends JpaRepository<Address,String> {
     Address findFirstByUserIdAndIsDefaultTrue(String user_id);
     Address findByUserIdAndId(String user_id,String id);
     Address findFirstByUserId(String user_id);
+    Address findFirstByUserIdAndIsDefaultFalse(String user_id);
 }

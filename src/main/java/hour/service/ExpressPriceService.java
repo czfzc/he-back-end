@@ -9,7 +9,7 @@ public interface ExpressPriceService {
                             Double price, String size_id,String send_method_id);
 
     String addExpressPrice(String dest_building_id, String express_point_id,
-                           Double price, String size_id);
+                           Double price, String size_id, String send_method_id);
 
     String deleteExpressPrice(Integer mainkey);
 

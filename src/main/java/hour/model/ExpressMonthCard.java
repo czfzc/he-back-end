@@ -18,14 +18,14 @@ public class ExpressMonthCard {
     Integer serviceId;
     String productId;
     boolean abled;
-    Integer useTimes;
+    Integer lastTimes;
 
-    public Integer getUseTimes() {
-        return useTimes;
+    public Integer getLastTimes() {
+        return lastTimes;
     }
 
-    public void setUseTimes(Integer useTimes) {
-        this.useTimes = useTimes;
+    public void setLastTimes(Integer lastTimes) {
+        this.lastTimes = lastTimes;
     }
 
     public String getCardId() {

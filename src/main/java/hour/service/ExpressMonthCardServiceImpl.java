@@ -37,12 +37,17 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
                 findFirstByUserIdAndAbledTrue(user_id);
         if (card == null) return 0;
         int last=(int)TimeUtil.getTimeDiffDate(card.getEndTime(),new Date());
-        return last<0?0:last;
+        return last<0||card.getLastTimes()<=0?0:last;
     }
 
-    @Value("${address.card.renew-add-day}")
+    @Value("${express.card.renew-add-day}")
     int renew_add_day;
 
+    @Value("${express.card.product-id}")
+    String expressCardProductId;
+
+    @Value("${express.card.renew-add-times}")
+    int renew_add_times;
     /**
      * 续费快递代取会员卡
      * @return
@@ -56,26 +61,44 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
             card=new ExpressMonthCard();
             card.setUserId(user_id);
             card.setServiceId(1);
-            card.setProductId("09201921");
+            card.setProductId(expressCardProductId);
             card.setAbled(true);
             card.setEndTime(date);
-            card.setUseTimes(0);
+            card.setLastTimes(renew_add_times);
             Date date2=expressMonthCardRepository.save(card).getEndTime();
             return date.compareTo(date2)==0;
         }else if(this.getRemainsTime(user_id)==0){   //用户卡到期
             Date date=TimeUtil.addDay(new Date(),renew_add_day);
             card.setAbled(true);
             card.setEndTime(date);
+            card.setLastTimes(renew_add_times);
             Date date2=expressMonthCardRepository.save(card).getEndTime();
             return date.compareTo(date2)==0;
         }else if(this.getRemainsTime(user_id)>0){   //没到期
             Date date=TimeUtil.addDay(card.getEndTime(),renew_add_day);
             card.setAbled(true);
             card.setEndTime(date);
+            card.setLastTimes(card.getLastTimes()+renew_add_times);
             Date date2=expressMonthCardRepository.save(card).getEndTime();
             return date.compareTo(date2)==0;
         }
         return false;
+    }
+
+    /**
+     * 消耗会员卡次数
+     * @param use_times
+     * @return
+     */
+    @Override
+    public boolean useItForTimes(String user_id,int use_times){
+        if(!this.isAbled(user_id)) return false;
+        ExpressMonthCard card = expressMonthCardRepository.
+                findFirstByUserIdAndAbledTrue(user_id);
+        int new_last_times=card.getLastTimes()-use_times;
+        if(new_last_times<0) return false;
+        card.setLastTimes(new_last_times);
+        return expressMonthCardRepository.save(card).getLastTimes()==new_last_times;
     }
 
 }

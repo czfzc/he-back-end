@@ -32,7 +32,7 @@ public class ExpressPointController {
     @RequestMapping("/get_point")
     List<ExpressPoint> getPoint(@RequestParam("mysession")String mysession){
         if(userService.getUserId(mysession)==null) return null;
-        return expressPointRepository.findAll();
+        return expressPointRepository.findAllByAbledTrue();
     }
 
     @RequestMapping("/get_express_point_id_and_code_by_sms_content")

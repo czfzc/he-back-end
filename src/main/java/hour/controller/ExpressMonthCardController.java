@@ -36,10 +36,13 @@ public class ExpressMonthCardController {
         if(days==0){
             return createStatus(false);
         }else{
+            ExpressMonthCard expressMonthCard=expressMonthCardRepository.
+                    findFirstByUserIdAndAbledTrue(user_id);
             return new JSONObject(){
                 {
                     this.put("status",true);
                     this.put("remain_days",days);
+                    this.put("last_times",expressMonthCard.getLastTimes());
                 }
             }.toJSONString();
         }

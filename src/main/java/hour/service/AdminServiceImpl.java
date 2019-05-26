@@ -95,7 +95,7 @@ public class AdminServiceImpl implements AdminService {
     /**
      * 发送短信验证码（预注册）服务
      */
-    @Override
+  /*  @Override
     public String send(String admin_id) {
         int code = sendCode(admin_id);
         Admin admin = new Admin();
@@ -103,7 +103,7 @@ public class AdminServiceImpl implements AdminService {
         admin.setSmsCode(code);
         admin.setAbled(false);
         return createStatus(true);
-    }
+    }*/
 
     @Override
     public String getAdminId(String session_key) {
@@ -112,47 +112,5 @@ public class AdminServiceImpl implements AdminService {
             return admin.getAdminId();
         return null;
     }
-
-    @Value("${tx.appid}")
-    private int appid;
-    @Value("${tx.appkey}")
-    private String appkey;
-    @Value("${tx.template.adminregist}")
-    private int templateId;
-    @Value("${tx.template.name}")
-    private String smsSign;
-
-    /**
-     * 发送短信验证码方法
-     * <p>
-     * 需要设置短信模板
-     */
-    private int sendCode(String admin_id) {
-        // 短信应用SDK AppID
-
-        // 短信应用SDK AppKey
-
-        // 需要发送短信的手机号码
-        String[] phoneNumbers = {admin_id};
-
-        // 短信模板ID，需要在短信应用中申请
-             // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
-        //templateId7839对应的内容是"您的验证码是: {1}"
-        // 签名
-       // NOTE: 这里的签名"腾讯云"只是一个示例，真实的签名需要在短信控制台中申请，另外签名参数使用的是`签名内容`，而不是`签名ID`
-        String res = null;
-        String code = getRandom(6);
-        try {
-            String[] params = {code};//数组具体的元素个数和模板中变量个数必须一致，例如事例中templateId:5678对应一个变量，参数数组中元素个数也必须是一个
-            SmsSingleSender ssender = new SmsSingleSender(appid, appkey);
-            res = ssender.sendWithParam("86", phoneNumbers[0],
-                    templateId, params, smsSign, "", "").toString();  // 签名参数未提供或者为空时，会使用默认签名发送短信
-        } catch (Exception e) {
-            // HTTP响应码错误
-            e.printStackTrace();
-        }
-        return Integer.valueOf(code);
-    }
-
 
 }

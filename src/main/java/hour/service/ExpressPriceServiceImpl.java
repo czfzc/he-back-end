@@ -34,12 +34,14 @@ public class ExpressPriceServiceImpl implements  ExpressPriceService{
 
     @Override
     public String addExpressPrice(String dest_building_id, String express_point_id,
-                                  Double price, String size_id){
+                                  Double price, String size_id,String send_method_id){
         ExpressPrice expressPrice=new ExpressPrice();
+        if(price<0) return createStatus(false);
         expressPrice.setDestBuildingId(dest_building_id);
         expressPrice.setExpressPointId(express_point_id);
         expressPrice.setPrice(price);
         expressPrice.setSizeId(size_id);
+        expressPrice.setSendMethodId(send_method_id);
         expressPriceRepository.save(expressPrice);
         return createStatus(true);
     }

@@ -40,14 +40,20 @@ public class ExpressServiceImpl implements ExpressService {
     @Autowired
     VoucherService voucherService;
 
+    @Autowired
+    ExpressMonthCardService expressMonthCardService;
+
     @Value("${express.voucher-type-id}")
     String type_id;
+    @Value("${express.max-express-count}")
+    Integer expressMaxExpressCount;
+
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
         System.out.println("hahahahaha");
         if(expresses==null) return false;
-        if(expresses.size()==0)
+        if(expresses.size()==0||expresses.size()>expressMaxExpressCount)
             return false;
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
@@ -60,12 +66,15 @@ public class ExpressServiceImpl implements ExpressService {
             String express_point_id=jo.getString("express_point_id");
             String size_id=jo.getString("size_id");
 
-            if(jo.getBoolean("use_voucher")==null||jo.getBoolean("use_voucher")!=true||!voucherService.useVoucher(user_id,type_id)){
-                //如果用户不选择使用代金卷或者选择使用代金劵但是代金劵无效 则计费
-                total_fee=this.getTotal(express_point_id,address_id,size_id,send_method_id);
-            }
+            String discount=jo.getString("discount");  //用户折扣方式 voucher是代金卷 express_card是折扣卡
 
+            System.out.println(discount);
 
+            if(discount!=null&&discount.equals("voucher")&&voucherService.useVoucher(user_id,type_id)){
+                //do nothing
+            }else if(discount!=null&&discount.equals("express_card")&&expressMonthCardService.useItForTimes(user_id,1)){
+                //do nothing
+            }else total_fee=this.getTotal(express_point_id,address_id,size_id,send_method_id);
 
             Express express=new Express();
             express.setPreorderId(preorder_id);
@@ -164,8 +173,9 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Override
     public double getTotalByObject(JSONObject express){
-        if(express.getBoolean("use_voucher")!=null&&
-                express.getBoolean("use_voucher")==true) return 0;
+        String discount=express.getString("discount");
+        if(discount!=null&&discount.equals("voucher")) return 0;
+        if(discount!=null&&discount.equals("express_card")) return 0;
         else return this.getTotal(express.getString("express_point_id"),
                 express.getString("address_id"),express.getString("size_id"),
                 express.getString("send_method_id"));

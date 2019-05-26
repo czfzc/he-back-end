@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface VoucherRepository extends JpaRepository<Voucher,Integer> {
+public interface VoucherRepository extends JpaRepository<Voucher,String> {
     Voucher findFirstByCardIdAndUsedFalseAndAbledTrueAndCheckUserIdIsNull(String card_id);
     List<Voucher> findAllByCheckUserIdAndAbledTrueAndUsedFalseAndCheckUserIdNotNull(String user_id);
     Long countAllByCheckUserIdAndAbledTrueAndUsedFalseAndCheckUserIdNotNull(String user_id);

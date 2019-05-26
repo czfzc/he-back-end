@@ -11,4 +11,6 @@ public interface ExpressMonthCardService {
     int getRemainsTime(String user_id);
 
     boolean reNew(String user_id);
+
+    boolean useItForTimes(String user_id, int use_times);
 }

@@ -1,16 +1,20 @@
 package hour.service;
 
+import hour.model.User;
 import hour.model.Voucher;
 import hour.model.VoucherGroup;
+import hour.repository.UserRepository;
 import hour.repository.VoucherGroupRepository;
 import hour.repository.VoucherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,6 +31,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Override
     public String varifyVoucher(String user_id, String card_id){
@@ -71,5 +78,29 @@ public class VoucherServiceImpl implements VoucherService {
         query.setParameter(0,user_id);
         return query.getResultList();
     }*/
+
+    @Value("${express.voucher-type-id}")
+    String expressVoucherTypeId;
+
+    @Override
+    public boolean getThreeExpressVoucher(String open_id){
+        User user=userRepository.findByOpenId(open_id);
+        if(user==null) return false;
+        if(user.isVoucherGeted()) return false;
+        for(int i=0;i<3;i++){
+            Voucher voucher=new Voucher();
+            voucher.setTypeId(expressVoucherTypeId);
+            voucher.setName("快递代取劵");
+            voucher.setAbled(true);
+            voucher.setUsed(false);
+            voucher.setCheckTime(new Date());
+            voucher.setCheckUserId(user.getUserId());
+            voucher.setServiceId(1);
+            if(voucherRepository.save(voucher).getCardId()==null)
+                return false;
+        }
+        user.setVoucherGeted(true);
+        return userRepository.save(user).isVoucherGeted();
+    }
 }
 

@@ -12,4 +12,6 @@ public interface VoucherService{
     List<VoucherGroup> getVoucher(String user_id);
 
     boolean useVoucher(String user_id, String type_id);
+
+    boolean getThreeExpressVoucher(String open_id);
 }

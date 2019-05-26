@@ -26,6 +26,8 @@ public class Order {
     private boolean abled;
     @Transient
     private List<Preorder> preorder;
+    @JsonIgnore
+    private String prepayId;
 
     public List<Preorder> getPreorder() {
         return preorder;
@@ -89,5 +91,13 @@ public class Order {
 
     public void setAbled(boolean abled) {
         this.abled = abled;
+    }
+
+    public String getPrepayId() {
+        return prepayId;
+    }
+
+    public void setPrepayId(String prepayId) {
+        this.prepayId = prepayId;
     }
 }

@@ -21,6 +21,6 @@ public interface PreorderService {
 
     Page<Preorder> searchPreorderByUserId(String value, Integer page, Integer size);
 
-    double cacuTotalByObject(JSONObject preorder);
+    double cacuExpressTotalByObject(JSONObject preorder);
 
 }

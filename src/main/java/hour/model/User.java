@@ -19,6 +19,15 @@ public class User {
     private String mysession;
     private boolean abled;
     private Date lastLoginTime;
+    private boolean voucherGeted;
+
+    public boolean isVoucherGeted() {
+        return voucherGeted;
+    }
+
+    public void setVoucherGeted(boolean voucherGeted) {
+        this.voucherGeted = voucherGeted;
+    }
 
     public String getMainId() {
         return mainId;

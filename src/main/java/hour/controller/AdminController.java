@@ -69,6 +69,11 @@ public class AdminController {
     @Autowired
     SendMethodService sendMethodService;
 
+    @Autowired
+    SendMethodRepository sendMethodRepository;
+
+    @Autowired
+    ServiceRepository serviceRepository;
 
     /**
      * 登录
@@ -111,10 +116,10 @@ public class AdminController {
      * @return
      */
 
-    @RequestMapping("/send_sms")
+ /*   @RequestMapping("/send_sms")
     String sendSms(@RequestParam("admin_id")String admin_id){
         return adminService.send(admin_id);
-    }
+    }*/
 
     /**
      * 获取总订单
@@ -440,13 +445,13 @@ public class AdminController {
 
     @RequestMapping("/add_express_price")
     String addExpressPrice(@RequestParam("session_key")String session_key,
-                            @RequestParam("mainkey")Integer mainkey,
                             @RequestParam("dest_building_id")String dest_building_id,
                             @RequestParam("express_point_id")String express_point_id,
                             @RequestParam("price")Double price,
-                            @RequestParam("size_id")String size_id){
+                            @RequestParam("size_id")String size_id,
+                           @RequestParam("send_method_id")String send_method_id){
         if(adminService.getAdminId(session_key)==null) return createStatus(false);
-        return expressPriceService.addExpressPrice(dest_building_id, express_point_id, price, size_id);
+        return expressPriceService.addExpressPrice(dest_building_id, express_point_id, price, size_id,send_method_id);
     }
 
     @RequestMapping("/delete_express_price")
@@ -460,5 +465,127 @@ public class AdminController {
     List<Building> getBuilding(@RequestParam("session_key")String session_key){
         if(adminService.getAdminId(session_key)==null) return null;
         return buildingRepository.findAll();
+    }
+
+    @RequestMapping("/add_send_method")
+    String addSendMethod(@RequestParam("session_key")String session_key,
+                         @RequestParam("service_id")String service_id,
+                         @RequestParam("value")String value,
+                        @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return createStatus(false);
+        SendMethod sendMethod=new SendMethod();
+        sendMethod.setValue(value);
+        sendMethod.setServiceId(service_id);
+        sendMethod.setTypeStr("");
+        sendMethod.setAbled(abled);
+        return createStatus(sendMethodRepository.save(sendMethod).getId()!=null);
+    }
+
+    @RequestMapping("/edit_send_method")
+    String editSendMethod(@RequestParam("session_key")String session_key,
+                          @RequestParam("id")String id,
+                          @RequestParam("service_id")String service_id,
+                          @RequestParam("value")String value,
+                          @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return createStatus(false);
+        SendMethod sendMethod=sendMethodRepository.findById(id).get();
+        sendMethod.setServiceId(service_id);
+        sendMethod.setValue(value);
+        sendMethod.setAbled(abled);
+        return createStatus(sendMethodRepository.save(sendMethod).getValue().equals(value));
+    }
+
+    @RequestMapping("/get_service")
+    List<Service> getService(@RequestParam("session_key")String session_key){
+        if(adminService.getAdminId(session_key)==null) return null;
+        return serviceRepository.findAllByShowTrue();
+    }
+
+    @RequestMapping("/add_express_point")
+    String addExpressPoint(@RequestParam("session_key")String session_key,
+                           @RequestParam("position")String position,
+                           @RequestParam("name")String name,
+                           @RequestParam("sms_temp")String sms_temp,
+                           @RequestParam("code_format")String code_format,
+                           @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        ExpressPoint expressPoint=new ExpressPoint();
+        expressPoint.setPosition(position);
+        expressPoint.setName(name);
+        expressPoint.setSmsTemp(sms_temp);
+        expressPoint.setCodeFormat(code_format);
+        expressPoint.setAbled(abled);
+        return createStatus(expressPointRepository.save(expressPoint).getExpressPointId()!=null);
+    }
+
+    @RequestMapping("/edit_express_point")
+    String editExpressPoint(@RequestParam("session_key")String session_key,
+                           @RequestParam("express_point_id")String express_point_id,
+                           @RequestParam("position")String position,
+                           @RequestParam("name")String name,
+                           @RequestParam("sms_temp")String sms_temp,
+                           @RequestParam("code_format")String code_format,
+                            @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        ExpressPoint expressPoint=expressPointRepository.findById(express_point_id).get();
+        if(expressPoint==null) return null;
+        expressPoint.setPosition(position);
+        expressPoint.setName(name);
+        expressPoint.setSmsTemp(sms_temp);
+        expressPoint.setCodeFormat(code_format);
+        expressPoint.setAbled(abled);
+        return createStatus(expressPointRepository.save(expressPoint).getName().equals(name));
+    }
+
+    @RequestMapping("/add_express_size")
+    String addExpressSize(@RequestParam("session_key")String session_key,
+                          @RequestParam("size_name")String size_name,
+                          @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        ExpressSize expressSize=new ExpressSize();
+        expressSize.setSizeName(size_name);
+        expressSize.setAbled(abled);
+        return createStatus(expressSizeRepository.save(expressSize).getSizeId()!=null);
+    }
+
+    @RequestMapping("/edit_express_size")
+    String editExpressSize(@RequestParam("session_key")String session_key,
+                           @RequestParam("size_id")String size_id,
+                           @RequestParam("size_name")String size_name,
+                           @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        ExpressSize expressSize=expressSizeRepository.findById(size_id).get();
+        if(expressSize==null) return createStatus(false);
+        expressSize.setSizeName(size_name);
+        expressSize.setAbled(abled);
+        return createStatus(expressSizeRepository.save(expressSize).getSizeName().equals(size_name));
+    }
+
+    @RequestMapping("/add_dest_point")
+    String addDestPoint(@RequestParam("session_key")String session_key,
+                        @RequestParam("name")String name,
+                        @RequestParam("position")String position,
+                        @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        Building building=new Building();
+        building.setName(name);
+        building.setPosition(position);
+        building.setAbled(abled);
+        return createStatus(buildingRepository.save(building).getId()!=null);
+    }
+
+    @RequestMapping("/edit_dest_point")
+    String editDestPoint(@RequestParam("session_key")String session_key,
+                        @RequestParam("id")String id,
+                        @RequestParam("name")String name,
+                        @RequestParam("position")String position,
+                        @RequestParam("abled")Boolean abled){
+        if(adminService.getAdminId(session_key)==null) return null;
+        Building building=buildingRepository.findById(id).get();
+        if(building==null) return createStatus(false);
+        building.setName(name);
+        building.setPosition(position);
+        building.setAbled(abled);
+        return createStatus(buildingRepository.save(building).getName().equals(name));
     }
 }
