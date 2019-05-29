@@ -38,7 +38,6 @@ public class OrderController {
      */
     @ResponseBody
     @RequestMapping("/unified_order")
-    @Transactional(rollbackFor = Exception.class)
     String unifiedOrder(@RequestBody JSONObject data,HttpServletRequest httpServletRequest){
 
         String mysession=data.getString("mysession");
@@ -56,7 +55,6 @@ public class OrderController {
     }
 
     @RequestMapping("/on_finish_pay")
-    @Transactional(rollbackFor = Exception.class)
     String finishPay(HttpServletRequest request){
         String xml= StringUtil.getRawContent(request);
         if (orderService.onFinishPayed(xml)) {

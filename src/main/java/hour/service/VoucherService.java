@@ -13,5 +13,5 @@ public interface VoucherService{
 
     boolean useVoucher(String user_id, String type_id);
 
-    boolean getThreeExpressVoucher(String open_id);
+    boolean getMoreExpressVoucher(String open_id, int num);
 }

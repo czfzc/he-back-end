@@ -13,7 +13,7 @@ public interface ExpressService {
 
     List<Express> getExpress(String preorder_id);
 
-    Page<Express> getAllExpress(Integer page, Integer size);
+    Page<Express> getAllExpressByPayed(Integer page, Integer size);
 
     Double getTotalPrice(String preorder_id);
 

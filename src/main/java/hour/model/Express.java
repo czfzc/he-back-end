@@ -36,6 +36,15 @@ public class Express {
     String senderAdminId;
     @Transient
     Admin sender;
+    int payed;
+
+    public int getPayed() {
+        return payed;
+    }
+
+    public void setPayed(int payed) {
+        this.payed = payed;
+    }
 
     public Admin getSender() {
         return sender;

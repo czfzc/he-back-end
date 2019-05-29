@@ -61,9 +61,9 @@ public class OrderServiceImpl implements OrderService {
     MoreProductRepository moreProductRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String payOrder(String ip, String mysession,JSONArray preorders){
-        if(userService.getUserId(mysession)==null) return createStatus(false);
-        User user=userRepository.findByMysessionAndAbledTrue(mysession);
+        User user=userService.getUser(mysession);
         if(user==null) return createStatus(false);
         String open_id=user.getOpenId();
         String user_id=user.getUserId();
@@ -95,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
                 orderRepository.save(order1);
                 return result.toJSONString();
             }
-        }else return createStatus(false);
+        }else throw new RuntimeException("unify order fail");
 
     }
 
@@ -126,6 +126,7 @@ public class OrderServiceImpl implements OrderService {
      */
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean onFinishPayed(String xml){
         System.out.println(xml);
         try{
@@ -245,7 +246,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> getOrder(Integer page, Integer size){
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
-        Page<Order> orders=orderRepository.findAll(pageable);
+        Page<Order> orders=orderRepository.findAllByAbledTrue(pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
             List<Preorder> preorders=preorderService.getAllPreorderByOrderId(order.getOrderId());
@@ -363,14 +364,17 @@ public class OrderServiceImpl implements OrderService {
             MoreProduct moreProduct=moreProductRepository.findFirstByProductId(preorder.getProductId());
             Order order=orderRepository.findByOrderId(order_id);
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
-                ret=PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
                         order.getTotalFee(),order.getTime(),order.getOrderId());
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
-                ret=PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
                         order.getTotalFee(),order.getTime(),order.getOrderId());
                 ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }
-        return ret;
+        if(!ret)
+            throw new RuntimeException("fail");
+        else
+            return true;
     }
 }

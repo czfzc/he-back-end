@@ -58,9 +58,9 @@ public class VoucherController {
     /**
      * 用户首次领取三张快递代金卷
      */
-    @RequestMapping("/get_three_express_voucher")
+    @RequestMapping("/get_two_express_voucher")
     String getThreeVoucher(@RequestParam("open_id")String open_id){
-        return createStatus(voucherService.getThreeExpressVoucher(open_id));
+        return createStatus(voucherService.getMoreExpressVoucher(open_id,2));
     }
 
 }

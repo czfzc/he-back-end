@@ -14,4 +14,5 @@ public interface OrderRepository  extends JpaRepository<Order,String>, JpaSpecif
     Order findByOrderId(String order_id);
     Page<Order> findAllByOrderIdContaining(String value, Pageable pageable);
     Page<Order> findAllByUserIdContaining(String value, Pageable pageable);
+    Page<Order> findAllByAbledTrue(Pageable pageable);
 }

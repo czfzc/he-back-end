@@ -1,5 +1,7 @@
 package hour.service;
 
+import hour.model.User;
+
 public interface UserService {
     /**
      * 微信初始登录 无法获取手机号
@@ -27,4 +29,6 @@ public interface UserService {
      * @return
      */
     String getUserId(String mysession);
+
+    User getUser(String mysession);
 }

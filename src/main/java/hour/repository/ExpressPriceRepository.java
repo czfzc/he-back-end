@@ -9,4 +9,5 @@ public interface ExpressPriceRepository extends JpaRepository<ExpressPrice,Integ
                                                             String express_point_id,String size_id,
                                                                                     String send_method_id);
     ExpressPrice findFirstByMainkey(Integer mainkey);
+
 }

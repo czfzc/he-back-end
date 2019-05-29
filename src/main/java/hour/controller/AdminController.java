@@ -148,7 +148,7 @@ public class AdminController {
     Page<Express> getExpress(@RequestParam("session_key")String session_key,
                              @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
-        return expressService.getAllExpress(page, size);
+        return expressService.getAllExpressByPayed(page, size);
     }
 
     /**

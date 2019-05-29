@@ -98,6 +98,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Value("${express.product-id}")
     String addressProductId;
 
+    @Value("${express.card.first-card-price}")
+    Double firstCardPrice;
+
     @Override
     public boolean preorderIt(JSONArray arr,String order_id,String user_id) {
         if(arr==null) return false;
@@ -106,7 +109,7 @@ public class PreorderServiceImpl implements PreorderService{
         for(int i=0;i<arr.size();i++){
             JSONObject jo=arr.getJSONObject(i);
             if(jo==null) continue;
-            if(!serviceRepository.findById(jo.getInteger("service_id")).get().isAbled()) //判断业务不可用则下单失败
+            if(!serviceRepository.findById(jo.getInteger("service_id")).get().isAbled()) //判断业务不可用则下预付单失败
                 continue;
             if(jo.getInteger("service_id")==1){ //快递代取业务预付单
 
@@ -131,28 +134,22 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setProductId(addressProductId);
                 String preorder_id=preorderRepository.save(preorder).getId();
 
-                System.out.println("preorder_id="+preorder_id);
-
                 if(expressService.addExpress(express,preorder_id,address_id,user_id,send_method_id)){
-                    if(!expressMonthCardService.isAbled(user_id)) {
-                        Double total = expressService.getTotalPrice(preorder_id);
-                        preorder.setTotalFee(total);
-                        preorderRepository.save(preorder);
-                    }
-                }
+                    Double total = expressService.getTotalPrice(preorder_id);
+                    preorder.setTotalFee(total);
+                    preorderRepository.save(preorder);
+                }else throw new RuntimeException("unify order fail");
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
-
-                Address address =addressRepository.findFirstByUserId(user_id);
-                if(address==null) return false;
-                String address_id=jo.getString(address.getId());
 
                 MoreProduct moreProduct=moreProductRepository.
                         findFirstByProductId("09201921"); //月卡产品的产品id为09201921
                 if(moreProduct==null) return false;
-                Double total=moreProduct.getSum();
+                Double total=0D;
+                if(expressMonthCardService.isNoCard(user_id)){
+                    total=firstCardPrice;
+                }else total=moreProduct.getSum();
 
                 Preorder preorder=new Preorder();
-                preorder.setAddressId(address_id);
                 preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
                 preorder.setUserId(user_id);
@@ -163,7 +160,8 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setAbled(true);
                 preorder.setTotalFee(total);
                 preorder.setSendMethodId("4");
-                preorderRepository.save(preorder);
+                if (preorderRepository.save(preorder).getId()==null)
+                    throw new RuntimeException("unify order fail");;
             }
         }
         return true;

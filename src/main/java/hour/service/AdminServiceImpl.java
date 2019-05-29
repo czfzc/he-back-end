@@ -110,7 +110,7 @@ public class AdminServiceImpl implements AdminService {
         Admin admin=adminRepository.findFirstBySessionKeyAndAbledTrue(session_key);
         if(admin!=null)
             return admin.getAdminId();
-        return null;
+        throw new RuntimeException("invalid session_key");
     }
 
 }

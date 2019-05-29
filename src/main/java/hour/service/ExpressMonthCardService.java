@@ -13,4 +13,6 @@ public interface ExpressMonthCardService {
     boolean reNew(String user_id);
 
     boolean useItForTimes(String user_id, int use_times);
+
+    boolean isNoCard(String user_id);
 }

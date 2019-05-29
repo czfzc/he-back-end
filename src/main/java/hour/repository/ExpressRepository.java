@@ -20,4 +20,6 @@ public interface ExpressRepository extends JpaRepository<Express,String> {
     Page<Express> findAllByUserIdContaining(String value, Pageable pageable);
 
     Page<Express> findAllByExpressPointId(String express_point_id,Pageable pageable);
+
+    Page<Express> findAllByPayed(Pageable pageable, int payed);
 }

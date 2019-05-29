@@ -83,11 +83,11 @@ public class VoucherServiceImpl implements VoucherService {
     String expressVoucherTypeId;
 
     @Override
-    public boolean getThreeExpressVoucher(String open_id){
+    public boolean getMoreExpressVoucher(String open_id,int num){
         User user=userRepository.findByOpenId(open_id);
         if(user==null) return false;
         if(user.isVoucherGeted()) return false;
-        for(int i=0;i<3;i++){
+        for(int i=0;i<num;i++){
             Voucher voucher=new Voucher();
             voucher.setTypeId(expressVoucherTypeId);
             voucher.setName("快递代取劵");

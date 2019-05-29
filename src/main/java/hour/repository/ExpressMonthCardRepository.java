@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ExpressMonthCardRepository extends JpaRepository<ExpressMonthCard,String> {
     ExpressMonthCard findFirstByUserIdAndAbledTrue(String user_id);
-
+    ExpressMonthCard findFirstByUserId(String user_id);
 }

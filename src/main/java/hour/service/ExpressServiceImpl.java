@@ -52,9 +52,9 @@ public class ExpressServiceImpl implements ExpressService {
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
         System.out.println("hahahahaha");
-        if(expresses==null) return false;
+        if(expresses==null) throw new RuntimeException("unify order fail");;
         if(expresses.size()==0||expresses.size()>expressMaxExpressCount)
-            return false;
+            throw new RuntimeException("unify order fail");
         for(int i=0;i<expresses.size();i++){
             JSONObject jo=expresses.getJSONObject(i);
             double total_fee=0;
@@ -68,7 +68,7 @@ public class ExpressServiceImpl implements ExpressService {
 
             String discount=jo.getString("discount");  //用户折扣方式 voucher是代金卷 express_card是折扣卡
 
-            System.out.println(discount);
+            System.out.println(jo.toJSONString());
 
             if(discount!=null&&discount.equals("voucher")&&voucherService.useVoucher(user_id,type_id)){
                 //do nothing
@@ -92,7 +92,8 @@ public class ExpressServiceImpl implements ExpressService {
             express.setSizeId(size_id);
             express.setSendMethodId(send_method_id);
 
-            expressRepository.save(express);
+            if(expressRepository.save(express).getExpressId()==null)
+                throw new RuntimeException("unify order fail");;
         }
         return true;
     }
@@ -110,9 +111,9 @@ public class ExpressServiceImpl implements ExpressService {
     }
 
     @Override
-    public Page<Express> getAllExpress(Integer page, Integer size){
+    public Page<Express> getAllExpressByPayed(Integer page, Integer size){
         Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return expressRepository.findAll(pageable);
+        return expressRepository.findAllByPayed(pageable,1);
     }
 
     /**

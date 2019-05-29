@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="user_express_month_card")
+@Table(name="user_express_card")
 public class ExpressMonthCard {
 
     @Id

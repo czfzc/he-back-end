@@ -150,13 +150,31 @@ public class UserServiceImpl implements UserService{
     @Override
     public String getUserId(String mysession) {
         User user=userRepository.findByMysessionAndAbledTrue(mysession);
-        if(user==null) return null;
+        if(user==null){
+            throw new RuntimeException("mysession is invalid");
+        };
      //   Date lastLoginTime=user.getLastLoginTime();
     //    if(lastLoginTime==null) return null;
      //   System.out.println(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime));
      //   if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expire)
       //      return null;
         return user.getUserId();
+    }
+
+
+    @Override
+    public User getUser(String mysession) {
+        User user=userRepository.findByMysessionAndAbledTrue(mysession);
+        if(user==null){
+            throw new RuntimeException("mysession is invalid");
+        };
+
+        //   Date lastLoginTime=user.getLastLoginTime();
+        //    if(lastLoginTime==null) return null;
+        //   System.out.println(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime));
+        //   if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expire)
+        //      return null;
+        return user;
     }
 
 

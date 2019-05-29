@@ -6,13 +6,7 @@ import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static hour.util.StringUtil.createStatus;
 
 @Service("ExpressMonthCardService")
 public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
@@ -101,4 +95,13 @@ public class ExpressMonthCardServiceImpl implements ExpressMonthCardService {
         return expressMonthCardRepository.save(card).getLastTimes()==new_last_times;
     }
 
+    /**
+     * 判断用户首次购买月卡
+     */
+    @Override
+    public boolean isNoCard(String user_id){
+        ExpressMonthCard card = expressMonthCardRepository.
+                findFirstByUserId(user_id);
+        return card==null;
+    }
 }
