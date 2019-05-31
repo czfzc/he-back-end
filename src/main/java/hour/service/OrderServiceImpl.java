@@ -68,6 +68,8 @@ public class OrderServiceImpl implements OrderService {
         String open_id=user.getOpenId();
         String user_id=user.getUserId();
 
+        ip=ip.split(":")[0];
+
         Order order=new Order();
 
         order.setAbled(true);
