@@ -14,12 +14,21 @@ public class User {
     @GeneratedValue(generator="idGenerator")
     private String mainId;
     private String openId;
+    private String unionId;
     private String userId;
     private String sessionId;
     private String mysession;
     private boolean abled;
     private Date lastLoginTime;
     private boolean voucherGeted;
+
+    public String getUnionId() {
+        return unionId;
+    }
+
+    public void setUnionId(String unionId) {
+        this.unionId = unionId;
+    }
 
     public boolean isVoucherGeted() {
         return voucherGeted;

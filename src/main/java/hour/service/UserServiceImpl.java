@@ -123,6 +123,7 @@ public class UserServiceImpl implements UserService{
         System.out.println(str);
         JSONObject js=JSONObject.parseObject(str);
         String openid=js.getString("openid");
+        String unionid=js.getString("unionid");
         String session_key=js.getString("session_key");
         Integer errcode=js.getInteger("errcode");
 
@@ -132,9 +133,11 @@ public class UserServiceImpl implements UserService{
                 user=new User();
                 user.setOpenId(openid);
                 user.setSessionId(session_key);
+                user.setUnionId(unionid);
                 user.setAbled(true);
                 return userRepository.save(user);
             }else{              //当此用户存在 以前登陆过
+                user.setUnionId(unionid);
                 String mysession = md5(openid + session_key);
                 user.setMysession(mysession);
                 return userRepository.save(user);

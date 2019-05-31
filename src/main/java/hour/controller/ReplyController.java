@@ -3,7 +3,10 @@ package hour.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.qq.weixin.mp.aes.AesException;
 import com.qq.weixin.mp.aes.WXBizMsgCrypt;
+import hour.model.User;
+import hour.repository.UserRepository;
 import hour.service.VoucherService;
+import hour.service.WexinTokenService;
 import hour.util.NetUtil;
 import hour.util.StringUtil;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -44,8 +47,17 @@ public class ReplyController {
     @Value("${gongzhonghao.appid}")
     String gongzhonghaoAppid;
 
+    @Value("${gongzhonghao.key}")
+    String gongzhonghaoKey;
+
     @Autowired
     VoucherService voucherService;
+
+    @Autowired
+    WexinTokenService wexinTokenService;
+
+    @Autowired
+    UserRepository userRepository;
 /**
     @RequestMapping("/check")
     String main(@RequestParam("signature")String signature,
@@ -86,8 +98,9 @@ public class ReplyController {
         System.out.println(xml);
         String me=StringUtil.getFromXml(xml,"ToUserName");
         String user=StringUtil.getFromXml(xml,"FromUserName");
+        String unionid=wexinTokenService.getUnionidByOpenid(user,gongzhonghaoAppid,gongzhonghaoKey);
         String Content=StringUtil.getFromXml(xml,"Content");
-        String reply=doAction(Content,user);
+        String reply=doAction(Content,unionid);
         if(reply==null) return null;
         String msg=StringUtil.xmlCreater(new HashMap(){
             {
@@ -101,12 +114,19 @@ public class ReplyController {
         return msg;
     }
 
-    private String doAction(String Content,String open_id){
+    private String doAction(String Content,String unionid){
+        System.out.println(unionid);
+        //微信小程序openid
         if("免单卡".equals(Content)) {
+            User user=userRepository.findByUnionId(unionid);
+            if(user==null) return "您还没有使用小程序呀，快去体验再领取吧";
+            String open_id=user.getOpenId();
             if(voucherService.getMoreExpressVoucher(open_id,2))
                 return "您的2张快递代取免单卡已经放入您的一小时卡包，请进入小程序查看";
             else return "您已经领取过啦～";
-        }else return null;
+        }else if("叫爸爸".equals(Content)) {
+            return "爸爸";
+        }else return "傻逼";
     }
 
 }

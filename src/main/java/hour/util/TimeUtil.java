@@ -21,6 +21,13 @@ public class TimeUtil {
         return rightNow.getTime();
     }
 
+    public static Date addMin(Date date,int min){
+        Calendar rightNow = Calendar.getInstance();
+        rightNow.setTime(date);
+        rightNow.add(Calendar.MINUTE,min);
+        return rightNow.getTime();
+    }
+
     public static String formatDate(Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         return sdf.format(date);

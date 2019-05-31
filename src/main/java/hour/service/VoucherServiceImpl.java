@@ -77,6 +77,8 @@ public class VoucherServiceImpl implements VoucherService {
         Query query=entityManager.createQuery(sql);
         query.setParameter(0,user_id);
         return query.getResultList();
+
+
     }*/
 
     @Value("${express.voucher-type-id}")

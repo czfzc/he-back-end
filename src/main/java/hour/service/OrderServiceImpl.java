@@ -167,6 +167,8 @@ public class OrderServiceImpl implements OrderService {
     private String mch_id;
     @Value("${wexin.appid}")
     private String appid;
+    @Value("${wexin.key}")
+    private String appkey;
     @Value("${wexin.mykey}")
     private String mykey;
     @Value("${wexin.onfinish}")
@@ -357,20 +359,24 @@ public class OrderServiceImpl implements OrderService {
     @Value("${express.card.product-id}")
     String addressCardProductId;
 
+    @Autowired
+    WexinTokenService wexinTokenService;
+
     public boolean finishIt(String order_id){
         List<Preorder> preorders=preorderRepository.findAllByOrderId(order_id);
         if(preorders==null||preorders.size()==0) return false;
+        Order order=orderRepository.findByOrderId(order_id);
+        User user=userRepository.findByUserId(order.getUserId());
         boolean ret=true;
         for(int i=0;i<preorders.size();i++){
             Preorder preorder=preorders.get(i);
             MoreProduct moreProduct=moreProductRepository.findFirstByProductId(preorder.getProductId());
-            Order order=orderRepository.findByOrderId(order_id);
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
-                PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId());
+                wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId(),appid,appkey);
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
-                PushUtil.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId());
+                wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId(),appid,appkey);
                 ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }
