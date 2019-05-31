@@ -6,6 +6,7 @@ import hour.model.Express;
 import hour.model.Order;
 import org.springframework.data.domain.Page;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface ExpressService {
@@ -13,7 +14,7 @@ public interface ExpressService {
 
     List<Express> getExpress(String preorder_id);
 
-    Page<Express> getAllExpressByPayed(Integer page, Integer size);
+    HashMap getAllExpressByPayed(Integer page, Integer size);
 
     Double getTotalPrice(String preorder_id);
 
@@ -21,7 +22,11 @@ public interface ExpressService {
 
     Page<Express> searchExpressByUserId(String value, Integer page, Integer size);
 
-    Page<Express> getExpressByExpressPoint(String express_point_id, Integer page, Integer size);
+    HashMap getExpressByExpressPointAndPayed(String express_point_id, Integer page, Integer size);
 
     double getTotalByObject(JSONObject express);
+
+    long countTotalExpressByPayed();
+
+    long countTotalExpressByPointAndPayed(String express_point_id);
 }

@@ -83,6 +83,7 @@ public class PreorderServiceImpl implements PreorderService{
 
         for(Iterator<Preorder> i=pages.iterator();i.hasNext();){
             Preorder p=i.next();
+            if(p.getAddressId()==null) continue;
             p.setAddress(addressRepository.findById(p.getAddressId()).get());
             p.setExpress(expressRepository.findAllByPreorderId(p.getId()));
         }

@@ -92,6 +92,8 @@ public class RefundServiceImpl implements RefundService{
      * 退款
      * @return
      */
+    @Value("${wexin.cert}")
+    String cert;
     private boolean refundOrder(String orderid){
 
         Order order=orderRepository.findByOrderId(orderid);
@@ -123,7 +125,7 @@ public class RefundServiceImpl implements RefundService{
         String xml=xmlCreater(content);
         System.out.println(xml);
         try {
-            Resource res = new ClassPathResource("cer.p12");
+            Resource res = new ClassPathResource(cert);
             String cerPath=res.getFile().getPath();
             String refund=postData("https://api.mch.weixin.qq.com/secapi/pay/refund", xml, mch_id, cerPath);
             System.out.println(new String(refund.getBytes(),"UTF-8"));

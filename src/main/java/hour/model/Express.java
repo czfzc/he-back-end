@@ -37,6 +37,15 @@ public class Express {
     @Transient
     Admin sender;
     int payed;
+    String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public int getPayed() {
         return payed;
@@ -181,4 +190,5 @@ public class Express {
     public void setReceiveCode(String receiveCode) {
         this.receiveCode = receiveCode;
     }
+
 }

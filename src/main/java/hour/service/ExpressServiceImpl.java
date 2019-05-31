@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,10 +111,33 @@ public class ExpressServiceImpl implements ExpressService {
         return list;
     }
 
+    @Autowired
+    ExpressAdminRepository expressAdminRepository;
+
     @Override
-    public Page<Express> getAllExpressByPayed(Integer page, Integer size){
-        Pageable pageable=new PageRequest(page,size, Sort.Direction.DESC,"time");
-        return expressRepository.findAllByPayed(pageable,1);
+    public HashMap getAllExpressByPayed(Integer page, Integer size){
+       // return expressRepository.findAllByPayed(pageable,1);
+        return new HashMap(){
+            {
+                this.put("content",expressAdminRepository.findAllByPayed(page*size,size,1));
+                this.put("totalElements",countTotalExpressByPayed());
+            }
+        };
+    }
+
+
+    /**
+     * 根据取货点获取快递
+     */
+    @Override
+    public HashMap getExpressByExpressPointAndPayed(String express_point_id,Integer page,Integer size){
+        return new HashMap(){
+            {
+                this.put("content",expressAdminRepository.findAllByPointAndPayed(
+                        page*size,size,1,express_point_id));
+                this.put("totalElements",countTotalExpressByPointAndPayed(express_point_id));
+            }
+        };
     }
 
     /**
@@ -156,15 +180,6 @@ public class ExpressServiceImpl implements ExpressService {
         return express;
     }
 
-    /**
-     * 根据取货点获取快递
-     */
-    @Override
-    public Page<Express> getExpressByExpressPoint(String express_point_id,Integer page,Integer size){
-        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
-        Page<Express> express=expressRepository.findAllByExpressPointId(express_point_id,pageable);
-        return express;
-    }
 
     /**
      * 计算一个JSONObject的express的总价
@@ -196,5 +211,20 @@ public class ExpressServiceImpl implements ExpressService {
         return expressPrice.getPrice();
     }
 
+    @Override
+    public long countTotalExpressByPayed(){
+        String jpql="select count(e) from Express e where e.payed = 1";
+        Query query=entityManager.createQuery(jpql);
+        Long sum=(Long)query.getSingleResult();
+        return sum;
+    }
 
+    @Override
+    public long countTotalExpressByPointAndPayed(String express_point_id){
+        String jpql="select count(e) from Express e where e.payed = 1 and e.expressPointId=?1";
+        Query query=entityManager.createQuery(jpql);
+        query.setParameter(1,express_point_id);
+        Long sum=(Long)query.getSingleResult();
+        return sum;
+    }
 }

@@ -145,7 +145,7 @@ public class AdminController {
      */
 
     @RequestMapping("/get_express")
-    Page<Express> getExpress(@RequestParam("session_key")String session_key,
+    HashMap getExpress(@RequestParam("session_key")String session_key,
                              @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
         return expressService.getAllExpressByPayed(page, size);
@@ -160,11 +160,11 @@ public class AdminController {
      */
 
     @RequestMapping("/get_express_by_point")
-    Page<Express> getExpressByPoint(@RequestParam("session_key")String session_key,
+    HashMap getExpressByPoint(@RequestParam("session_key")String session_key,
                              @RequestParam("page")Integer page,@RequestParam("size")Integer size,
                                     @RequestParam("express_point_id")String express_point_id){
         if(adminService.getAdminId(session_key)==null) return null;
-        return expressService.getExpressByExpressPoint(express_point_id, page, size);
+        return expressService.getExpressByExpressPointAndPayed(express_point_id, page, size);
     }
 
     /**
