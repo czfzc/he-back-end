@@ -23,6 +23,10 @@ public interface UserService {
      */
     public String registWithPhoneNum(String encryptedData,String iv,String code);
 
+    boolean gzhRegister(String gzh_open_id);
+
+    boolean gzhCheckRegisted(String gzh_open_id);
+
     /**
      * 用session换取用户名
      * @param mysession
@@ -31,4 +35,6 @@ public interface UserService {
     String getUserId(String mysession);
 
     User getUser(String mysession);
+
+    String setUserInfo(String data, String iv,String mysession);
 }

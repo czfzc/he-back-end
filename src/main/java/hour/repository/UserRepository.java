@@ -8,4 +8,5 @@ public interface UserRepository extends JpaRepository<User,String> {
     User findByMysessionAndAbledTrue(String mysession);
     User findByUserId(String user_id);
     User findByUnionId(String union_id);
+    User findByGzhOpenId(String gzh_open_id);
 }

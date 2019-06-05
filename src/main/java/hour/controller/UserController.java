@@ -33,5 +33,15 @@ public class UserController {
         return userService.wxLogin(code);
     }
 
+    /**
+     * 用户凭手机号自动登录
+     * @return
+     */
+    @RequestMapping("/set_userinfo")
+    String setUserInfo(@RequestParam("encrypted_data")String data, @RequestParam("iv")String iv,
+                       @RequestParam("mysession")String mysession){
+        System.out.println(data+" "+iv);
+        return userService.setUserInfo(data,iv,mysession);
+    }
 
 }

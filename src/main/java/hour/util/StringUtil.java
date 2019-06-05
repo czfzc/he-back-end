@@ -1,6 +1,5 @@
 package hour.util;
 
-import com.qq.weixin.mp.aes.WXBizMsgCrypt;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -9,12 +8,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.*;
 
@@ -129,25 +123,4 @@ public class StringUtil {
         return null;
     }
 
-    public static String WxEncryptMsg(WXBizMsgCrypt pc, String replyMsg, String timestamp, String nonce, String openid){
-        try {
-            String mingwen = pc.encryptMsg(replyMsg, timestamp, nonce);
-            System.out.println("加密后: " + mingwen);
-
-            String encrypt = StringUtil.getFromXml(mingwen,"Encrypt");
-
-          //  String format = "<xml><ToUserName><![CDATA[%s]]></ToUserName><Encrypt><![CDATA[%1$s]]></Encrypt></xml>";
-            String fromXML = StringUtil.xmlCreater(new HashMap(){
-                {
-                    this.put("!ToUserName",openid);
-                    this.put("!Encrypt",encrypt);
-                }
-            });
-            return fromXML;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-
-    }
 }

@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import hour.model.WexinToken;
 import hour.repository.WexinTokenRepository;
 import hour.util.NetUtil;
-import hour.util.PushUtil;
-import hour.util.StringUtil;
 import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,15 +34,21 @@ public class WexinTokenServiceImpl implements WexinTokenService {
         }else return access_token;
     }
 
+    /**
+     * 获取用户信息（公众号）
+     * @param openid
+     * @param appid
+     * @param appkey
+     * @return
+     */
     @Override
-    public String getUnionidByOpenid(String openid, String appid, String appkey){
+    public JSONObject getInfoByOpenid(String openid, String appid, String appkey){
         String access_token=this.getAccessToken(appid,appkey);
         JSONObject jo=JSONObject.parseObject(NetUtil.sendGet("https://api.weixin.qq.com/cgi-bin/user/info",
                 "access_token="+access_token+"&openid="+openid+"&lang=zh_CN"));
         System.out.println(jo.toJSONString());
         if(jo.getInteger("errcode")!=null) return null;
-        String unionid=jo.getString("unionid");
-        return unionid;
+        return jo;
     }
 
     @Override

@@ -8,7 +8,6 @@ import hour.repository.*;
 import hour.util.NetUtil;
 import hour.model.Order;
 import hour.model.User;
-import hour.util.PushUtil;
 import hour.util.StringUtil;
 import hour.util.TimeUtil;
 import org.dom4j.Document;
@@ -16,8 +15,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +26,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.*;
 
-import static hour.util.CodeUtil.md5;
-import static hour.util.NetUtil.postData;
 import static hour.util.StringUtil.*;
 
 @Service("OrderService")

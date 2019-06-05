@@ -1,33 +1,19 @@
 package hour.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qq.weixin.mp.aes.AesException;
-import com.qq.weixin.mp.aes.WXBizMsgCrypt;
 import hour.model.User;
 import hour.repository.UserRepository;
+import hour.service.UserService;
 import hour.service.VoucherService;
 import hour.service.WexinTokenService;
-import hour.util.NetUtil;
 import hour.util.StringUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -58,6 +44,9 @@ public class ReplyController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
 /**
     @RequestMapping("/check")
     String main(@RequestParam("signature")String signature,
@@ -93,28 +82,84 @@ public class ReplyController {
         return reply;
     }
 
+    /**
+     * 回复微信公众号
+     *
+     *关注时:
+     <xml>
+     <ToUserName><![CDATA[toUser]]></ToUserName>
+     <FromUserName><![CDATA[FromUser]]></FromUserName>
+     <CreateTime>123456789</CreateTime>
+     <MsgType><![CDATA[event]]></MsgType>
+     <Event><![CDATA[subscribe]]></Event>
+     </xml>
+     *
+     * @param xml
+     * @return
+     */
 
     private String replyIt(String xml){
         System.out.println(xml);
         String me=StringUtil.getFromXml(xml,"ToUserName");
-        String user=StringUtil.getFromXml(xml,"FromUserName");
-        String unionid=wexinTokenService.getUnionidByOpenid(user,gongzhonghaoAppid,gongzhonghaoKey);
-        String Content=StringUtil.getFromXml(xml,"Content");
-        String reply=doAction(Content,unionid);
-        if(reply==null) return null;
-        String msg=StringUtil.xmlCreater(new HashMap(){
-            {
-                this.put("!ToUserName",user);
-                this.put("!FromUserName",me);
-                this.put("CreateTime",new Date().getTime());
-                this.put("!MsgType","text");
-                this.put("!Content",reply);
+        String gzh_open_id=StringUtil.getFromXml(xml,"FromUserName");
+        String msg_type=StringUtil.getFromXml(xml,"MsgType");
+
+        User user=userRepository.findByGzhOpenId(gzh_open_id);
+
+        String unionid=null;
+
+        if (user == null || user.getUnionId() == null) {   //自动注册
+
+            if (!userService.gzhRegister(gzh_open_id)) return null;
+
+            User user2 = userRepository.findByGzhOpenId(gzh_open_id);
+            unionid = user2.getUnionId();
+
+        }else unionid=user.getUnionId();
+
+        if("text".equals(msg_type)) {   //文本消息
+
+
+            String content = StringUtil.getFromXml(xml, "Content");
+
+            String reply = replyText(content, unionid);
+
+            if (reply == null) return "success";
+
+            String msg = StringUtil.xmlCreater(new HashMap() {
+                {
+                    this.put("!ToUserName", gzh_open_id);
+                    this.put("!FromUserName", me);
+                    this.put("CreateTime", new Date().getTime());
+                    this.put("!MsgType", "text");
+                    this.put("!Content", reply);
+                }
+            });
+
+            System.out.println("msg:"+msg);
+
+            return msg;
+        }else if("event".equals(msg_type)){  //事件消息
+            String event=StringUtil.getFromXml(xml,"Event");
+            if("subscribe".equals(event)){      //关注公众号事件
+                String msg = StringUtil.xmlCreater(new HashMap() {
+                    {
+                        this.put("!ToUserName", gzh_open_id);
+                        this.put("!FromUserName", me);
+                        this.put("CreateTime", new Date().getTime());
+                        this.put("!MsgType", "text");
+                        this.put("!Content", "您好啊");
+                    }
+                });
+            }else if("SCAN".equals(event)){
+
             }
-        });
-        return msg;
+        }
+
+        return "success";
     }
 
-    private String doAction(String Content,String unionid){
+    private String replyText(String Content,String unionid){
         System.out.println(unionid);
         //微信小程序openid
         if("免单卡".equals(Content)) {
@@ -124,9 +169,7 @@ public class ReplyController {
             if(voucherService.getMoreExpressVoucher(open_id,2))
                 return "您的2张快递代取免单卡已经放入您的一小时卡包，请进入小程序查看";
             else return "您已经领取过啦～";
-        }else if("叫爸爸".equals(Content)) {
-            return "爸爸";
-        }else return "傻逼";
+        }else return null;
     }
 
 }
