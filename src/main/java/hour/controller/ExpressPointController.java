@@ -40,8 +40,9 @@ public class ExpressPointController {
                                             @RequestParam("sms_content")String sms_content){
         if(userService.getUserId(mysession)==null) return null;
         Map map=new HashMap();
-        map.put("express_point_id",expressPointService.getExpressPointIdBySms(sms_content));
-        map.put("code",expressPointService.getCodeBySms(sms_content));
+        ExpressPoint expressPoint=expressPointService.getExpressPointIdBySms(sms_content);
+        map.put("express_point_id",expressPoint.getExpressPointId());
+        map.put("code",expressPointService.getCode(expressPoint,sms_content));
         return map;
     }
 }

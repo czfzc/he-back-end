@@ -35,6 +35,15 @@ public class Preorder {
     private Address address;
     @JsonIgnore
     private String productId;
+    private String addition;
+
+    public String getAddition() {
+        return addition;
+    }
+
+    public void setAddition(String addition) {
+        this.addition = addition;
+    }
 
     public String getProductId() {
         return productId;

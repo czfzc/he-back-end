@@ -29,6 +29,8 @@ public class VoucherController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    UserRepository userRepository;
 
 
     /**
@@ -49,9 +51,11 @@ public class VoucherController {
      */
     @RequestMapping("/get_voucher")
     List getVoucher(@RequestParam("mysession")String mysession){
-        String user_id=userService.getUserId(mysession);
-        if(user_id==null) return null;
-        return voucherService.getVoucher(user_id);
+        User user=userRepository.findByMysessionAndAbledTrue(mysession);
+        if(user==null)return null;
+        String main_id=user.getMainId();
+        if(main_id==null) return null;
+        return voucherService.getVoucher(main_id);
     }
 
 

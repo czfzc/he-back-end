@@ -8,7 +8,6 @@ public class VoucherGroup{
     @Id
     String typeId;
     Integer count;
-    String checkUserId;
     Integer serviceId;
     String name;
 
@@ -26,14 +25,6 @@ public class VoucherGroup{
 
     public void setCount(Integer count) {
         this.count = count;
-    }
-
-    public String getCheckUserId() {
-        return checkUserId;
-    }
-
-    public void setCheckUserId(String checkUserId) {
-        this.checkUserId = checkUserId;
     }
 
     public Integer getServiceId() {

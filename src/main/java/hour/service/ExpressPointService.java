@@ -1,9 +1,11 @@
 package hour.service;
 
+import hour.model.ExpressPoint;
+
 public interface ExpressPointService {
 
 
-    String getExpressPointIdBySms(String sms_content);
+    ExpressPoint getExpressPointIdBySms(String sms_content);
 
-    String getCodeBySms(String sms_content);
+    String getCode(ExpressPoint expressPoint, String sms);
 }

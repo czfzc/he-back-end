@@ -10,6 +10,7 @@ import java.util.Date;
 public class WexinToken {
 
     String appid;
+
     Date endTime;
     String accessToken;
     @Id

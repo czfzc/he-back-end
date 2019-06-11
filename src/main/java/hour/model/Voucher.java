@@ -18,8 +18,16 @@ public class Voucher {
     boolean abled;
     boolean used;
     Date checkTime;
-    String checkUserId;
     int ServiceId;
+    String userMainId;
+
+    public String getUserMainId() {
+        return userMainId;
+    }
+
+    public void setUserMainId(String userMainId) {
+        this.userMainId = userMainId;
+    }
 
     public int getServiceId() {
         return ServiceId;
@@ -75,13 +83,5 @@ public class Voucher {
 
     public void setCheckTime(Date checkTime) {
         this.checkTime = checkTime;
-    }
-
-    public String getCheckUserId() {
-        return checkUserId;
-    }
-
-    public void setCheckUserId(String checkUserId) {
-        this.checkUserId = checkUserId;
     }
 }

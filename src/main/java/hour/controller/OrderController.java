@@ -42,8 +42,8 @@ public class OrderController {
 
         String mysession=data.getString("mysession");
         JSONArray preorders=data.getJSONArray("preorders");
-
         String ip= NetUtil.getIpAddr(httpServletRequest);
+
         return orderService.payOrder(ip, mysession, preorders);
     }
 

@@ -159,7 +159,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean gzhRegister(String gzh_open_id){
         JSONObject info=wexinTokenService.getInfoByOpenid(gzh_open_id,gongzhonghaoAppid,gongzhonghaoKey);
+
         String unionid=info.getString("unionid");
+
+        System.out.println("unionid=="+unionid);
 
         if(unionid==null) return false;
 
@@ -226,7 +229,6 @@ public class UserServiceImpl implements UserService{
                 user.setAbled(true);
                 return userRepository.save(user);
             }else{              //当此用户存在 以前登陆过
-                user.setUnionId(unionid);
                 String mysession = md5(openid + session_key);
                 user.setMysession(mysession);
                 user.setOpenId(openid);
@@ -314,18 +316,39 @@ public class UserServiceImpl implements UserService{
 
         if(this.appid.equalsIgnoreCase(appid)){  //获取成功
 
-            user.setUnionId(unionId);
+            User user2=userRepository.findByUnionId(unionId);
 
-            user.setNickname(json.getString("nickname"));
-            user.setSex(json.getInteger("sex"));
-            user.setLanguage(json.getString("language"));
-            user.setCity(json.getString("city"));
-            user.setProvince(json.getString("province"));
-            user.setCountry(json.getString("country"));
-            user.setHeadimgurl(json.getString("headimgurl"));
+            if(user2==null) {
 
-            if(userRepository.save(user).getUnionId()!=null){
-                return createStatus(true);
+                user.setUnionId(unionId);
+
+                user.setNickname(json.getString("nickName"));
+                user.setLanguage(json.getString("language"));
+                user.setCity(json.getString("city"));
+                user.setProvince(json.getString("province"));
+                user.setCountry(json.getString("country"));
+                user.setHeadimgurl(json.getString("avatarUrl"));
+
+                if (userRepository.save(user).getUnionId() != null) {
+                    return createStatus(true);
+                }
+            }else{
+                user2.setUserId(user.getUserId());
+                user2.setLastLoginTime(new Date());
+                user2.setOpenId(user.getOpenId());
+                user2.setMysession(user.getMysession());
+                user2.setSessionId(user.getSessionId());
+                user2.setNickname(json.getString("nickName"));
+                user2.setLanguage(json.getString("language"));
+                user2.setCity(json.getString("city"));
+                user2.setProvince(json.getString("province"));
+                user2.setCountry(json.getString("country"));
+                user2.setHeadimgurl(json.getString("avatarUrl"));
+
+                userRepository.delete(user);
+                if (userRepository.save(user2).getUnionId() != null) {
+                    return createStatus(true);
+                }
             }
 
         }

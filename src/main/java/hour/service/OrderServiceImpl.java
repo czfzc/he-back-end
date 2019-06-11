@@ -331,7 +331,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> getOrderByUserId(String user_id, Integer page, Integer size) {
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
-        Page<Order> orders=orderRepository.findAllByUserId(user_id,pageable);
+        Page<Order> orders=orderRepository.findAllByUserIdAndAbledTrue(user_id,pageable);
         for(Iterator<Order> i=orders.iterator();i.hasNext();){
             Order order=i.next();
             List<Preorder> preorders=preorderService.getAllPreorderByOrderId(order.getOrderId());

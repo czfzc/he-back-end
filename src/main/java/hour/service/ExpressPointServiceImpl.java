@@ -5,45 +5,45 @@ import hour.repository.ExpressPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("ExpressPointService")
 public class ExpressPointServiceImpl implements  ExpressPointService{
 
     @Autowired
     ExpressPointRepository expressPointRepository;
 
+    /**
+     * 根据短信获取模板模型
+     * @param sms_content
+     * @return
+     */
     @Override
-    public String getExpressPointIdBySms(String sms_content){
-        ExpressPoint expressPoint=this.getBySms(sms_content);
-        if(expressPoint==null) return null;
-        return expressPoint.getExpressPointId();
+    public ExpressPoint getExpressPointIdBySms(String sms_content){
+        sms_content=sms_content.replaceAll("[A-Za-z0-9]","").replaceAll("\\s+","");
+        List<ExpressPoint> list=expressPointRepository.findAll();
+        for(int i=0;i<list.size();i++){
+            String str=list.get(i).getSmsTemp().replaceAll("[A-Za-z0-9]","").replaceAll("\\s+","");
+            if(str.equals(sms_content)){
+                return list.get(i);
+            }
+        }
+        return null;
     }
+
+    /**
+     * 根据模型和短信获取code
+     * @param expressPoint
+     * @param sms_content
+     * @return
+     */
     @Override
-    public String getCodeBySms(String sms_content){
-        ExpressPoint expressPoint=this.getBySms(sms_content);
-        if(expressPoint==null) return null;
+    public String getCode(ExpressPoint expressPoint, String sms_content){
+        if(expressPoint==null||sms_content==null) return null;
         String code_format=expressPoint.getCodeFormat();
         return this.getCodeByCodeFormatAndSmsContent(sms_content,code_format);
     }
 
-    /**
-     * 根据短信获取模型 一般提取【】括号对内的内容
-     * @param sms_content
-     * @return
-     */
-
-    private ExpressPoint getBySms(String sms_content){
-        String express_name="";
-        char[] str=sms_content.toCharArray();
-        boolean a=false;
-        for(int i=0;i<str.length;i++){
-            if(str[i]=='】') break;
-            if(i!=0&&str[i-1]=='【'){
-                a=true;
-            }
-            if(a) express_name+=str[i];
-        }
-        return expressPointRepository.findFirstByName(express_name);
-    }
 
     /**
      * 用取货码格式字符串从取货短信里提取取货码
@@ -87,8 +87,10 @@ public class ExpressPointServiceImpl implements  ExpressPointService{
 
 
     public static void main(String[] args){
-        String sms="【菜鸟驿站】您的百世快递包裹到东大校内七舍北侧菜鸟驿站，请17:30前凭1-1-6200及时取，询19904053317";
-        ExpressPointServiceImpl expressPointService=new ExpressPointServiceImpl();
-        System.out.println(expressPointService.getBySms(sms));
+        String sms="【菜鸟驿站】您的百世快递包裹到东大校内七舍北侧菜鸟驿站，" +
+                "hahaHAHA请17:30前凭1-1-6200及时取，询19904053317";
+        sms=sms.replaceAll("[A-Za-z0-9]","");
+      //  ExpressPointServiceImpl expressPointService=new ExpressPointServiceImpl();
+        System.out.println(sms);
     }
 }

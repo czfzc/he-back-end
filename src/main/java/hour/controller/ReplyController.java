@@ -106,6 +106,8 @@ public class ReplyController {
 
         User user=userRepository.findByGzhOpenId(gzh_open_id);
 
+
+
         String unionid=null;
 
         if (user == null || user.getUnionId() == null) {   //自动注册
@@ -167,7 +169,7 @@ public class ReplyController {
             if(user==null) return "您还没有使用小程序呀，快去体验再领取吧";
             String open_id=user.getOpenId();
             if(voucherService.getMoreExpressVoucher(open_id,2))
-                return "您的2张快递代取免单卡已经放入您的一小时卡包，请进入小程序查看";
+                return "您的2张快递代取免单卡已经放入您的一小时小程序会员卡包，请进入小程序查看";
             else return "您已经领取过啦～";
         }else return null;
     }

@@ -29,7 +29,7 @@ public class WexinTokenServiceImpl implements WexinTokenService {
             access_token=jsonObject.getString("access_token");
             int expires_in=jsonObject.getInteger("expires_in");
             wexinToken.setAccessToken(access_token);
-            wexinToken.setEndTime(TimeUtil.addMin(new Date(),expires_in/60-5));
+            wexinToken.setEndTime(TimeUtil.addMin(new Date(),expires_in/60-30));
             return wexinTokenRepository.save(wexinToken).getAccessToken();
         }else return access_token;
     }
@@ -46,8 +46,19 @@ public class WexinTokenServiceImpl implements WexinTokenService {
         String access_token=this.getAccessToken(appid,appkey);
         JSONObject jo=JSONObject.parseObject(NetUtil.sendGet("https://api.weixin.qq.com/cgi-bin/user/info",
                 "access_token="+access_token+"&openid="+openid+"&lang=zh_CN"));
+
         System.out.println(jo.toJSONString());
-        if(jo.getInteger("errcode")!=null) return null;
+
+        if(jo.getInteger("errcode")!=null&&jo.getInteger("errcode")==40001){
+            this.getAccessToken(appid,appkey);
+            try {
+                Thread.sleep(100); //防止死递归
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return this.getInfoByOpenid(openid, appid, appkey);
+        }
+
         return jo;
     }
 

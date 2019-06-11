@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import hour.model.Address;
 import hour.model.Express;
 import hour.model.ExpressPrice;
+import hour.model.User;
 import hour.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,9 @@ public class ExpressServiceImpl implements ExpressService {
     @Autowired
     ExpressMonthCardService expressMonthCardService;
 
+    @Autowired
+    UserRepository userRepository;
+
     @Value("${express.voucher-type-id}")
     String type_id;
     @Value("${express.max-express-count}")
@@ -71,7 +75,9 @@ public class ExpressServiceImpl implements ExpressService {
 
             System.out.println(jo.toJSONString());
 
-            if(discount!=null&&discount.equals("voucher")&&voucherService.useVoucher(user_id,type_id)){
+            User user=userRepository.findByUserId(user_id);
+
+            if(discount!=null&&discount.equals("voucher")&&voucherService.useVoucher(user.getMainId(),type_id)){
                 //do nothing
             }else if(discount!=null&&discount.equals("express_card")&&expressMonthCardService.useItForTimes(user_id,1)){
                 //do nothing

@@ -38,25 +38,28 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public String varifyVoucher(String user_id, String card_id){
         Voucher voucher=voucherRepository.
-                findFirstByCardIdAndUsedFalseAndAbledTrueAndCheckUserIdIsNull(card_id);
+                findFirstByCardIdAndUsedFalseAndAbledTrueAndUserMainIdIsNull(card_id);
+        User user=userRepository.findByUserId(user_id);
+        if(user==null) return createStatus(false);
         if(voucher==null) return createStatus(false);
-        voucher.setCheckUserId(user_id);
+        voucher.setUserMainId(user.getMainId());
         voucherRepository.save(voucher);
         return createStatus(true);
     }
 
     @Override
-    public List<VoucherGroup> getVoucher(String user_id){
-        return voucherGroupRepository.list(user_id);
+    public List<VoucherGroup> getVoucher(String main_id){
+        return voucherGroupRepository.list(main_id);
     }
 
     @Override
-    public boolean useVoucher(String user_id, String type_id){  //用户使用一张指定类型的代金卷
+    public boolean useVoucher(String user_main_id, String type_id){  //用户使用一张指定类型的代金卷
         Voucher voucher=voucherRepository.
-                findFirstByCheckUserIdAndTypeIdAndAbledTrueAndUsedFalseAndCheckUserIdNotNull(user_id,type_id);
+                findFirstByUserMainIdAndTypeIdAndAbledTrueAndUsedFalse(user_main_id,type_id);
         if(voucher==null) return false;
         voucher.setUsed(true);
         voucherRepository.save(voucher);
+        System.out.println("使用代金卷成功");
         return true;
     }
 
@@ -96,7 +99,7 @@ public class VoucherServiceImpl implements VoucherService {
             voucher.setAbled(true);
             voucher.setUsed(false);
             voucher.setCheckTime(new Date());
-            voucher.setCheckUserId(user.getUserId());
+            voucher.setUserMainId(user.getMainId());
             voucher.setServiceId(1);
             if(voucherRepository.save(voucher).getCardId()==null)
                 return false;

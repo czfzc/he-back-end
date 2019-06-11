@@ -133,6 +133,8 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setSendMethodId(send_method_id);
                 preorder.setTotalFee(0D);
                 preorder.setProductId(addressProductId);
+                preorder.setAddition(jo.getString("addition"));
+
                 String preorder_id=preorderRepository.save(preorder).getId();
 
                 if(expressService.addExpress(express,preorder_id,address_id,user_id,send_method_id)){
