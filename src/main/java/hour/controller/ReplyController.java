@@ -1,12 +1,15 @@
 package hour.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import hour.model.Express;
 import hour.model.User;
+import hour.repository.ExpressRepository;
 import hour.repository.UserRepository;
 import hour.service.UserService;
 import hour.service.VoucherService;
 import hour.service.WexinTokenService;
 import hour.util.StringUtil;
+import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import static hour.util.StringUtil.createStatus;
 
@@ -167,11 +171,38 @@ public class ReplyController {
         if("免单卡".equals(Content)) {
             User user=userRepository.findByUnionId(unionid);
             if(user==null) return "您还没有使用小程序呀，快去体验再领取吧";
-            String open_id=user.getOpenId();
-            if(voucherService.getMoreExpressVoucher(open_id,2))
+            if(voucherService.getMoreExpressVoucher(unionid,2))
                 return "您的2张快递代取免单卡已经放入您的一小时小程序会员卡包，请进入小程序查看";
             else return "您已经领取过啦～";
+        }else if("快递查询".equals(Content)) {
+            User user=userRepository.findByUnionId(unionid);
+            if(user==null) return "您还没有使用小程序呀，快去体验再领取吧";
+            String toret=getExpressInfoString(user.getUserId());
+            if(toret!=null) return toret;
+            else return "您没有代取的快递件哦～";
+        }else if(Content.contains("快递查询")) {
+            return "此功能还未上线哦，抱歉！！嘿嘿";
         }else return null;
+    }
+
+    @Autowired
+    ExpressRepository expressRepository;
+    private String getExpressInfoString(String user_id){
+        if(user_id==null) return null;
+        List<Express> list=expressRepository.findAllByAbledTrueAndStatusNotAndPayedAndUserId(2,1,user_id);
+        if(list.size()==0) return null;
+        String str="";
+        for(int i=0;i<list.size();i++){
+            Express express=list.get(i);
+            str+="货位id："+express.getAddressId().substring(24,32)+"\n";
+            str+="状态："+(express.getStatus()==0?"还在快递点":"正在去您的路上")+"\n";
+            str+="支付：已支付\n";
+            str+="下单时间："+TimeUtil.formatDate(express.getTime())+"\n";
+            str+="联系方式："+(express.getSenderAdminId()==null?"暂无":express.getSenderAdminId())+"\n";
+            str+="快递短信："+express.getSmsContent()+"\n";
+            str+="--------------------------------\n\n";
+        }
+        return str;
     }
 
 }

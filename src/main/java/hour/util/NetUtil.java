@@ -179,10 +179,10 @@ public class NetUtil {
     private static RequestConfig requestConfig;// 请求器的配置
     private static CloseableHttpClient httpClient;// HTTP请求器
 
-    public static String postData(String url, String xmlObj, String mchId, String certPath) {
+    public static String postData(String url, String xmlObj, String mchId, InputStream cert) {
         // 加载证书
         try {
-            initCert(mchId, certPath);
+            initCert(mchId, cert);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -219,23 +219,22 @@ public class NetUtil {
      * 加载证书
      *
      * @param mchId 商户ID
-     * @param certPath 证书位置
      * @throws Exception
      */
-    private static void initCert(String mchId, String certPath) throws Exception {
+    private static void initCert(String mchId, InputStream cert) throws Exception {
         // 证书密码，默认为商户ID
         String key = mchId;
         // 证书的路径
-        String path = certPath;
+      //  String path = certPath;
         // 指定读取证书格式为PKCS12
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         // 读取本机存放的PKCS12证书文件
-        FileInputStream instream = new FileInputStream(new File(path));
+      //  FileInputStream instream = new FileInputStream(cert);
         try {
             // 指定PKCS12的密码(商户ID)
-            keyStore.load(instream, key.toCharArray());
+            keyStore.load(cert, key.toCharArray());
         } finally {
-            instream.close();
+            cert.close();
         }
         SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, key.toCharArray()).build();
         SSLConnectionSocketFactory sslsf =

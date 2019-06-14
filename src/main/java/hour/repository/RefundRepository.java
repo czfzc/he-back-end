@@ -8,4 +8,5 @@ import java.util.List;
 public interface RefundRepository extends JpaRepository<Refund,String> {
     List<Refund> findAllByAbledTrue();
     Refund findByRefundId(String refund_id);
+    Refund findByOrderId(String order_id);
 }

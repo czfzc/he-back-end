@@ -94,7 +94,7 @@ public class RefundServiceImpl implements RefundService{
      */
     @Value("${wexin.cert}")
     String cert;
-    private boolean refundOrder(String orderid){
+    private boolean refundOrder(String orderid,String refundid){
 
         Order order=orderRepository.findByOrderId(orderid);
 
@@ -117,7 +117,7 @@ public class RefundServiceImpl implements RefundService{
         content.put("!nonce_str", getRandom(10));																				//随机数 不超过32位
         //	content.put("!notify_url", "https://shop.wly01.cn/myshop/onFinishedPayed");											//退款完成的会调接口
         content.put("!out_trade_no", orderid);																				//订单id
-        content.put("!out_refund_no", orderid);																				//退款id
+        content.put("!out_refund_no", refundid);																				//退款id
         content.put("!total_fee",String.valueOf((int)(total*100)));														//订单总价
         content.put("!refund_fee", String.valueOf((int)(total*100)));														//退款金额
         //	content.put("refund_desc", "sold_out");																				//退款原因
@@ -126,8 +126,8 @@ public class RefundServiceImpl implements RefundService{
         System.out.println(xml);
         try {
             Resource res = new ClassPathResource(cert);
-            String cerPath=res.getFile().getPath();
-            String refund=postData("https://api.mch.weixin.qq.com/secapi/pay/refund", xml, mch_id, cerPath);
+            System.out.println("cerpath:  ");
+            String refund=postData("https://api.mch.weixin.qq.com/secapi/pay/refund", xml, mch_id, res.getInputStream());
             System.out.println(new String(refund.getBytes(),"UTF-8"));
             if(refund.contains("FAIL"))
                 return false;
@@ -146,7 +146,7 @@ public class RefundServiceImpl implements RefundService{
 
         if(refund.getPayed()==3) {
 
-            if(!this.refundOrder(refund.getOrderId())) return false;
+            if(!this.refundOrder(refund.getOrderId(),refund_id)) return false;
 
             order.setPayed(2);  //payed为2则为退款成功
 
@@ -173,7 +173,8 @@ public class RefundServiceImpl implements RefundService{
 
     @Override
     public boolean adminRefund(String order_id){
-        if(!this.refundOrder(order_id)) return false;
+        Refund refund=refundRepository.findByOrderId(order_id);
+        if(!this.refundOrder(order_id,refund.getRefundId())) return false;
         Order order=orderRepository.findByOrderId(order_id);
         if(order==null) return false;
         order.setPayed(2);

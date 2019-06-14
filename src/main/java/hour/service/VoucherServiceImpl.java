@@ -88,8 +88,8 @@ public class VoucherServiceImpl implements VoucherService {
     String expressVoucherTypeId;
 
     @Override
-    public boolean getMoreExpressVoucher(String open_id,int num){
-        User user=userRepository.findByOpenId(open_id);
+    public boolean getMoreExpressVoucher(String union_id,int num){
+        User user=userRepository.findByUnionId(union_id);
         if(user==null) return false;
         if(user.isVoucherGeted()) return false;
         for(int i=0;i<num;i++){

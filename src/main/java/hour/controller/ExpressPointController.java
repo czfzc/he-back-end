@@ -41,6 +41,10 @@ public class ExpressPointController {
         if(userService.getUserId(mysession)==null) return null;
         Map map=new HashMap();
         ExpressPoint expressPoint=expressPointService.getExpressPointIdBySms(sms_content);
+        if(expressPoint==null){
+            map.put("status","false");
+            return map;
+        }
         map.put("express_point_id",expressPoint.getExpressPointId());
         map.put("code",expressPointService.getCode(expressPoint,sms_content));
         return map;

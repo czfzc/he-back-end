@@ -23,6 +23,8 @@ public interface ExpressRepository extends JpaRepository<Express,String> {
 
     Page<Express> findAllByExpressPointId(String express_point_id,Pageable pageable);
 
+    List<Express> findAllByAbledTrueAndStatusNotAndPayedAndUserId(int status,int payed,String user_id);
+
     @Query(value="SELECT\n" +
             "\ta.express_id AS express_id,\n" +
             "\ta.STATUS AS STATUS,\n" +

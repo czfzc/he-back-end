@@ -28,7 +28,7 @@ public class Express {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     Date time;
-    int Status;
+    int status;
     boolean abled;
     String expressPointId;
     String sendMethodId;
@@ -101,14 +101,6 @@ public class Express {
 
     public void setAbled(boolean abled) {
         this.abled = abled;
-    }
-
-    public int getStatus() {
-        return Status;
-    }
-
-    public void setStatus(int status) {
-        Status = status;
     }
 
     public Date getTime() {
@@ -191,4 +183,11 @@ public class Express {
         this.receiveCode = receiveCode;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 }
