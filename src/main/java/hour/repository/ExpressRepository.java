@@ -57,4 +57,6 @@ public interface ExpressRepository extends JpaRepository<Express,String> {
             "\tLIMIT 0,\n" +
             "\t10;",nativeQuery = true)
     Page<Express> findAllByPayed(Pageable pageable, @Param("payed") int payed);
+
+
 }

@@ -75,6 +75,9 @@ public class AdminController {
     @Autowired
     ServiceRepository serviceRepository;
 
+    @Autowired
+    WexinTokenService wexinTokenService;
+
     /**
      * 登录
      * @param admin_id
@@ -240,6 +243,7 @@ public class AdminController {
         express.setSenderAdminId(admin_id);
         express.setStatus(1);
         expressRepository.save(express);
+        wexinTokenService.pushWithdrawExpressInfo(express_id);
         return createStatus(true);
     }
 
@@ -257,6 +261,7 @@ public class AdminController {
             return createStatus(false);
         express.setStatus(2);
         expressRepository.save(express);
+        wexinTokenService.pushSendedExpressInfo(express_id);
         return createStatus(true);
     }
 

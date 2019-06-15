@@ -356,5 +356,11 @@ public class UserServiceImpl implements UserService{
         return createStatus(false);
     }
 
+    @Override
+    public String getOpenidByUserId(String user_id){
+        User user=userRepository.findByUserId(user_id);
+        if(user==null) return null;
+        return user.getOpenId();
+    }
 
 }

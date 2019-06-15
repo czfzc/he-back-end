@@ -10,5 +10,9 @@ public interface WexinTokenService {
     JSONObject getInfoByOpenid(String openid, String appid, String appkey);
 
     boolean pushFinishPayed(String prepay_id, String name, Double price, Date time,
-                            String order_id, String openid, String appid, String appkey);
+                            String order_id, String openid);
+
+    boolean pushWithdrawExpressInfo(String express_id);
+
+    boolean pushSendedExpressInfo(String express_id);
 }

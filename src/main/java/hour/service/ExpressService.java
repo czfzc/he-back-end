@@ -29,4 +29,6 @@ public interface ExpressService {
     long countTotalExpressByPayed();
 
     long countTotalExpressByPointAndPayed(String express_point_id);
+
+    String getPrepayIdByExpressId(String express_id);
 }

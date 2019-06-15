@@ -368,10 +368,10 @@ public class OrderServiceImpl implements OrderService {
             MoreProduct moreProduct=moreProductRepository.findFirstByProductId(preorder.getProductId());
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
                 wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId(),appid,appkey);
+                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId());
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
                 wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId(),appid,appkey);
+                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId());
                 ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }

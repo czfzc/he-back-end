@@ -37,4 +37,6 @@ public interface UserService {
     User getUser(String mysession);
 
     String setUserInfo(String data, String iv,String mysession);
+
+    String getOpenidByUserId(String user_id);
 }

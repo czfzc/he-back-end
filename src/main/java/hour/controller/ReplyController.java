@@ -154,9 +154,10 @@ public class ReplyController {
                         this.put("!FromUserName", me);
                         this.put("CreateTime", new Date().getTime());
                         this.put("!MsgType", "text");
-                        this.put("!Content", "您好啊");
+                        this.put("!Content", "欢迎关注东大一小时公众号鸭！\n回复“免单卡”可以获得两张快递代取免单劵哦！\n哈哈哈嘿嘿嘿嘻嘻嘻xixi");
                     }
                 });
+                return msg;
             }else if("SCAN".equals(event)){
 
             }

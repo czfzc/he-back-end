@@ -2,10 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import hour.model.Address;
-import hour.model.Express;
-import hour.model.ExpressPrice;
-import hour.model.User;
+import hour.model.*;
 import hour.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +44,12 @@ public class ExpressServiceImpl implements ExpressService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    PreorderRepository preorderRepository;
 
     @Value("${express.voucher-type-id}")
     String type_id;
@@ -232,5 +235,22 @@ public class ExpressServiceImpl implements ExpressService {
         query.setParameter(1,express_point_id);
         Long sum=(Long)query.getSingleResult();
         return sum;
+    }
+
+    @Override
+    public String getPrepayIdByExpressId(String express_id){
+
+        Express express=expressRepository.findFirstByExpressId(express_id);
+        if(express==null) return null;
+
+        Preorder preorder=preorderRepository.findById(express.getPreorderId()).get();
+        if(preorder==null) return null;
+
+        Order order=orderRepository.findByOrderId(preorder.getOrderId());
+        if(order==null) return null;
+
+        String prepay_id=order.getPrepayId();
+
+        return prepay_id;
     }
 }
