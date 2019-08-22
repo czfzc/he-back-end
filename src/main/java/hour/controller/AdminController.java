@@ -1,19 +1,17 @@
 package hour.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import hour.model.*;
 import hour.repository.*;
 import hour.service.*;
+import jdk.internal.jline.internal.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,6 +75,12 @@ public class AdminController {
 
     @Autowired
     WexinTokenService wexinTokenService;
+
+    @Autowired
+    ShopProductService shopProductService;
+
+    @Autowired
+    ShopProductTypeService shopProductTypeService;
 
     /**
      * 登录
@@ -593,4 +597,203 @@ public class AdminController {
         building.setAbled(abled);
         return createStatus(buildingRepository.save(building).getName().equals(name));
     }
+
+    /*
+        以下是对商品的增删改查
+     */
+
+    /**
+     * 添加商品
+     * @param session_key
+     * @param building_id
+     * @param name
+     * @param price
+     * @param rest
+     * @param type_id
+     * @param img_link
+     * @param addition
+     * @return
+     */
+    @RequestMapping("/add_shop_product")
+    String addShopProduct(@RequestParam("session_key")@NotNull
+                                  String session_key,
+                          @RequestParam("building_id")@NotNull
+                                  String building_id,
+                          @RequestParam("name")@NotNull
+                                  String name,
+                          @RequestParam("price")@NotNull
+                                  Double price,
+                          @RequestParam("rest")@NotNull
+                                  Integer rest,
+                          @RequestParam("type_id")@NotNull
+                                  String type_id,
+                          @RequestParam("img_link")@NotNull
+                                  String img_link,
+                          @RequestParam("abled")@NotNull
+                                  Boolean abled,
+                          @RequestParam("addition")@Nullable
+                                  String addition){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductService.addProduct(building_id,name,price,abled,rest,type_id,img_link,addition);
+        return createStatus(status);
+    }
+
+    /**
+     * 更改商品
+     * @param session_key
+     * @param building_id
+     * @param name
+     * @param price
+     * @param rest
+     * @param type_id
+     * @param img_link
+     * @param addition
+     * @return
+     */
+    @RequestMapping("edit_shop_product")
+    String editShopProduct(
+                          @RequestParam("product_id")@NotNull
+                                  String product_id,
+                          @RequestParam("session_key")@NotNull
+                                  String session_key,
+                          @RequestParam("building_id")@NotNull
+                                  String building_id,
+                          @RequestParam("name")@NotNull
+                                  String name,
+                          @RequestParam("price")@NotNull
+                                  Double price,
+                          @RequestParam("rest")@NotNull
+                                  Integer rest,
+                          @RequestParam("type_id")@NotNull
+                                  String type_id,
+                          @RequestParam("img_link")@NotNull
+                                  String img_link,
+                          @RequestParam("abled")@NotNull
+                                  Boolean abled,
+                          @RequestParam("addition")@Nullable
+                                  String addition){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductService.editProduct(product_id,building_id,name,price,abled,rest,type_id,img_link,addition);
+        return createStatus(status);
+    }
+
+    /**
+     * 删除商品
+     * @param product_id
+     * @param session_key
+     * @return
+     */
+    @RequestMapping("remove_shop_product")
+    String removeShopProduct(@RequestParam("product_id")@NotNull String product_id,
+                             @RequestParam("session_key")@NotNull String session_key){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductService.removeProduct(product_id);
+        return createStatus(status);
+    }
+
+    /**
+     * 获取商品
+     * 无building_id或type_id字段则不查询这些字段
+     * @param session_key
+     * @param page
+     * @param size
+     * @param building_id
+     * @param type_id
+     * @return
+     */
+    @RequestMapping("/get_shop_product")
+    Page<Product> getShopProduct(@RequestParam("session_key")@NotNull String session_key,
+                                 @RequestParam("page")@NotNull int page,
+                                 @RequestParam("size")@NotNull int size,
+                                 @RequestParam("building_id")@Nullable String building_id,
+                                 @RequestParam("type_id")@Nullable String type_id){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        if(building_id==null&&type_id==null){
+            return shopProductService.getAllShopProduct(page, size);
+        }else if(building_id!=null&&type_id!=null){
+            return shopProductService.
+                    getShopProductByBuildingIdAndTypeId(building_id,type_id,page,size);
+        }else if(type_id!=null){
+            return shopProductService.getShopProductByTypeId(type_id,page,size);
+        }else if(building_id!=null){
+            return shopProductService.getShopProductByBuildingId(building_id,page,size);
+        }
+        throw new RuntimeException("no result");
+    }
+
+    /* 以下是对商品类型的增删改查*/
+
+    /**
+     * 添加商品类型
+     * @param session_key
+     * @param name
+     * @param building_id
+     * @param abled
+     * @param addition
+     * @return
+     */
+    @RequestMapping("add_shop_product_type")
+    String addShopProductType(@RequestParam("session_key")@NotNull String session_key,
+                              @RequestParam("name")@NotNull String name,
+                              @RequestParam("building_id")@NotNull String building_id,
+                              @RequestParam("abled")@NotNull Boolean abled,
+                              @RequestParam("addition")@Nullable String addition){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductTypeService.addProductType(name,building_id,abled,addition);
+        return createStatus(status);
+    }
+
+    /**
+     * 更改商品类型
+     * @param session_key
+     * @param name
+     * @param building_id
+     * @param abled
+     * @param addition
+     * @return
+     */
+    @RequestMapping("edit_shop_product_type")
+    String editShopProductType(@RequestParam("session_key")@NotNull String session_key,
+                              @RequestParam("type_id")@NotNull String type_id,
+                              @RequestParam("name")@NotNull String name,
+                              @RequestParam("building_id")@NotNull String building_id,
+                              @RequestParam("abled")@NotNull Boolean abled,
+                              @RequestParam("addition")@Nullable String addition){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductTypeService.editProductType(type_id,name,building_id,abled,addition);
+        return createStatus(status);
+    }
+
+    /**
+     * 删除商品类型
+     * @param type_id
+     * @return
+     */
+    @RequestMapping("remove_product_type")
+    String removeProductType(@RequestParam("session_key")@NotNull String session_key,
+                             @RequestParam("type_id")@Nullable String type_id){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = shopProductTypeService.removeProductType(type_id);
+        return createStatus(status);
+    }
+
+    @RequestMapping("get_shop_product_type")
+    List<ProductType> getShopProductType(@RequestParam("session_key")@NotNull String session_key,
+                                         @RequestParam("building_id")@Nullable String building_id){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = false;
+        if(building_id!=null) {
+            return shopProductTypeService.getShopProductTypeByBuildingId(building_id);
+        }else return shopProductTypeService.getShopProductType();
+    }
+
+
 }

@@ -29,14 +29,16 @@ public interface ExpressAdminRepository extends JpaRepository<ExpressAdmin,Strin
             "\tany_value(a.time) AS time,\n" +
             "\tany_value(a.total_fee) AS total_fee,\n" +
             "\tany_value(a.user_id) AS user_id,\n" +
+            "\tany_value(p.addition) AS addition,\n" +
             "\tany_value(CONCAT( c.NAME, b.room_num )) AS address \n" +
-            "FROM\n" +
+            "FROM\n"+
             "\tuser_express a\n" +
             "\tLEFT JOIN user_address b ON b.user_id = a.user_id\n" +
             "\tLEFT JOIN user_dest_building c ON b.build_id = c.id\n" +
             "\tLEFT JOIN user_express_size d ON a.size_id = d.size_id\n" +
             "\tLEFT JOIN user_send_method e ON a.send_method_id = e.id\n" +
             "\tLEFT JOIN user_express_point f ON a.express_point_id = f.express_point_id \n" +
+            "\tLEFT JOIN user_preorder p ON p.id = a.preorder_id \n" +
             "\tWHERE\n" +
             "\ta.payed = :payed\n" +
             "\tgroup by a.express_id\n" +

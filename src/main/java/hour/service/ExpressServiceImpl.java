@@ -213,9 +213,12 @@ public class ExpressServiceImpl implements ExpressService {
         Address address=addressRepository.findById(addressId).get();
         if(address==null) return total;
         String dest_building_id=address.getBuildId();
-        ExpressPrice expressPrice=expressPriceRepository.
+        //精准计费代码
+       /* ExpressPrice expressPrice=expressPriceRepository.
                 findFirstByDestBuildingIdAndExpressPointIdAndSizeIdAndSendMethodId(dest_building_id,
-                        expressPointId,sizeId,sendMethodId);
+                        expressPointId,sizeId,sendMethodId);*/
+        ExpressPrice expressPrice=expressPriceRepository.
+                findFirstBySizeId(sizeId);
         if(expressPrice==null) return total;
         return expressPrice.getPrice();
     }

@@ -32,10 +32,20 @@ public class Preorder {
     @Transient
     private List<Express> express;
     @Transient
+    private List<UserProduct> userProduct;
+    @Transient
     private Address address;
     @JsonIgnore
     private String productId;
     private String addition;
+
+    public List<UserProduct> getUserProduct() {
+        return userProduct;
+    }
+
+    public void setUserProduct(List<UserProduct> userProduct) {
+        this.userProduct = userProduct;
+    }
 
     public String getAddition() {
         return addition;

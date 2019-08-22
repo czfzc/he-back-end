@@ -33,6 +33,10 @@ public class AddressServiceImpl implements AddressService{
         Address address=new Address();
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return createStatus(false);
+
+        if(name==null||phone_num==null||room_num==null)
+            return createStatus(false);;
+
         address.setUserId(user_id);
         address.setName(name);
         address.setPhoneNum(phone_num);
@@ -74,6 +78,9 @@ public class AddressServiceImpl implements AddressService{
         if(address==null) return false;
         Building building=buildingRepository.findFirstById(build_id);
         if(build_id==null) return false;
+
+        if(name==null||phone_num==null||room_num==null)
+            return false;
         address.setName(name);
         address.setPhoneNum(phone_num);
         address.setRoomNum(room_num);

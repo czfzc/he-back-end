@@ -48,6 +48,15 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     ServiceRepository serviceRepository;
 
+    @Autowired
+    ShopProductService shopProductService;
+
+    @Autowired
+    UserProductService userProductService;
+
+    @Autowired
+    UserProductRepository userProductRepository;
+
 
     @Override
     public double calculateTotal(String order_id) {
@@ -63,13 +72,21 @@ public class PreorderServiceImpl implements PreorderService{
         List<Preorder> list=preorderRepository.findAllByOrderId(order_id);
         for(Iterator<Preorder> i=list.iterator();i.hasNext();){
             Preorder preorder=i.next();
+
             if(!serviceRepository.findById(preorder.getServiceId()).get().isShow()) {
                 i.remove();
                 continue;
             }
 
-            preorder.setExpress(expressService.getExpress(preorder.getId()));
-            preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+            if(preorder.getServiceId()==1){ //快递代取
+                preorder.setExpress(expressService.getExpress(preorder.getId()));
+                preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+            }else if(preorder.getServiceId()==2){ //零食外送
+                preorder.setUserProduct(userProductService.getUserProducts(preorder.getId()));
+                preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+            }
+
+
         }
 
         return list;
@@ -99,6 +116,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Value("${express.product-id}")
     String addressProductId;
 
+    @Value("${shop-product.product-id}")
+    String shopProductProductId;
+
     @Value("${express.card.first-card-price}")
     Double firstCardPrice;
 
@@ -118,10 +138,9 @@ public class PreorderServiceImpl implements PreorderService{
                 if(express.size()>max_express_count)             //快递数目不得超过指定件数
                     continue;
                 String address_id=jo.getString("address_id");
-
-                Preorder preorder=new Preorder();
                 String send_method_id=jo.getString("send_method_id");
 
+                Preorder preorder=new Preorder();
                 preorder.setAddressId(address_id);
                 preorder.setTime(new Date());
                 preorder.setOrderId(order_id);
@@ -139,6 +158,33 @@ public class PreorderServiceImpl implements PreorderService{
 
                 if(expressService.addExpress(express,preorder_id,address_id,user_id,send_method_id)){
                     Double total = expressService.getTotalPrice(preorder_id);
+                    preorder.setTotalFee(total);
+                    preorderRepository.save(preorder);
+                }else throw new RuntimeException("unify order fail");
+            }else if(jo.getInteger("service_id")==2){   //零食上门业务预付单
+                Date time = new Date();
+                JSONArray products = jo.getJSONArray("products");
+                String address_id = jo.getString("address_id");
+                String send_method_id = jo.getString("send_method_id");
+                String addition = jo.getString("addition");
+                Preorder preorder = new Preorder();
+                preorder.setTotalFee(0D);
+                preorder.setAddressId(address_id);
+                preorder.setTime(time);
+                preorder.setOrderId(order_id);
+                preorder.setUserId(user_id);
+                preorder.setServiceId(2);
+                preorder.setStatus(0);
+                preorder.setPayed(0);
+                preorder.setAbled(true);
+                preorder.setSendMethodId(send_method_id);
+                preorder.setProductId(shopProductProductId);
+                preorder.setAddition(addition);
+
+                String preorder_id=preorderRepository.save(preorder).getId();
+
+                if(userProductService.addUserProducts(products,preorder_id,user_id,time)){
+                    Double total = userProductService.getTotalPrice(preorder_id);
                     preorder.setTotalFee(total);
                     preorderRepository.save(preorder);
                 }else throw new RuntimeException("unify order fail");
