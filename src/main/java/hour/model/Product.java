@@ -1,8 +1,8 @@
 package hour.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jdk.internal.jline.internal.Nullable;
-import net.bytebuddy.implementation.bind.annotation.Default;
+import org.springframework.data.annotation.Transient;
+import org.springframework.lang.Nullable;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
@@ -37,8 +37,18 @@ public class Product {
     String imgLink;
     @Nullable
     String addition;
-    @Nullable
+    @Transient
     Date time;
+    @JsonIgnore
+    boolean deled;
+
+    public boolean isDeled() {
+        return deled;
+    }
+
+    public void setDeled(boolean deled) {
+        this.deled = deled;
+    }
 
     public Date getTime() {
         return time;

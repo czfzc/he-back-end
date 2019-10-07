@@ -5,7 +5,6 @@ import hour.model.Product;
 import hour.model.ProductType;
 import hour.repository.ShopProductTypeRepository;
 import hour.service.ShopProductService;
-import hour.service.ShopProductTypeService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;

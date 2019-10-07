@@ -16,7 +16,7 @@ public class SendMethod {
     String value;
     @JsonIgnore
     String typeStr;
-    String serviceId;
+    Integer serviceId;
     boolean abled;
 
     public String getId() {
@@ -51,11 +51,11 @@ public class SendMethod {
         this.value = value;
     }
 
-    public String getServiceId() {
+    public Integer getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(Integer serviceId) {
         this.serviceId = serviceId;
     }
 }

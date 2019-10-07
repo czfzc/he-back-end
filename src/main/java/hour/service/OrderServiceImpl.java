@@ -2,6 +2,7 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hour.model.MoreProduct;
 import hour.model.Preorder;
 import hour.repository.*;
@@ -54,6 +55,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     MoreProductRepository moreProductRepository;
+
+    @Autowired
+    UserProductService userProductService;
+
+    @Autowired
+    ShopProductService shopProductService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -195,7 +202,9 @@ public class OrderServiceImpl implements OrderService {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return this.orderXmlToJson(prepay, appid, mykey);
+        JSONObject toret = this.orderXmlToJson(prepay, appid, mykey);
+        toret.put("orderId",orderid);
+        return toret;
     }
 
     /**
@@ -253,9 +262,24 @@ public class OrderServiceImpl implements OrderService {
                 i.remove();
                 continue;
             }
-            order.setPreorder(preorderService.getAllPreorderByOrderId(order.getOrderId()));
+            order.setPreorder(preorders);
         }
         return orders;
+    }
+
+
+    /**
+     * 获取单个订单
+     */
+    @Override
+    public Order getOrderById(String orderId){
+        System.out.println("orderid = "+orderId);
+        Order order=orderRepository.findByOrderId(orderId);
+        if(order == null)
+            throw new RuntimeException("invalid order_id");
+        List<Preorder> preorders=preorderService.getAllPreorderByOrderId(orderId);
+        order.setPreorder(preorders);
+        return order;
     }
 
     /**
@@ -310,6 +334,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Value("${express.card.product-id}")
     String expressCardProductId;
+
     @Override
     public double calcuTotal(JSONArray preorders){
 
@@ -319,8 +344,19 @@ public class OrderServiceImpl implements OrderService {
             JSONObject preorder=preorders.getJSONObject(i);
             if(preorder.getInteger("service_id")==1){  //快递代取服务的id为1
                 sum+=preorderService.cacuExpressTotalByObject(preorder);
+            }else if(preorder.getInteger("service_id")==2){
+                sum+=shopProductService.calcuTotal(preorder.getJSONArray("products"));
             }else if(preorder.getInteger("service_id")==9){
                 sum+=moreProductRepository.findFirstByProductId(expressCardProductId).getSum();
+            }
+            Integer status = preorder.getInteger("status");
+            List<MoreProduct> list = moreProductRepository.
+                    findAllByServiceIdAndAddition(2,
+                            String.valueOf(status==null ?
+                                    -1:status));
+            for(int j=0;j<list.size();j++){
+                MoreProduct moreProduct = list.get(j);
+                sum+=moreProduct.getSum();
             }
         }
 
@@ -369,15 +405,51 @@ public class OrderServiceImpl implements OrderService {
             if(preorder.getServiceId()==1) {          //快递预付单的支付完成办法
                 wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
                         order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId());
+            }else if(preorder.getServiceId()==2){
+                ret=userProductService.finishPayed(preorder);
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
                 wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId());
+                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId()); //推送
                 ret=expressMonthCardService.reNew(preorder.getUserId());
             }
         }
-        if(!ret)
-            throw new RuntimeException("fail");
-        else
+        if(!ret) {
+            //此处处理失败的情况
+            throw new RuntimeException("fail to finish pay");
+        }else
             return true;
+    }
+
+    /**
+     * 用于controller层获取总价
+     * @param data
+     * @return
+     */
+
+    @Override
+    public JSONObject getTotal(JSONObject data){
+        JSONArray preordersJson=data.getJSONArray("preorders");
+        JSONObject toret = new JSONObject();
+        toret.put("total",this.calcuTotal(preordersJson));
+        toret.put("status",true);
+        JSONArray extra = new JSONArray();
+        for(int i=0;i<preordersJson.size();i++){
+            JSONObject preorder = preordersJson.getJSONObject(i);
+            if(preorder.getInteger("service_id")==2){
+                List<MoreProduct> moreProducts = moreProductRepository.
+                        findAllByServiceIdAndAddition(2,String.valueOf(preorder.getInteger("status")));
+                for(int j=0;j<moreProducts.size();j++){
+                    MoreProduct moreProduct = moreProducts.get(j);
+                    extra.add(new JSONObject(){
+                        {
+                            this.put("name",moreProduct.getProductName());
+                            this.put("price",moreProduct.getSum());
+                        }
+                    });
+                }
+            }
+        }
+        toret.put("extra",extra);
+        return toret;
     }
 }

@@ -23,4 +23,7 @@ public interface PreorderService {
 
     double cacuExpressTotalByObject(JSONObject preorder);
 
+    Page<Preorder> getProductSendPreorderByBuildingId(String building_id, Integer page, Integer size);
+
+    Page<Preorder> getProductWithdrawPreorderByBuildingId(String building_id, Integer page, Integer size);
 }

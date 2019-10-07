@@ -15,6 +15,24 @@ public class MoreProduct {
     String productName;
     Double sum;
     boolean abled;
+    Integer serviceId;
+    String addition;
+
+    public Integer getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Integer serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getAddition() {
+        return addition;
+    }
+
+    public void setAddition(String addition) {
+        this.addition = addition;
+    }
 
     public String getProductName() {
         return productName;

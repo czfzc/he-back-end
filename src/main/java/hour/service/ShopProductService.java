@@ -24,4 +24,6 @@ public interface ShopProductService {
 
     Page<Product> getShopProductByBuildingIdAndTypeId(String buildingId, String typeId,
                                                       int page, int size);
+
+    double calcuTotal(JSONArray products);
 }

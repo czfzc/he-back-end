@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.*;
 import hour.repository.*;
+import hour.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -73,7 +74,8 @@ public class PreorderServiceImpl implements PreorderService{
         for(Iterator<Preorder> i=list.iterator();i.hasNext();){
             Preorder preorder=i.next();
 
-            if(!serviceRepository.findById(preorder.getServiceId()).get().isShow()) {
+            hour.model.Service service = serviceRepository.findById(preorder.getServiceId()).get();
+            if(!service.isShow()) {
                 i.remove();
                 continue;
             }
@@ -99,10 +101,14 @@ public class PreorderServiceImpl implements PreorderService{
         Page<Preorder> pages=preorderRepository.findAll(pageable);
 
         for(Iterator<Preorder> i=pages.iterator();i.hasNext();){
-            Preorder p=i.next();
-            if(p.getAddressId()==null) continue;
-            p.setAddress(addressRepository.findById(p.getAddressId()).get());
-            p.setExpress(expressRepository.findAllByPreorderId(p.getId()));
+            Preorder preorder=i.next();
+            if(preorder.getServiceId()==1){ //快递代取
+                preorder.setExpress(expressService.getExpress(preorder.getId()));
+                preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+            }else if(preorder.getServiceId()==2){ //零食外送
+                preorder.setUserProduct(userProductService.getUserProducts(preorder.getId()));
+                preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+            }
         }
         return pages;
     }
@@ -147,6 +153,7 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setUserId(user_id);
                 preorder.setServiceId(1);
                 preorder.setStatus(0);
+                preorder.setStatusData("0");
                 preorder.setPayed(0);
                 preorder.setAbled(true);
                 preorder.setSendMethodId(send_method_id);
@@ -167,6 +174,7 @@ public class PreorderServiceImpl implements PreorderService{
                 String address_id = jo.getString("address_id");
                 String send_method_id = jo.getString("send_method_id");
                 String addition = jo.getString("addition");
+                Integer status = jo.getInteger("status");
                 Preorder preorder = new Preorder();
                 preorder.setTotalFee(0D);
                 preorder.setAddressId(address_id);
@@ -174,7 +182,14 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setOrderId(order_id);
                 preorder.setUserId(user_id);
                 preorder.setServiceId(2);
-                preorder.setStatus(0);
+                preorder.setStatus(status);
+                Address address = addressRepository.findById(address_id).get();
+                preorder.setExtraData(address.getBuildId()); //零食预付单的extra_data为楼号
+                if(status == 0 || status == 1){
+                    preorder.setStatusData("0");
+                }else{
+                    throw new RuntimeException("Invalid preorder status");
+                }
                 preorder.setPayed(0);
                 preorder.setAbled(true);
                 preorder.setSendMethodId(send_method_id);
@@ -185,7 +200,18 @@ public class PreorderServiceImpl implements PreorderService{
 
                 if(userProductService.addUserProducts(products,preorder_id,user_id,time)){
                     Double total = userProductService.getTotalPrice(preorder_id);
+
+                    List<MoreProduct> list = moreProductRepository.
+                            findAllByServiceIdAndAddition(2,
+                                    String.valueOf(status==null ?
+                                            -1:status));
+                    for(int j=0;j<list.size();j++){
+                        MoreProduct moreProduct = list.get(j);
+                        total+=moreProduct.getSum();
+                    }
+
                     preorder.setTotalFee(total);
+
                     preorderRepository.save(preorder);
                 }else throw new RuntimeException("unify order fail");
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
@@ -222,7 +248,7 @@ public class PreorderServiceImpl implements PreorderService{
 
     @Override
     public Page<Preorder> searchPreorderById(String value, Integer page, Integer size){
-        org.springframework.data.domain.Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
         Page<Preorder> preorder=preorderRepository.findAllByIdContaining(value,pageable);
         return preorder;
     }
@@ -250,6 +276,42 @@ public class PreorderServiceImpl implements PreorderService{
             for(int i=0;i<express.size();i++)
                 sum+=expressService.getTotalByObject(express.getJSONObject(i));
         return sum;
+    }
+
+    @Override
+    public Page<Preorder> getProductSendPreorderByBuildingId(String building_id, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Preorder> ret = null;
+        if(building_id == null){
+            ret = preorderRepository.findByServiceIdAndStatusAndPayed(2,0,1,pageable);
+        }else{
+            ret = preorderRepository.findByServiceIdAndStatusAndPayedAndExtraData(2,0,1,building_id,pageable);
+        }
+        List<Preorder> list = ret.getContent();
+        for(Iterator<Preorder> i=list.iterator();i.hasNext();){
+            Preorder preorder=i.next();
+            preorder.setUserProduct(userProductService.getUserProducts(preorder.getId()));
+            preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+        }
+        return ret;
+    }
+
+    @Override
+    public Page<Preorder> getProductWithdrawPreorderByBuildingId(String building_id, Integer page, Integer size){
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
+        Page<Preorder> ret = null;
+        if(building_id == null){
+            ret = preorderRepository.findByServiceIdAndStatusAndPayed(2,1,1,pageable);
+        }else{
+            ret = preorderRepository.findByServiceIdAndStatusAndPayedAndExtraData(2,1,1,building_id,pageable);
+        }
+        List<Preorder> list = ret.getContent();
+        for(Iterator<Preorder> i=list.iterator();i.hasNext();){
+            Preorder preorder=i.next();
+            preorder.setUserProduct(userProductService.getUserProducts(preorder.getId()));
+            preorder.setAddress(addressRepository.findById(preorder.getAddressId()).get());
+        }
+        return ret;
     }
 
 }

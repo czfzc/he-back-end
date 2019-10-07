@@ -1,9 +1,10 @@
 package hour.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import hour.model.*;
 import hour.repository.*;
 import hour.service.*;
-import jdk.internal.jline.internal.Nullable;
+import org.springframework.lang.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
@@ -81,6 +82,9 @@ public class AdminController {
 
     @Autowired
     ShopProductTypeService shopProductTypeService;
+
+    @Autowired
+    UserProductService userProductService;
 
     /**
      * 登录
@@ -191,7 +195,7 @@ public class AdminController {
      * @return
      */
 
-    @RequestMapping("/get_express_preorder")
+    @RequestMapping("/get_preorder")
     Page<Preorder> getPreorder(@RequestParam("session_key")String session_key,
                                @RequestParam("page")Integer page,@RequestParam("size")Integer size){
         if(adminService.getAdminId(session_key)==null) return null;
@@ -224,11 +228,14 @@ public class AdminController {
     }
 
     @RequestMapping("/get_send_method")
-    List<SendMethod> getSendMethod(@RequestParam("session_key")String session_key){
+    List<SendMethod> getSendMethod(@RequestParam("session_key")String session_key,
+            @RequestParam("service_id")@Nullable Integer service_id){
         String admin_id=adminService.getAdminId(session_key);
         if(admin_id==null)
             return null;
-        return sendMethodService.getSendMethodByServiceId("1");
+        if(service_id == null)
+            return sendMethodService.getSendMethodByServiceId(1);
+        else return sendMethodService.getSendMethodByServiceId(service_id);
     }
 
 
@@ -478,7 +485,7 @@ public class AdminController {
 
     @RequestMapping("/add_send_method")
     String addSendMethod(@RequestParam("session_key")String session_key,
-                         @RequestParam("service_id")String service_id,
+                         @RequestParam("service_id")Integer service_id,
                          @RequestParam("value")String value,
                         @RequestParam("abled")Boolean abled){
         if(adminService.getAdminId(session_key)==null) return createStatus(false);
@@ -493,7 +500,7 @@ public class AdminController {
     @RequestMapping("/edit_send_method")
     String editSendMethod(@RequestParam("session_key")String session_key,
                           @RequestParam("id")String id,
-                          @RequestParam("service_id")String service_id,
+                          @RequestParam("service_id")Integer service_id,
                           @RequestParam("value")String value,
                           @RequestParam("abled")Boolean abled){
         if(adminService.getAdminId(session_key)==null) return createStatus(false);
@@ -651,7 +658,7 @@ public class AdminController {
      * @param addition
      * @return
      */
-    @RequestMapping("edit_shop_product")
+    @RequestMapping("/edit_shop_product")
     String editShopProduct(
                           @RequestParam("product_id")@NotNull
                                   String product_id,
@@ -685,7 +692,7 @@ public class AdminController {
      * @param session_key
      * @return
      */
-    @RequestMapping("remove_shop_product")
+    @RequestMapping("/remove_shop_product")
     String removeShopProduct(@RequestParam("product_id")@NotNull String product_id,
                              @RequestParam("session_key")@NotNull String session_key){
         if(adminService.getAdminId(session_key)==null)
@@ -736,7 +743,7 @@ public class AdminController {
      * @param addition
      * @return
      */
-    @RequestMapping("add_shop_product_type")
+    @RequestMapping("/add_shop_product_type")
     String addShopProductType(@RequestParam("session_key")@NotNull String session_key,
                               @RequestParam("name")@NotNull String name,
                               @RequestParam("building_id")@NotNull String building_id,
@@ -757,7 +764,7 @@ public class AdminController {
      * @param addition
      * @return
      */
-    @RequestMapping("edit_shop_product_type")
+    @RequestMapping("/edit_shop_product_type")
     String editShopProductType(@RequestParam("session_key")@NotNull String session_key,
                               @RequestParam("type_id")@NotNull String type_id,
                               @RequestParam("name")@NotNull String name,
@@ -775,7 +782,7 @@ public class AdminController {
      * @param type_id
      * @return
      */
-    @RequestMapping("remove_product_type")
+    @RequestMapping("/remove_product_type")
     String removeProductType(@RequestParam("session_key")@NotNull String session_key,
                              @RequestParam("type_id")@Nullable String type_id){
         if(adminService.getAdminId(session_key)==null)
@@ -784,16 +791,54 @@ public class AdminController {
         return createStatus(status);
     }
 
-    @RequestMapping("get_shop_product_type")
+    @RequestMapping("/get_shop_product_type")
     List<ProductType> getShopProductType(@RequestParam("session_key")@NotNull String session_key,
                                          @RequestParam("building_id")@Nullable String building_id){
         if(adminService.getAdminId(session_key)==null)
             throw new RuntimeException("invalid admin session_key");
-        boolean status = false;
         if(building_id!=null) {
             return shopProductTypeService.getShopProductTypeByBuildingId(building_id);
         }else return shopProductTypeService.getShopProductType();
     }
 
+    @RequestMapping("/set_product_preorder_sended")
+    String setProductPreorderSended(@RequestParam("session_key")@NotNull String session_key,
+                                    @RequestParam("preorder_id")@NotNull String preorder_id){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        boolean status = userProductService.setProductPreorderSended(preorder_id);
+        return createStatus(status);
+    }
+
+    @RequestMapping("/get_product_preorder_send")
+    Page<Preorder> getProductPreorderSend(@RequestParam("session_key")@NotNull String session_key,
+                                      @RequestParam("building_id")@Nullable String building_id,
+                                      @RequestParam("page")@Nullable Integer page,
+                                      @RequestParam("size")@Nullable Integer size){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        if(page == null)page = 0;
+        if(size == null)size = 10;
+        return preorderService.getProductSendPreorderByBuildingId(building_id,page,size);
+    }
+
+    @RequestMapping("/get_product_preorder_withdraw")
+    Page<Preorder> getProductPreorderWithdraw(@RequestParam("session_key")@NotNull String session_key,
+                                      @RequestParam("building_id")@Nullable String building_id,
+                                      @RequestParam("page")@Nullable Integer page,
+                                      @RequestParam("size")@Nullable Integer size){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        if(page == null)page = 0;
+        if(size == null)size = 10;
+        return preorderService.getProductWithdrawPreorderByBuildingId(building_id,page,size);
+    }
+
+    @RequestMapping("/get_cos_credentials")
+    JSONObject getCosCredentials(@RequestParam("session_key")@NotNull String session_key){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        return adminService.getCredentials();
+    }
 
 }

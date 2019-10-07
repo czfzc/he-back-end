@@ -40,7 +40,7 @@ public class RefundController {
 
         String user_id=userService.getUserId(mysession);
         if(user_id==null) return createStatus(false);
-        return refundService.userRefundOrder(user_id,order_id,mysession);
+        return refundService.userRefundOrder(user_id,order_id,reason);
     }
 
 }

@@ -1,6 +1,7 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
+import hour.model.Preorder;
 import hour.model.UserProduct;
 
 import java.util.Date;
@@ -13,4 +14,8 @@ public interface UserProductService {
     double getTotalPrice(String preorder_id);
 
     List<UserProduct> getUserProducts(String preorderId);
+
+    boolean finishPayed(Preorder preorder);
+
+    boolean setProductPreorderSended(String preorder_id);
 }

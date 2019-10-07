@@ -15,4 +15,8 @@ public interface PreorderRepository extends JpaRepository<Preorder,String> {
 
     Page<Preorder> findAllByUserIdContaining(String value, Pageable pageable);
 
+    Page<Preorder> findByServiceIdAndStatusAndPayedAndExtraData(Integer serviceId,Integer status,Integer payed,String extraData,Pageable pageable);
+
+    Page<Preorder> findByServiceIdAndStatusAndPayed(Integer serviceId,Integer status,Integer payed,Pageable pageable);
+
 }

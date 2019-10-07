@@ -19,6 +19,6 @@ public class BuildingController {
 
     @RequestMapping("/get_building")
     List<Building> getBuilding(){
-        return buildingRepository.findAll();
+        return buildingRepository.findAllByAbledTrue();
     }
 }

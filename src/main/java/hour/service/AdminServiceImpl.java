@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.qcloudsms.SmsSingleSender;
 import hour.model.Admin;
 import hour.repository.AdminRepository;
+import hour.util.COSUtil;
 import hour.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.TreeMap;
 
 import static hour.util.CodeUtil.md5;
 import static hour.util.StringUtil.createStatus;
@@ -112,5 +114,54 @@ public class AdminServiceImpl implements AdminService {
             return admin.getAdminId();
         throw new RuntimeException("invalid session_key");
     }
+
+    /**
+     * 腾讯云对象存储获取临时秘钥
+     */
+
+    @Value("${tx.cos.SecretId}")
+    String secretId;
+
+    @Value("${tx.cos.SecretKey}")
+    String secretKey;
+
+    @Value("${tx.cos.durationSeconds}")
+    Integer durationSeconds;
+
+    @Value("${tx.cos.bucket}")
+    String bucket;
+
+    @Value("${tx.cos.region}")
+    String region;
+
+    @Value("${tx.cos.allowPrefix}")
+    String allowPrefix;
+
+    @Override
+    public JSONObject getCredentials(){
+        try {
+            TreeMap<String, Object> map = new TreeMap<String, Object>();
+            map.put("SecretId", secretId);
+            map.put("SecretKey", secretKey);
+            map.put("durationSeconds", durationSeconds);
+            map.put("bucket", bucket);
+            map.put("region", region);
+            map.put("allowPrefix", allowPrefix);
+            // 密钥的权限列表。简单上传和分片需要以下的权限，其他权限列表请看 https://cloud.tencent.com/document/product/436/31923
+            String[] allowActions = new String[]{
+                    // 简单上传
+                    "name/cos:PutObject",
+                    "name/cos:PostObject",
+            };
+            map.put("allowActions", allowActions);
+            JSONObject jo = COSUtil.getCredential(map);
+            System.out.println(jo.toString());
+            return jo;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

@@ -2,6 +2,7 @@ package hour.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.MoreProduct;
 import hour.util.NetUtil;
 import hour.util.StringUtil;
 import hour.model.Order;
@@ -9,6 +10,7 @@ import hour.repository.OrderRepository;
 import hour.service.OrderService;
 import hour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,8 @@ public class OrderController {
     @ResponseBody
     @RequestMapping("/unified_order")
     String unifiedOrder(@RequestBody JSONObject data,HttpServletRequest httpServletRequest){
+
+        System.out.println(data.toJSONString());
 
         String mysession=data.getString("mysession");
         JSONArray preorders=data.getJSONArray("preorders");
@@ -96,22 +100,31 @@ public class OrderController {
     Page<Order> testOrder(@RequestParam("mysession")String mysession,
                           @RequestParam("page")Integer page, @RequestParam("size")Integer size){
         String user_id=userService.getUserId(mysession);
-        if(user_id==null) return null;
+        if(user_id==null) throw new RuntimeException("invalid mysesion");
         return orderService.getOrderByUserId(user_id,page,size);
     }
 
+    @RequestMapping("/get_order_by_id")
+    Order testOrder(@RequestParam("mysession")String mysession,
+                          @RequestParam("order_id")String order_id){
+        String user_id=userService.getUserId(mysession);
+        if(user_id==null) throw new RuntimeException("invalid mysesion");
+        Order order = orderService.getOrderById(order_id);
+        if(!user_id.equals(order.getUserId())) throw new RuntimeException("invalid orderid");
+        return order;
+    }
+
+    @Value("${shop.extra-fee}")
+    Double extraFee = 1D;
+
     @ResponseBody
     @RequestMapping("/get_total")
-    HashMap getTotal(@RequestBody JSONObject data, HttpServletRequest httpServletRequest){
+    JSONObject getTotal(@RequestBody JSONObject data, HttpServletRequest httpServletRequest){
         String mysession=data.getString("mysession");
-        JSONArray preordersJson=data.getJSONArray("preorders");
 
         String user_id=userService.getUserId(mysession);
-        if(user_id==null) return null;
-        HashMap map=new HashMap();
+        if(user_id==null) throw new RuntimeException("invalid mysesion");
 
-        map.put("total",orderService.calcuTotal(preordersJson));
-        map.put("status",true);
-        return map;
+        return orderService.getTotal(data);
     }
 }

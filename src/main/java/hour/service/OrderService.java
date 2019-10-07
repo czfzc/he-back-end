@@ -1,6 +1,7 @@
 package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import hour.model.Order;
 import org.springframework.data.domain.Page;
 
@@ -34,6 +35,8 @@ public interface OrderService {
 
     Page<Order> getOrder(Integer page, Integer size);
 
+    Order getOrderById(String orderId);
+
     Long getCount();
 
     Page<Order> searchOrderById(String value, Integer page, Integer size);
@@ -44,4 +47,6 @@ public interface OrderService {
     double calcuTotal(JSONArray preorders);
 
     Page<Order> getOrderByUserId(String user_id, Integer page, Integer size);
+
+    JSONObject getTotal(JSONObject data);
 }

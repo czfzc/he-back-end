@@ -16,9 +16,7 @@ public class ProductType {
     @GeneratedValue(generator = "idGenerator")
     String id;
     String name;
-    @JsonIgnore
     String buildingId;
-    @JsonIgnore
     boolean abled;
     String addition;
 

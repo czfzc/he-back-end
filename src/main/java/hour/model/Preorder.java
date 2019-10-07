@@ -38,6 +38,24 @@ public class Preorder {
     @JsonIgnore
     private String productId;
     private String addition;
+    private String statusData;
+    private String extraData;
+
+    public String getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(String extraData) {
+        this.extraData = extraData;
+    }
+
+    public String getStatusData() {
+        return statusData;
+    }
+
+    public void setStatusData(String statusData) {
+        this.statusData = statusData;
+    }
 
     public List<UserProduct> getUserProduct() {
         return userProduct;

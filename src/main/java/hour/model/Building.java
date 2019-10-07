@@ -14,7 +14,26 @@ public class Building {
     String id;
     String name;
     String position;
+    String addition;
+    String addition2;
+
+    public String getAddition2() {
+        return addition2;
+    }
+
+    public void setAddition2(String addition2) {
+        this.addition2 = addition2;
+    }
+
     boolean abled;
+
+    public String getAddition() {
+        return addition;
+    }
+
+    public void setAddition(String addition) {
+        this.addition = addition;
+    }
 
     public boolean isAbled() {
         return abled;

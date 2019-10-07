@@ -7,5 +7,5 @@ import java.util.List;
 
 
 public interface SendMethodRepository extends JpaRepository<SendMethod, String> {
-    List<SendMethod> findAllByServiceId(String service_id);
+    List<SendMethod> findAllByServiceId(Integer service_id);
 }

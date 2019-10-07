@@ -2,10 +2,13 @@ package hour.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import hour.model.Preorder;
 import hour.model.Product;
 import hour.model.UserProduct;
+import hour.repository.PreorderRepository;
 import hour.repository.ShopProductRepository;
 import hour.repository.UserProductRepository;
+import hour.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,9 @@ public class UserProductServiceImpl implements UserProductService  {
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    PreorderRepository preorderRepository;
+
     /**
      * 用户下单添加商品至用户已购买的表
      * @param jsonArray
@@ -40,6 +46,9 @@ public class UserProductServiceImpl implements UserProductService  {
             JSONObject jo = jsonArray.getJSONObject(i);
             UserProduct userProduct = new UserProduct();
             Product product = shopProductRepository.findById(jo.getString("product_id")).get();
+            int num = jo.getInteger("num");
+            if(num>product.getRest())
+                return false;
             userProduct.setAbled(true);
             userProduct.setNum(jo.getInteger("num"));
             userProduct.setTotalFee(product.getPrice()*jo.getInteger("num"));
@@ -49,7 +58,7 @@ public class UserProductServiceImpl implements UserProductService  {
             userProduct.setProductId(jo.getString("product_id"));
             userProductRepository.save(userProduct);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -70,5 +79,41 @@ public class UserProductServiceImpl implements UserProductService  {
         return list;
     }
 
+    /**
+     * 完成service id为2的预付单
+     * @param preorder
+     * @return
+     */
+
+    @Override
+    public boolean finishPayed(Preorder preorder){
+        if(preorder == null && preorder.getServiceId() != 2)
+            return false;
+        List<UserProduct> list = userProductRepository.findAllByPreorderId(preorder.getId());
+        for(int i=0;i<list.size();i++){
+            UserProduct userProduct = list.get(i);
+            String productId = userProduct.getProductId();
+            int num = userProduct.getNum();
+            Product product = shopProductRepository.findById(productId).get();
+            product.setRest(product.getRest()-num);
+            if(product.getRest()<0)
+                product.setRest(0);
+            shopProductRepository.save(product);
+        }
+        if(preorder.getStatus()==1){
+            preorder.setStatusData(StringUtil.getRandom(6));
+            preorder.setPayed(1);
+            preorderRepository.save(preorder);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean setProductPreorderSended(String preorder_id){
+        Preorder preorder = preorderRepository.findById(preorder_id).get();
+        if(preorder == null||preorder.getServiceId()==3) throw new RuntimeException("invalid preorder_id");
+        preorder.setStatus(3);
+        return preorderRepository.save(preorder).getStatus()==3;
+    }
 
 }
