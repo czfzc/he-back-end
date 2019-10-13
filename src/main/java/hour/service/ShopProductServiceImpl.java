@@ -22,7 +22,7 @@ public class ShopProductServiceImpl implements ShopProductService{
     @Override
     public Page<Product> findByBuildingIdAndTypeId(String buildingId, String typeId, int size, int page) {
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "typeId");
-        return shopProductRepository.findAllByBuildingIdAndTypeIdAndAbledTrueAndDeledFalse(buildingId,typeId,pageable);
+        return shopProductRepository.findAllByBuildingIdAndTypeIdAndRestGreaterThanAndAbledTrueAndDeledFalse(buildingId,typeId,0,pageable);
     }
 
     @Override
@@ -68,19 +68,19 @@ public class ShopProductServiceImpl implements ShopProductService{
     @Override
     public Page<Product> getAllShopProduct(int page,int size){
         Pageable pageable =
-                new PageRequest(page,size, Sort.Direction.DESC,"buildingId");
+                new PageRequest(page,size, Sort.Direction.DESC,"time");
         return shopProductRepository.findAll(pageable);
     }
 
     @Override
     public Page<Product> getShopProductByBuildingId(String buildingId,int page,int size){
-        Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"typeId");
+        Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"time");
         return shopProductRepository.findAllByBuildingIdAndDeledFalse(buildingId,pageable);
     }
 
     @Override
     public Page<Product> getShopProductByTypeId(String typeId,int page,int size){
-        Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"buildingId");
+        Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"time");
         return shopProductRepository.findAllByTypeIdAndDeledFalse(typeId,pageable);
     }
 
@@ -90,6 +90,13 @@ public class ShopProductServiceImpl implements ShopProductService{
         Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"time");
         return shopProductRepository.findAllByBuildingIdAndTypeIdAndDeledFalse(buildingId,typeId,pageable);
     }
+
+    @Override
+    public Page<Product> searchProduct(String buildingId,String value,int page,int size){
+        Pageable pageable = new PageRequest(page,size, Sort.Direction.DESC,"time");
+        return shopProductRepository.findAllByNameIsContainingAndBuildingId(value,buildingId,pageable);
+    }
+
 
     @Override
     public double calcuTotal(JSONArray products) {

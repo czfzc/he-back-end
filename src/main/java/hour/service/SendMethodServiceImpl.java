@@ -17,4 +17,9 @@ public class SendMethodServiceImpl implements SendMethodService {
     public List<SendMethod> getSendMethodByServiceId(Integer service_id){
         return sendMethodRepository.findAllByServiceId(service_id);
     }
+
+    @Override
+    public List<SendMethod> getAllSendMethod() {
+        return sendMethodRepository.findAll();
+    }
 }

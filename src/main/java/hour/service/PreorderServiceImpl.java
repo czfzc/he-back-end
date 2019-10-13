@@ -58,6 +58,9 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     UserProductRepository userProductRepository;
 
+    @Autowired
+    BuildingRepository buildingRepository;
+
 
     @Override
     public double calculateTotal(String order_id) {
@@ -169,12 +172,24 @@ public class PreorderServiceImpl implements PreorderService{
                     preorderRepository.save(preorder);
                 }else throw new RuntimeException("unify order fail");
             }else if(jo.getInteger("service_id")==2){   //零食上门业务预付单
+
                 Date time = new Date();
                 JSONArray products = jo.getJSONArray("products");
                 String address_id = jo.getString("address_id");
                 String send_method_id = jo.getString("send_method_id");
                 String addition = jo.getString("addition");
                 Integer status = jo.getInteger("status");
+                Address address = addressRepository.findById(address_id).get();
+                if(address==null)
+                    throw new RuntimeException("无效的address_id");
+                Building building = buildingRepository.findFirstById(address.getBuildId());
+                if(!building.isShopAbled())
+                    throw new RuntimeException("现在零食店已打烊");
+                if(status==0&&!building.isShopSendAbled())
+                    throw new RuntimeException("现在不可以提供上门服务");
+                if(status==1&&!building.isShopWithdrawAbled())
+                    throw new RuntimeException("现在不可以提供自提服务");
+
                 Preorder preorder = new Preorder();
                 preorder.setTotalFee(0D);
                 preorder.setAddressId(address_id);
@@ -183,7 +198,6 @@ public class PreorderServiceImpl implements PreorderService{
                 preorder.setUserId(user_id);
                 preorder.setServiceId(2);
                 preorder.setStatus(status);
-                Address address = addressRepository.findById(address_id).get();
                 preorder.setExtraData(address.getBuildId()); //零食预付单的extra_data为楼号
                 if(status == 0 || status == 1){
                     preorder.setStatusData("0");
@@ -213,7 +227,7 @@ public class PreorderServiceImpl implements PreorderService{
                     preorder.setTotalFee(total);
 
                     preorderRepository.save(preorder);
-                }else throw new RuntimeException("unify order fail");
+                }else throw new RuntimeException("统一下单失败");
             }else if(jo.getInteger("service_id")==9){   //购买月代取卡
 
                 MoreProduct moreProduct=moreProductRepository.

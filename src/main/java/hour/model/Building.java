@@ -16,6 +16,33 @@ public class Building {
     String position;
     String addition;
     String addition2;
+    boolean shopAbled;
+    boolean shopWithdrawAbled;
+    boolean shopSendAbled;
+
+    public boolean isShopAbled() {
+        return shopAbled;
+    }
+
+    public void setShopAbled(boolean shopAbled) {
+        this.shopAbled = shopAbled;
+    }
+
+    public boolean isShopWithdrawAbled() {
+        return shopWithdrawAbled;
+    }
+
+    public void setShopWithdrawAbled(boolean shopWithdrawAbled) {
+        this.shopWithdrawAbled = shopWithdrawAbled;
+    }
+
+    public boolean isShopSendAbled() {
+        return shopSendAbled;
+    }
+
+    public void setShopSendAbled(boolean shopSendAbled) {
+        this.shopSendAbled = shopSendAbled;
+    }
 
     public String getAddition2() {
         return addition2;

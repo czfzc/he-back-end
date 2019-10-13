@@ -56,6 +56,7 @@ public class UserProductServiceImpl implements UserProductService  {
             userProduct.setUserid(userid);
             userProduct.setTime(new Date());
             userProduct.setProductId(jo.getString("product_id"));
+            userProduct.setName(product.getName());
             userProductRepository.save(userProduct);
         }
         return true;

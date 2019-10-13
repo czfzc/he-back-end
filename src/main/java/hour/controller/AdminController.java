@@ -36,6 +36,9 @@ public class AdminController {
     PreorderRepository preorderRepository;
 
     @Autowired
+    ShopProductRepository shopProductRepository;
+
+    @Autowired
     OrderService orderService;
 
     @Autowired
@@ -234,7 +237,7 @@ public class AdminController {
         if(admin_id==null)
             return null;
         if(service_id == null)
-            return sendMethodService.getSendMethodByServiceId(1);
+            return sendMethodService.getAllSendMethod();
         else return sendMethodService.getSendMethodByServiceId(service_id);
     }
 
@@ -839,6 +842,17 @@ public class AdminController {
         if(adminService.getAdminId(session_key)==null)
             throw new RuntimeException("invalid admin session_key");
         return adminService.getCredentials();
+    }
+
+    @RequestMapping("/search_shop_product_by_name")
+    Page<Product> searchShopProductByName(@RequestParam("session_key")@NotNull String session_key,
+                                          @RequestParam("building_id")String building_id,
+                                          @RequestParam("value")String value,
+                                          @RequestParam("page")@Nullable Integer page,
+                                          @RequestParam("size")@Nullable Integer size){
+        if(adminService.getAdminId(session_key)==null)
+            throw new RuntimeException("invalid admin session_key");
+        return shopProductService.searchProduct(building_id,value,page,size);
     }
 
 }

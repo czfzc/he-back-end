@@ -62,7 +62,8 @@ public class UserServiceImpl implements UserService{
                             this.put("mysession", user.getMysession());
                             this.put("registed", true);
                             this.put("user_id", user.getUserId());
-                            this.put("has_info",user.getUnionId()!=null);
+                         //   this.put("has_info",user.getUnionId()!=null);
+                            this.put("has_info",true);
                         }
                     }.toJSONString();
                 }
