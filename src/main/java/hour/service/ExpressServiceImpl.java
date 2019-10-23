@@ -51,6 +51,9 @@ public class ExpressServiceImpl implements ExpressService {
     @Autowired
     PreorderRepository preorderRepository;
 
+    @Autowired
+    ExpressSizeRepository expressSizeRepository;
+
     @Value("${express.voucher-type-id}")
     String type_id;
     @Value("${express.max-express-count}")
@@ -59,7 +62,6 @@ public class ExpressServiceImpl implements ExpressService {
     @Override
     public boolean addExpress(JSONArray expresses,String preorder_id,
                               String address_id,String user_id, String send_method_id) {
-        System.out.println("hahahahaha");
         if(expresses==null) throw new RuntimeException("unify order fail");;
         if(expresses.size()==0||expresses.size()>expressMaxExpressCount)
             throw new RuntimeException("unify order fail");
@@ -80,9 +82,11 @@ public class ExpressServiceImpl implements ExpressService {
 
             User user=userRepository.findByUserId(user_id);
 
+            ExpressSize size=expressSizeRepository.findById(size_id).get();
+
             if(discount!=null&&discount.equals("voucher")&&voucherService.useVoucher(user.getMainId(),type_id)){
                 //do nothing
-            }else if(discount!=null&&discount.equals("express_card")&&expressMonthCardService.useItForTimes(user_id,1)){
+            }else if(discount!=null&&discount.equals("express_card")&&expressMonthCardService.useItForTimes(user_id,size.getCardTimes())){
                 //do nothing
             }else total_fee=this.getTotal(express_point_id,address_id,size_id,send_method_id);
 

@@ -13,7 +13,16 @@ public class ExpressSize {
     @GeneratedValue(generator="idGenerator")
     String sizeId;
     String sizeName;
+    int cardTimes;
     boolean abled;
+
+    public int getCardTimes() {
+        return cardTimes;
+    }
+
+    public void setCardTimes(int cardTimes) {
+        this.cardTimes = cardTimes;
+    }
 
     public boolean isAbled() {
         return abled;

@@ -61,6 +61,8 @@ public class PreorderServiceImpl implements PreorderService{
     @Autowired
     BuildingRepository buildingRepository;
 
+    @Autowired
+    CardTypeRepository cardTypeRepository;
 
     @Override
     public double calculateTotal(String order_id) {
@@ -228,15 +230,14 @@ public class PreorderServiceImpl implements PreorderService{
 
                     preorderRepository.save(preorder);
                 }else throw new RuntimeException("统一下单失败");
-            }else if(jo.getInteger("service_id")==9){   //购买月代取卡
+            }else if(jo.getInteger("service_id")==9){   //购买卡片
 
+                CardType cardType = cardTypeRepository.findById(jo.getString("card_type_id")).get();
                 MoreProduct moreProduct=moreProductRepository.
-                        findFirstByProductId("09201921"); //月卡产品的产品id为09201921
+                        findFirstByProductId(cardType.getMoreProductId());
                 if(moreProduct==null) return false;
                 Double total=0D;
-                if(expressMonthCardService.isNoCard(user_id)){
-                    total=firstCardPrice;
-                }else total=moreProduct.getSum();
+                total=moreProduct.getSum();
 
                 Preorder preorder=new Preorder();
                 preorder.setTime(new Date());

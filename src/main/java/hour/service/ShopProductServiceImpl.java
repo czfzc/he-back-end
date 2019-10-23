@@ -21,7 +21,7 @@ public class ShopProductServiceImpl implements ShopProductService{
 
     @Override
     public Page<Product> findByBuildingIdAndTypeId(String buildingId, String typeId, int size, int page) {
-        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "typeId");
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "time");
         return shopProductRepository.findAllByBuildingIdAndTypeIdAndRestGreaterThanAndAbledTrueAndDeledFalse(buildingId,typeId,0,pageable);
     }
 
@@ -38,6 +38,7 @@ public class ShopProductServiceImpl implements ShopProductService{
         product.setImgLink(img_link);
         product.setAddition(addition);
         product.setTime(new Date());
+        product.setSalesVomume(0);
         return shopProductRepository.save(product).getId()!=null;
     }
 
@@ -53,6 +54,7 @@ public class ShopProductServiceImpl implements ShopProductService{
         product.setTypeId(type_id);
         product.setImgLink(img_link);
         product.setAddition(addition);
+        product.setTime(new Date());
         shopProductRepository.save(product);
         return true;
     }

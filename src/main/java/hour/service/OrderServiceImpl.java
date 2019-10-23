@@ -3,12 +3,9 @@ package hour.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import hour.model.MoreProduct;
-import hour.model.Preorder;
+import hour.model.*;
 import hour.repository.*;
 import hour.util.NetUtil;
-import hour.model.Order;
-import hour.model.User;
 import hour.util.StringUtil;
 import hour.util.TimeUtil;
 import org.dom4j.Document;
@@ -62,6 +59,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     ShopProductService shopProductService;
 
+    @Autowired
+    CardService cardService;
+
+    @Autowired
+    CardTypeRepository cardTypeRepository;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String payOrder(String ip, String mysession,JSONArray preorders){
@@ -101,6 +104,53 @@ public class OrderServiceImpl implements OrderService {
             }
         }else throw new RuntimeException("unify order fail");
 
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String cardPayOrder(String user_id, String card_type_id){
+        String ip="127.0.0.1";
+
+        Order order=new Order();
+        User user = userRepository.findByUserId(user_id);
+
+        order.setAbled(true);
+        order.setIp(ip);
+        order.setPayed(0);
+        order.setTime(new Date());
+        order.setTotalFee(0D);
+        order.setUserId(user_id);
+        Order order1=orderRepository.save(order);
+        String order_id=order1.getOrderId();
+
+        JSONArray preorders = new JSONArray(){
+            {
+                this.add(new JSONObject(){
+                    {
+                        this.put("service_id",9);
+                        this.put("card_type_id",card_type_id);
+                    }
+                });
+            }
+        };
+
+        if(preorderService.preorderIt(preorders,order_id,user_id)){
+            double total=preorderService.calculateTotal(order_id);
+            order.setTotalFee(total);
+            orderRepository.save(order);
+            if(total==0){
+                order.setPayed(1);
+                this.finishIt(order_id);
+                Order order2=orderRepository.save(order);
+                return createStatus(order2.getPayed()==1);
+            }else{
+                JSONObject result=this.unifiedorder(order_id,ip,user.getOpenId(),(int)(total*100));
+                String prepay_id=result.getString("package").replaceFirst("prepay_id=","");
+                order1.setPrepayId(prepay_id);
+                orderRepository.save(order1);
+                return result.toJSONString();
+            }
+        }else throw new RuntimeException("unify order fail");
     }
 
     @Value("${order.max-time-min}")
@@ -408,9 +458,10 @@ public class OrderServiceImpl implements OrderService {
             }else if(preorder.getServiceId()==2){
                 ret=userProductService.finishPayed(preorder);
             }else if(preorder.getServiceId()==9){       //快递代取月卡购买预付单的支付完成办法
-                wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
-                        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId()); //推送
-                ret=expressMonthCardService.reNew(preorder.getUserId());
+               // wexinTokenService.pushFinishPayed(order.getPrepayId(),moreProduct.getProductName(),
+                //        order.getTotalFee(),order.getTime(),order.getOrderId(),user.getOpenId()); //推送
+                CardType cardType = cardTypeRepository.findFirstByMoreProductId(preorder.getProductId());
+                ret = cardService.reNew(order.getUserId(),cardType.getCardTypeId());
             }
         }
         if(!ret) {

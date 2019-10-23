@@ -99,6 +99,11 @@ public class UserProductServiceImpl implements UserProductService  {
             product.setRest(product.getRest()-num);
             if(product.getRest()<0)
                 product.setRest(0);
+            Integer salesVolumn=product.getSalesVomume();
+            if(salesVolumn==null)
+                salesVolumn=1;
+            else salesVolumn++;
+            product.setSalesVomume(salesVolumn);
             shopProductRepository.save(product);
         }
         if(preorder.getStatus()==1){

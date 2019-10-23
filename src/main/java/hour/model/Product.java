@@ -41,6 +41,16 @@ public class Product {
     Date time;
     @JsonIgnore
     boolean deled;
+    @NotNull
+    Integer salesVomume;
+
+    public Integer getSalesVomume() {
+        return salesVomume;
+    }
+
+    public void setSalesVomume(Integer salesVomume) {
+        this.salesVomume = salesVomume;
+    }
 
     public boolean isDeled() {
         return deled;

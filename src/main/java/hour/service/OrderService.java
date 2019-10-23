@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hour.model.Order;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +15,9 @@ public interface OrderService {
      */
 
     String payOrder(String ip, String mysession, JSONArray preorders);
+
+    @Transactional(rollbackFor = Exception.class)
+    String cardPayOrder(String user_id, String card_type_id);
 
     String repayOrder(String user_id, String order_id);
 
