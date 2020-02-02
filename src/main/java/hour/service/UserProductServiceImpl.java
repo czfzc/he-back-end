@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import hour.model.Preorder;
 import hour.model.Product;
 import hour.model.UserProduct;
+import hour.model.WriteList;
 import hour.repository.PreorderRepository;
 import hour.repository.ShopProductRepository;
 import hour.repository.UserProductRepository;
+import hour.repository.WriteListRepository;
 import hour.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class UserProductServiceImpl implements UserProductService  {
     @Autowired
     PreorderRepository preorderRepository;
 
+    @Autowired
+    WriteListRepository writeListRepository;
+
     /**
      * 用户下单添加商品至用户已购买的表
      * @param jsonArray
@@ -51,12 +56,16 @@ public class UserProductServiceImpl implements UserProductService  {
                 return false;
             userProduct.setAbled(true);
             userProduct.setNum(jo.getInteger("num"));
-            userProduct.setTotalFee(product.getPrice()*jo.getInteger("num"));
+            userProduct.setTotalFee(Math.abs(product.getPrice()*jo.getInteger("num")));
             userProduct.setPreorderId(preorder_id);
             userProduct.setUserid(userid);
             userProduct.setTime(new Date());
             userProduct.setProductId(jo.getString("product_id"));
             userProduct.setName(product.getName());
+            if(writeListRepository.existsStringByUserId(userid)){
+                WriteList writeList = writeListRepository.findFirstByUserId(userid);
+                userProduct.setTotalFee(Math.abs(userProduct.getTotalFee()*writeList.getDiscount()));
+            }
             userProductRepository.save(userProduct);
         }
         return true;
