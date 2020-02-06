@@ -8,9 +8,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -89,6 +87,14 @@ public class AdminController {
     @Autowired
     UserProductService userProductService;
 
+    @Autowired
+    RcmdCardService rcmdCardService;
+
+    @Autowired
+    AdService adService;
+
+    @Autowired
+    SearchService searchService;
     /**
      * 登录
      * @param admin_id
@@ -855,4 +861,80 @@ public class AdminController {
         return shopProductService.searchProduct(building_id,value,page,size);
     }
 
+    @RequestMapping(value = "/add_rcmd_card",method = RequestMethod.POST)
+    String addRcmdCard(@RequestBody JSONObject rcmdCard){
+        String session_key = rcmdCard.getString("session_key");
+        validate(session_key);
+        return createStatus(rcmdCardService.addRcmdCard(rcmdCard));
+    }
+
+    @RequestMapping("/del_rcmd_card")
+    String delRcmdCard(@RequestParam @NotNull String session_key,
+                       @RequestParam @NotNull String id){
+        validate(session_key);
+        return createStatus(rcmdCardService.delRcmdCardById(id));
+    }
+
+    @RequestMapping("/update_rcmd_card")
+    String updateRcmdCard(@RequestBody JSONObject rcmdCard){
+        String session_key = rcmdCard.getString("session_key");
+        validate(session_key);
+        return createStatus(rcmdCardService.updateRcmdCard(rcmdCard));
+    }
+
+    @RequestMapping("/get_rcmd_card")
+    List<RcmdCard> getRcmdCard(@RequestParam("session_key")@NotNull String session_key){
+        validate(session_key);
+        return rcmdCardService.getAllRcmdCard();
+    }
+
+    @RequestMapping("/add_ad")
+    String addAd(String session_key,String imgs,String uri,boolean abled){
+        validate(session_key);
+        return createStatus(adService.addAd(imgs, uri,abled));
+    }
+
+    @RequestMapping("/del_ad")
+    String delAd(String session_key,String id){
+        validate(session_key);
+        return createStatus(adService.deleteAdById(id));
+    }
+
+    @RequestMapping("/update_ad")
+    String updateAd(String session_key,String id,String imgs,String uri,boolean abled){
+        validate(session_key);
+        return createStatus(adService.updateAdById(id, imgs, uri, abled));
+    }
+
+    @RequestMapping("/get_ads")
+    List<Ad> getAds(String session_key){
+        validate(session_key);
+        return adService.getALlAds();
+    }
+
+    @RequestMapping("/add_search_table")
+    String addSearchTable(String session_key,String rcmd_card_id,String building_id
+                ,String uri,String keywords,Boolean abled){
+        validate(session_key);
+        return createStatus(searchService.addSearchTable(keywords,uri,building_id,rcmd_card_id,abled));
+    }
+
+    @RequestMapping("/update_search_table")
+    String updateSearchTable(String session_key,String id,String rcmd_card_id,String building_id
+            ,String uri,String keywords,Boolean abled){
+        validate(session_key);
+        return createStatus(searchService.updateSearchTable(id,keywords,uri,building_id,rcmd_card_id,abled));
+    }
+
+    @RequestMapping("/delete_search_table")
+    String deleteSearchTable(String session_key,String id){
+        validate(session_key);
+        return createStatus(searchService.deleteSearchTable(id));
+    }
+
+    @RequestMapping("/get_search_table")
+    Page<SearchTable> getSearchTable(String session_key,Integer page,Integer size){
+        validate(session_key);
+        return searchService.getSearchTable(page,size);
+    }
 }

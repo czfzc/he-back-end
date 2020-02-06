@@ -19,4 +19,6 @@ public interface AddressService {
                         String phone_num, String room_num, String build_id, String addition);
 
     boolean deleteAddress(String address_id, String mysession);
+
+    String getDefaultBuildingIdByUserId(String userId);
 }

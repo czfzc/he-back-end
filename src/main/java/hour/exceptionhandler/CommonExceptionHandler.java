@@ -23,8 +23,8 @@ public class CommonExceptionHandler {
         result.put("status", false);
         result.put("message", e.getMessage());
         //正常开发中，可创建一个统一响应实体，如CommonResp
-           //  throw e;
+             throw e;
    //         LogConfig.LOG.info(e.getMessage());
-        return result;
+    //    return result;
     }
 }

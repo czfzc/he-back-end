@@ -110,6 +110,12 @@ public class AddressServiceImpl implements AddressService{
         return !addressRepository.save(address).isAbled();
     }
 
+    @Override
+    public String getDefaultBuildingIdByUserId(String userId){
+        Address address = addressRepository.findFirstByUserIdAndIsDefaultTrue(userId);
+        return address==null?null:address.getBuildId();
+    }
+
     /**
      * 设置默认收货地址的私有方法
      * @param user_id

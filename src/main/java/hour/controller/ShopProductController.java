@@ -52,4 +52,11 @@ public class ShopProductController {
         return shopProductTypeRepository.findAllByBuildingIdAndAbledTrue(buildingId);
     }
 
+    @RequestMapping("/get_search_from_shop_product")
+    Page<Product> getSearchFromShopProduct(String mysession
+            ,String building_id,String search_value,Integer page,Integer size){
+            String userid = userService.getUserId(mysession);
+            return shopProductService.searchProduct(building_id,search_value,page,size);
+    }
+
 }

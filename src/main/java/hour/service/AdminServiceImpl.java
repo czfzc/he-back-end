@@ -85,10 +85,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public boolean validateSession(String session_key){
         Admin admin= adminRepository.findFirstBySessionKeyAndAbledTrue(session_key);
-        if(admin==null) return false;
+        if(admin==null) throw new RuntimeException("invalid session_key");
         Date lastLoginTime=admin.getLastLoginTime();
-        if(lastLoginTime==null) return false;
-        if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expireMin) return false;
+        if(lastLoginTime==null) throw new RuntimeException("invalid session_key");
+        if(TimeUtil.getTimeDiffMin(new Date(),lastLoginTime)>expireMin) throw new RuntimeException("invalid session_key");
         admin.setLastLoginTime(new Date());
         adminRepository.save(admin);
         return true;
