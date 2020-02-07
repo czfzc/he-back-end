@@ -58,6 +58,10 @@ public class SearchServiceImpl implements SearchService {
             SearchTable searchTable = new SearchTable();
             searchTable.setId(UUID.randomUUID().toString().replace("-",""));
             searchTable.setKey(product.getName());
+            searchTable.setAbled(true);
+            searchTable.setTime(product.getTime());
+            searchTable.setBuildingId(product.getBuildingId());
+            searchTable.setKeywords(product.getName());
             searchTables.add(searchTable);
         }
         return searchTables;
@@ -72,7 +76,7 @@ public class SearchServiceImpl implements SearchService {
      */
 
     @Override
-    public List<SearchTable> getSearchFromSearchTable(String value, String building_id, int size){
+    public List<SearchTable> getSearchProposalFromSearchTable(String value, String building_id, int size){
         PageRequest pageRequest = new PageRequest(0,size);
         List<SearchTable> list = null;
         if (building_id != null) {
@@ -80,7 +84,7 @@ public class SearchServiceImpl implements SearchService {
                     findAllByBuildingIdAndKeywordsContainsAndAbledTrueOrderByTimeDesc(pageRequest,building_id,value).getContent();
         }else{
             list = searchTableRepository.
-                    findAllByKeywordsContainsAndAbledTrueOrderByTimeDesc(pageRequest,building_id,value).getContent();
+                    findAllByKeywordsContainsAndAbledTrueOrderByTimeDesc(pageRequest,value).getContent();
         }
         if(list==null)
             return null;
@@ -109,6 +113,7 @@ public class SearchServiceImpl implements SearchService {
         return list;
     }
 
+
     @Override
     public boolean incCountOfSearchValue(String value, String building_id){
         Search search = searchRepository.findFirstByKeyContains(value);
@@ -119,6 +124,7 @@ public class SearchServiceImpl implements SearchService {
             search.setValue(value);
             search.setBuildingId(building_id);
             search.setAbled(true);
+            search.setUri("");
             return searchRepository.save(search).getId()!=null;
         }else{
             search.setCount(search.getCount()+1);
@@ -168,7 +174,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Page<SearchTable> getSearchTable(int page,int size){
+    public Page<SearchTable> getSearchTable(int page, int size){
         PageRequest pageRequest = new PageRequest(page,size);
         return searchTableRepository.findAllByOrderByTimeDesc(pageRequest);
     }
@@ -193,6 +199,11 @@ public class SearchServiceImpl implements SearchService {
         rcmdCard.setAddition("￥"+product.getPrice());
         rcmdCard.setTop(true);
         rcmdCard.setVisible(true);
+        rcmdCard.setLinkpic(new ArrayList<RcmdCardImg>(){
+            {
+                this.add(rcmdCardImg);
+            }
+        });
         return rcmdCard;
     }
 

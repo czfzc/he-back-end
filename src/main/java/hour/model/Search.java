@@ -3,10 +3,7 @@ package hour.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "search_cache")
@@ -15,7 +12,9 @@ public class Search {
     @GenericGenerator(name="idGenerator",strategy = "uuid")
     @GeneratedValue(generator = "idGenerator")
     String id;
+    @Column(name = "key_of_search")
     String key;
+    @Column(name = "value_of_search")
     String value;
     String uri;
     String buildingId;

@@ -14,7 +14,7 @@ public interface SearchService {
 
     List<SearchTable> getSearchProposalFromShopProduct(String value, String building_id, int size);
 
-    List<SearchTable> getSearchFromSearchTable(String value, String building_id, int size);
+    List<SearchTable> getSearchProposalFromSearchTable(String value, String building_id, int size);
 
     List<RcmdCard> getSearchOfRcmdCardFromProduct(String value, String building_id, int page, int size);
 

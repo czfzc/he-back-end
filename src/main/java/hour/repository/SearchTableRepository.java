@@ -11,7 +11,6 @@ public interface SearchTableRepository extends JpaRepository<SearchTable,String>
                                                                          String building_id,
                                                                          String keyword);
     Page<SearchTable> findAllByKeywordsContainsAndAbledTrueOrderByTimeDesc(Pageable pageable,
-                                                                                        String building_id,
                                                                                         String keyword);
     Page<SearchTable> findAllByOrderByTimeDesc(Pageable pageable);
 }

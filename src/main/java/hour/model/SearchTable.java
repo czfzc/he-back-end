@@ -21,7 +21,7 @@ public class SearchTable {
     boolean abled;
     Date time;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "rcmd_card_id",nullable = true,referencedColumnName = "id")
     RcmdCard rcmdCard;
 

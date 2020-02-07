@@ -34,9 +34,13 @@ public class RcmdCardServiceImpl implements RcmdCardService {
                     findAllByBuildingIdAndAbledTrueAndVisibleTrueOrderByTimeDesc(building_id));
         }
         /*热门商品推荐卡片*/
-        cards.addAll(this.getHotProductRcmdCard(building_id));
+        List<RcmdCard> hot = this.getHotProductRcmdCard(building_id);
+        if(hot!=null)
+            cards.addAll(hot);
         /*用户喜好商品推荐卡片*/
-        cards.addAll(this.getUserPreferRcmdCard(building_id));
+        List<RcmdCard> prefer = this.getUserPreferRcmdCard(building_id);
+        if(prefer!=null)
+            cards.addAll(prefer);
         return cards;
     }
 

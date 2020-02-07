@@ -36,15 +36,20 @@ public class SearchController {
     @RequestMapping("/get_search_hot")
     List<Search> getSearchHot(String mysession, String building_id, Integer size){
         String userid = userService.getUserId(mysession);
-        return searchService.getHotSearch(size,building_id);
+        List<Search> searches = searchService.getHotSearch(size,building_id);
+        if(searches == null)
+            return new ArrayList<Search>();
+        else return searches;
     }
 
     @RequestMapping("/get_search_proposal")
-    List<SearchTable> getSearchProposal(String mysession, String building_id, String value){
+    List<SearchTable> getSearchProposal(String mysession, String building_id, String value,Integer size){
+        if(size == null)
+            size = 10;
         String userid = userService.getUserId(mysession);
         List<SearchTable> list = new ArrayList<>();
-        list.addAll(searchService.getSearchFromSearchTable(value,building_id,10));
-        list.addAll(searchService.getSearchProposalFromShopProduct(value,building_id,10));
+        list.addAll(searchService.getSearchProposalFromSearchTable(value,building_id,size/2));
+        list.addAll(searchService.getSearchProposalFromShopProduct(value,building_id,size/2));
         return list;
     }
 }
